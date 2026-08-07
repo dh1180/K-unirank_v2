@@ -3,3 +3,4 @@ psycopg[binary]>=3.2
 python-dotenv>=1.0
 gunicorn>=23.0
 whitenoise>=6.8
+requests>=2.32

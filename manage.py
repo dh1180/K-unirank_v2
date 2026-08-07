@@ -2,15 +2,17 @@
 import os
 import sys
 
+
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
-        raise ImportError(
-            "Couldn't import Django. Did you install dependencies?"
-        ) from exc
+        raise ImportError("Django를 불러오지 못했습니다.") from exc
+
     execute_from_command_line(sys.argv)
+
 
 if __name__ == "__main__":
     main()

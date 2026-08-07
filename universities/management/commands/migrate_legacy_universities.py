@@ -1,19 +1,29 @@
 import shutil
 import sqlite3
+from collections import defaultdict
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from universities.models import University
+from universities.models import (
+    University,
+    UniversityCampus,
+    UniversityExternalMapping,
+)
+from universities.services.university_normalizer import (
+    campus_label_from_name,
+    canonical_university_name,
+    is_excluded_university,
+)
+
+
+LEGACY_SOURCE = "LEGACY_SQLITE"
 
 
 class Command(BaseCommand):
-    help = (
-        "기존 K-unirank SQLite의 vote_school 데이터를 "
-        "새 University 테이블로 이전합니다."
-    )
+    help = "기존 SQLite의 대학 데이터를 캠퍼스 통합 방식으로 이전합니다."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -21,6 +31,7 @@ class Command(BaseCommand):
             required=True,
             help="기존 SQLite DB 파일 경로",
         )
+
         parser.add_argument(
             "--legacy-media",
             required=False,
@@ -41,83 +52,95 @@ class Command(BaseCommand):
         if legacy_media and not legacy_media.exists():
             raise CommandError(f"media 폴더를 찾을 수 없습니다: {legacy_media}")
 
-        connection = sqlite3.connect(legacy_db)
-        connection.row_factory = sqlite3.Row
-        cursor = connection.cursor()
+        rows = self.read_legacy_rows(legacy_db)
+        groups = defaultdict(list)
+        skipped = 0
 
-        self._validate_legacy_table(cursor)
+        for row in rows:
+            raw_name = (row["school_name"] or "").strip()
 
-        cursor.execute(
-            '''
-            SELECT
-                id,
-                school_name,
-                school_image,
-                school_address
-            FROM vote_school
-            ORDER BY id
-            '''
-        )
+            if not raw_name or is_excluded_university(raw_name):
+                skipped += 1
+                continue
 
-        rows = cursor.fetchall()
-
-        self.stdout.write(f"발견된 대학: {len(rows)}개")
-
-        created_count = 0
-        updated_count = 0
-        copied_count = 0
-        missing_count = 0
-        missing_images = []
+            canonical_name = canonical_university_name(raw_name)
+            groups[canonical_name].append(row)
 
         logo_destination = (
-            settings.BASE_DIR
-            / "static"
-            / "university"
-            / "logos"
+            settings.BASE_DIR / "static" / "university" / "logos"
         )
         logo_destination.mkdir(parents=True, exist_ok=True)
 
-        try:
-            with transaction.atomic():
-                for row in rows:
-                    legacy_id = row["id"]
-                    school_name = (row["school_name"] or "").strip()
-                    school_image = (row["school_image"] or "").strip()
-                    school_address = (row["school_address"] or "").strip()
+        created_count = 0
+        updated_count = 0
+        campus_count = 0
+        copied_count = 0
+        missing_count = 0
 
-                    if not school_name:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"[SKIP] id={legacy_id} 학교명이 없습니다."
-                            )
-                        )
-                        continue
+        with transaction.atomic():
+            for canonical_name, group_rows in sorted(groups.items()):
+                representative = self.pick_representative(
+                    canonical_name,
+                    group_rows,
+                )
 
-                    logo_path = None
+                logo_path = self.build_logo_path(
+                    representative["school_image"]
+                )
 
-                    if school_image:
-                        filename = Path(school_image).name
-                        logo_path = f"university/logos/{filename}"
+                university, created = University.objects.update_or_create(
+                    name=canonical_name,
+                    defaults={
+                        "address": (
+                            representative["school_address"] or None
+                        ),
+                        "logo_path": logo_path,
+                        "is_active": True,
+                    },
+                )
 
-                    _, created = University.objects.update_or_create(
-                        legacy_id=legacy_id,
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+                for row in group_rows:
+                    raw_name = (row["school_name"] or "").strip()
+                    legacy_id = str(row["id"])
+
+                    campus_name = campus_label_from_name(
+                        raw_name,
+                        canonical_name,
+                    )
+
+                    campus, _ = UniversityCampus.objects.update_or_create(
+                        source=LEGACY_SOURCE,
+                        external_code=legacy_id,
                         defaults={
-                            "name": school_name,
-                            "address": school_address or None,
-                            "logo_path": logo_path,
-                            "is_active": True,
+                            "university": university,
+                            "campus_name": campus_name,
+                            "address": row["school_address"] or None,
+                            "is_primary": raw_name == canonical_name,
                         },
                     )
 
-                    if created:
-                        created_count += 1
-                    else:
-                        updated_count += 1
+                    UniversityExternalMapping.objects.update_or_create(
+                        source=LEGACY_SOURCE,
+                        external_code=legacy_id,
+                        defaults={
+                            "university": university,
+                            "campus": campus,
+                            "external_name": raw_name,
+                        },
+                    )
 
-                    if legacy_media and school_image:
-                        source_file = legacy_media / school_image
+                    campus_count += 1
+
+                    if legacy_media and row["school_image"]:
+                        source_file = legacy_media / row["school_image"]
                         destination_file = (
-                            logo_destination / Path(school_image).name
+                            logo_destination
+                            / Path(row["school_image"]).name
                         )
 
                         if source_file.exists():
@@ -125,62 +148,70 @@ class Command(BaseCommand):
                             copied_count += 1
                         else:
                             missing_count += 1
-                            missing_images.append(
-                                {
-                                    "legacy_id": legacy_id,
-                                    "school": school_name,
-                                    "path": str(source_file),
-                                }
-                            )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"완료: 대학 {len(groups)}개, 신규 {created_count}, "
+                f"갱신 {updated_count}, 캠퍼스 기록 {campus_count}, "
+                f"제외 {skipped}, 로고 복사 {copied_count}, "
+                f"로고 누락 {missing_count}"
+            )
+        )
+
+    def read_legacy_rows(self, legacy_db):
+        connection = sqlite3.connect(legacy_db)
+        connection.row_factory = sqlite3.Row
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                """
+                SELECT name
+                FROM sqlite_master
+                WHERE type = 'table'
+                  AND name = 'vote_school'
+                """
+            )
+
+            if cursor.fetchone() is None:
+                raise CommandError(
+                    "기존 DB에서 vote_school 테이블을 찾지 못했습니다."
+                )
+
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    school_name,
+                    school_image,
+                    school_address
+                FROM vote_school
+                ORDER BY id
+                """
+            )
+
+            return cursor.fetchall()
         finally:
             connection.close()
 
-        self.stdout.write("")
-        self.stdout.write(self.style.SUCCESS("===== Migration 완료 ====="))
-        self.stdout.write(f"신규 대학: {created_count}")
-        self.stdout.write(f"갱신 대학: {updated_count}")
-        self.stdout.write(f"복사된 로고: {copied_count}")
-        self.stdout.write(f"누락 로고: {missing_count}")
+    def pick_representative(self, canonical_name, rows):
+        exact_rows = [
+            row
+            for row in rows
+            if (row["school_name"] or "").strip() == canonical_name
+        ]
 
-        if missing_images:
-            self.stdout.write("")
-            self.stdout.write(self.style.WARNING("===== 누락 이미지 ====="))
-            for item in missing_images:
-                self.stdout.write(
-                    f"{item['legacy_id']} | "
-                    f"{item['school']} | "
-                    f"{item['path']}"
-                )
+        if exact_rows:
+            return exact_rows[0]
 
-    def _validate_legacy_table(self, cursor):
-        cursor.execute(
-            '''
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name = 'vote_school'
-            '''
+        return min(
+            rows,
+            key=lambda row: len((row["school_name"] or "").strip()),
         )
 
-        if cursor.fetchone() is None:
-            raise CommandError(
-                "기존 DB에서 'vote_school' 테이블을 찾지 못했습니다."
-            )
+    def build_logo_path(self, school_image):
+        if not school_image:
+            return None
 
-        cursor.execute("PRAGMA table_info(vote_school)")
-        columns = {row[1] for row in cursor.fetchall()}
-
-        required_columns = {
-            "id",
-            "school_name",
-            "school_image",
-            "school_address",
-        }
-
-        missing_columns = required_columns - columns
-
-        if missing_columns:
-            raise CommandError(
-                "기존 vote_school에서 필요 컬럼이 없습니다: "
-                f"{missing_columns}"
-            )
+        return f"university/logos/{Path(school_image).name}"
