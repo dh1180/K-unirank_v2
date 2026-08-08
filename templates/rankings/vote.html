@@ -2,10 +2,7 @@
 {% load static %}
 {% block title %}{{ board.name }} VS · K-unirank{% endblock %}
 {% block content %}
-<div class="vote-header"
-     data-ga-view="vs_view"
-     data-ga-param-board="{{ board.slug }}"
-     {% if pair %}data-ga-param-university-a="{{ pair.0.name }}" data-ga-param-university-b="{{ pair.1.name }}"{% endif %}>
+<div class="vote-header">
     <div>
         <span class="eyebrow">{{ board.name|upper }} · LIVE VOTE</span>
         <h1>더 선호하는 대학은?</h1>
@@ -22,11 +19,7 @@
 
     <div class="vs-grid">
         {% for university in pair %}
-        <button type="submit" name="action" value="{{ university.pk }}" class="university-card"
-                data-ga-event="vs_vote"
-                data-ga-param-board="{{ board.slug }}"
-                data-ga-param-winner="{{ university.name }}"
-                {% if forloop.first %}data-ga-param-loser="{{ pair.1.name }}"{% else %}data-ga-param-loser="{{ pair.0.name }}"{% endif %}>
+        <button type="submit" name="action" value="{{ university.pk }}" class="university-card">
             <div class="choice-hint">선택</div>
             <div class="logo-box">
                 {% if university.logo_path %}
@@ -83,11 +76,7 @@
         {% endfor %}
     </div>
 
-    <button type="submit" name="action" value="skip" class="button ghost skip-button"
-            data-ga-event="vs_skip"
-            data-ga-param-board="{{ board.slug }}"
-            data-ga-param-university-a="{{ pair.0.name }}"
-            data-ga-param-university-b="{{ pair.1.name }}">잘 모르겠어요 · 건너뛰기</button>
+    <button type="submit" name="action" value="skip" class="button ghost skip-button">잘 모르겠어요 · 건너뛰기</button>
 </form>
 {% else %}
 <div class="empty-state card-empty">

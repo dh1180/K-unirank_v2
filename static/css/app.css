@@ -2968,30 +2968,122 @@ select:focus-visible {
     }
 }
 
-
-/* ==========================================================================
-   V43 · Kakao 320x50 responsive banner
+/* ========================================================================== 
+   V39 · VS admissions hover + branch-campus ranking
    ========================================================================== */
-
-.kakao-ad-banner {
-    width: 100%;
-    min-height: 50px;
-    margin: 16px auto 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.university-card {
+    position: relative;
     overflow: hidden;
 }
 
-.kakao-ad-banner .kakao_ad_area {
-    width: 320px !important;
-    max-width: 100%;
-    height: 50px !important;
+.vs-admission-hover {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 5;
+    padding: 14px;
+    border: 1px solid #dce3fa;
+    border-radius: 16px;
+    color: var(--text);
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 18px 42px rgba(16, 24, 40, .16);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .16s ease, transform .16s ease;
+    pointer-events: none;
+    text-align: left;
+    backdrop-filter: blur(10px);
 }
 
-@media (max-width: 380px) {
-    .kakao-ad-banner {
-        margin-top: 12px;
-        margin-bottom: 14px;
+.university-card:hover .vs-admission-hover,
+.university-card:focus-visible .vs-admission-hover {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.vs-admission-hover-head {
+    margin-bottom: 10px;
+    padding-bottom: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #eef1f6;
+}
+
+.vs-admission-hover-head span {
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.vs-admission-hover-head b {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.vs-admission-row + .vs-admission-row {
+    margin-top: 9px;
+}
+
+.vs-admission-row > span {
+    display: block;
+    margin-bottom: 5px;
+    color: #475467;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.vs-admission-row > div {
+    display: grid;
+    grid-template-columns: auto auto auto 1px auto auto auto;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.vs-admission-row b {
+    color: var(--muted-2);
+    font-size: 10px;
+}
+
+.vs-admission-row strong {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -.02em;
+}
+
+.vs-admission-row small {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.vs-admission-row i {
+    width: 1px;
+    height: 18px;
+    background: #e8ebf2;
+    align-self: center;
+}
+
+.vs-admission-empty {
+    padding: 6px 0 2px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media (hover: none) {
+    .vs-admission-hover {
+        display: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .vs-admission-hover {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
     }
 }
