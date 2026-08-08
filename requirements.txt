@@ -1,6 +1,9 @@
 Django>=5.2,<5.3
 psycopg[binary]>=3.2
 python-dotenv>=1.0
+requests>=2.32
 gunicorn>=23.0
 whitenoise>=6.8
-requests>=2.32
+dj-database-url>=2.2
+beautifulsoup4>=4.12
+selenium>=4.20

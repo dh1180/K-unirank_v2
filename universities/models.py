@@ -1,5 +1,7 @@
 from django.db import models
 
+from .services.university_normalizer import normalize_address, normalize_region
+
 
 class University(models.Model):
     university_id = models.BigAutoField(primary_key=True)
@@ -30,6 +32,14 @@ class University(models.Model):
             models.Index(fields=["name"]),
             models.Index(fields=["region"]),
         ]
+
+    @property
+    def location_label(self):
+        return normalize_region(self.region, self.address) or "지역 미상"
+
+    @property
+    def display_address(self):
+        return normalize_address(self.address) or "주소 정보 없음"
 
     def __str__(self):
         return self.name
@@ -68,6 +78,14 @@ class UniversityCampus(models.Model):
         indexes = [
             models.Index(fields=["university"]),
         ]
+
+    @property
+    def location_label(self):
+        return normalize_region(self.region, self.address) or self.university.location_label
+
+    @property
+    def display_address(self):
+        return normalize_address(self.address) or self.university.display_address
 
     def __str__(self):
         return f"{self.university.name} - {self.campus_name or '본교'}"

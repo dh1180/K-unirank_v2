@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static admission_extras %}
+{% block title %}{{ university.name }} · K-unirank{% endblock %}
+{% block content %}
+<section class="university-head" data-ga-view="university_view" data-ga-param-university="{{ university.name }}" data-ga-param-region="{{ university.location_label }}">
+    <div class="detail-logo">
+        {% if university.logo_path %}
+            <img src="{% static university.logo_path %}" alt="{{ university.name }}">
+        {% else %}
+            <span class="logo-placeholder">K</span>
+        {% endif %}
+    </div>
+    <div class="university-head-copy">
+        <span class="eyebrow">UNIVERSITY</span>
+        <h1>{{ university.name }}</h1>
+        <div class="university-meta">
+            <span>{{ university.location_label }}</span>
+            {% if university.establishment_type %}<span>{{ university.establishment_type }}</span>{% endif %}
+            {% if university.university_type %}<span>{{ university.university_type }}</span>{% endif %}
+        </div>
+        <p class="university-address">{{ university.display_address }}</p>
+        <div class="hero-actions detail-actions">
+            {% if university.homepage_url %}
+                <a class="button" href="{{ university.homepage_url }}" rel="noopener" target="_blank" data-ga-event="official_site_click" data-ga-param-university="{{ university.name }}">공식 홈페이지 ↗</a>
+            {% endif %}
+            <a class="button ghost" href="{% url 'admissions:university' university.pk %}" data-ga-event="admission_open_from_university" data-ga-param-university="{{ university.name }}">입시 결과 보기</a>
+        </div>
+    </div>
+</section>
+
+{% if university.display_campuses %}
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">CAMPUS</span>
+            <h2>캠퍼스 정보</h2>
+        </div>
+    </div>
+    <div class="campus-grid">
+        {% for campus in university.display_campuses %}
+        <div class="campus-card">
+            <strong>{{ campus.campus_name|default:"본교" }}</strong>
+            <span>{{ campus.location_label }}</span>
+            {% if campus.address %}<p>{{ campus.display_address }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">RATING</span>
+            <h2>현재 랭킹 점수</h2>
+        </div>
+    </div>
+    <div class="stat-grid">
+        {% for rating in ratings %}
+        <a class="stat-card" href="{% url 'rankings:ranking' rating.board.slug %}">
+            <span>{{ rating.board.name }}</span>
+            <strong>{{ rating.rating|floatformat:0 }}</strong>
+            <small>{{ rating.match_count }}전 · {{ rating.win_count }}승 · {{ rating.loss_count }}패</small>
+        </a>
+        {% empty %}
+        <div class="empty-state compact-empty">
+            <div class="empty-state-icon">VS</div>
+            <strong>아직 비교 기록이 없어요.</strong>
+            <p>투표가 쌓이면 이 대학의 점수가 표시됩니다.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">ADMISSIONS</span>
+            <h2>{% if latest_admission_year %}{{ latest_admission_year }}학년도 입시 요약{% else %}입시 데이터{% endif %}</h2>
+            <p class="muted">대학 단위 값은 모집인원 가중평균 등 K-unirank가 계산한 파생 지표입니다.</p>
+        </div>
+        <a class="section-link" href="{% url 'admissions:university' university.pk %}">세부 모집단위 보기 →</a>
+    </div>
+
+    {% if admission_aggregates %}
+    <div class="admission-summary-grid">
+        {% for item in admission_aggregates %}
+        <div class="admission-summary-card {{ item.admission_phase|lower }}-summary">
+            <div class="admission-summary-top">
+                <span class="phase-badge {{ item.admission_phase|lower }}">{{ item.get_admission_phase_display }}</span>
+                <span class="subtle">{{ item.selection_category|default:"전체" }}</span>
+            </div>
+            <strong>{{ item.value|floatformat:2 }}</strong>
+            <span>{{ item.metric_code|admission_metric_label }}</span>
+            <small>{{ item.get_aggregation_method_display }} · {{ item.sample_count }}개 모집단위</small>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card-empty">
+        <div class="empty-state-icon">입</div>
+        <strong>아직 가져온 입시 결과가 없습니다.</strong>
+        <p>ADIGA 동기화를 실행하면 수시·정시 결과가 이곳에 표시됩니다.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

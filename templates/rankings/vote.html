@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ board.name }} VS · K-unirank{% endblock %}
+{% block content %}
+<div class="vote-header"
+     data-ga-view="vs_view"
+     data-ga-param-board="{{ board.slug }}"
+     {% if pair %}data-ga-param-university-a="{{ pair.0.name }}" data-ga-param-university-b="{{ pair.1.name }}"{% endif %}>
+    <div>
+        <span class="eyebrow">{{ board.name|upper }} · LIVE VOTE</span>
+        <h1>더 선호하는 대학은?</h1>
+        <p class="muted">직관적으로 하나를 골라주세요. 잘 모르겠다면 건너뛰어도 됩니다.</p>
+    </div>
+    <a class="button ghost" href="{% url 'rankings:ranking' board.slug %}">현재 랭킹 보기</a>
+</div>
+
+{% if pair %}
+<form method="post" action="{% url 'rankings:submit_vote' board.slug %}" class="vote-form">
+    {% csrf_token %}
+    <input type="hidden" name="university_a" value="{{ pair.0.pk }}">
+    <input type="hidden" name="university_b" value="{{ pair.1.pk }}">
+
+    <div class="vs-grid">
+        {% for university in pair %}
+        <button type="submit" name="action" value="{{ university.pk }}" class="university-card"
+                data-ga-event="vs_vote"
+                data-ga-param-board="{{ board.slug }}"
+                data-ga-param-winner="{{ university.name }}"
+                {% if forloop.first %}data-ga-param-loser="{{ pair.1.name }}"{% else %}data-ga-param-loser="{{ pair.0.name }}"{% endif %}>
+            <div class="choice-hint">선택</div>
+            <div class="logo-box">
+                {% if university.logo_path %}
+                    <img src="{% static university.logo_path %}" alt="{{ university.name }}">
+                {% else %}
+                    <span class="logo-placeholder">K</span>
+                {% endif %}
+            </div>
+            <strong>{{ university.name }}</strong>
+            <span class="school-location">⌖ {{ university.location_label }}</span>
+
+            {% with info=university.admission_hover %}
+            <div class="vs-admission-hover" aria-hidden="true">
+                <div class="vs-admission-hover-head">
+                    <span>입시 참고</span>
+                    {% if info.year %}<b>{{ info.year }}학년도</b>{% endif %}
+                </div>
+                {% if info.has_data %}
+                    {% if info.gyogwa %}
+                    <div class="vs-admission-row">
+                        <span>{{ info.gyogwa.label }}</span>
+                        <div>
+                            <b>50%</b>
+                            <strong>{% if info.gyogwa.value_50 != None %}{{ info.gyogwa.value_50|floatformat:2 }}{% else %}-{% endif %}</strong>
+                            <small>{{ info.gyogwa.unit }}</small>
+                            <i></i>
+                            <b>70%</b>
+                            <strong>{% if info.gyogwa.value_70 != None %}{{ info.gyogwa.value_70|floatformat:2 }}{% else %}-{% endif %}</strong>
+                            <small>{{ info.gyogwa.unit }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if info.csat %}
+                    <div class="vs-admission-row">
+                        <span>{{ info.csat.label }}</span>
+                        <div>
+                            <b>50%</b>
+                            <strong>{% if info.csat.value_50 != None %}{{ info.csat.value_50|floatformat:2 }}{% else %}-{% endif %}</strong>
+                            <small>{{ info.csat.unit }}</small>
+                            <i></i>
+                            <b>70%</b>
+                            <strong>{% if info.csat.value_70 != None %}{{ info.csat.value_70|floatformat:2 }}{% else %}-{% endif %}</strong>
+                            <small>{{ info.csat.unit }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="vs-admission-empty">공개된 교과·수능 대표 지표가 없습니다.</div>
+                {% endif %}
+            </div>
+            {% endwith %}
+        </button>
+        {% if forloop.first %}<div class="vs-badge">VS</div>{% endif %}
+        {% endfor %}
+    </div>
+
+    <button type="submit" name="action" value="skip" class="button ghost skip-button"
+            data-ga-event="vs_skip"
+            data-ga-param-board="{{ board.slug }}"
+            data-ga-param-university-a="{{ pair.0.name }}"
+            data-ga-param-university-b="{{ pair.1.name }}">잘 모르겠어요 · 건너뛰기</button>
+</form>
+{% else %}
+<div class="empty-state card-empty">
+    <div class="empty-state-icon">!</div>
+    <strong>비교할 대학이 부족합니다.</strong>
+    <p>활성화된 대학 데이터를 확인해주세요.</p>
+</div>
+{% endif %}
+
+<div class="vote-progress-card">
+    <div>
+        <span class="subtle">이 브라우저의 참여</span>
+        <strong>{{ vote_session.vote_count }}회</strong>
+    </div>
+    <div class="progress-copy">
+        {% if personal_result_ready %}
+            <span>충분히 선택했어요. 지금 나의 TOP10을 만들 수 있습니다.</span>
+        {% else %}
+            <span>선택이 쌓이면 나만의 대학 TOP10을 만들 수 있어요.</span>
+        {% endif %}
+    </div>
+    {% if personal_result_ready %}
+    <form method="post" action="{% url 'rankings:create_personal_result' board.slug %}">
+        {% csrf_token %}
+        <button class="button primary" type="submit">나의 TOP10 만들기</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
