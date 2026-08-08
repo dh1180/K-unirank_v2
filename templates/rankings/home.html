@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}K-unirank 2.0{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <span class="eyebrow">사람들이 직접 만드는 대학 선호도</span>
+        <h1>둘 중 더 가고 싶은 대학을 골라주세요.</h1>
+        <p>종합 선호도 한 가지 기준으로 비교합니다. 운영자 초기 시드 위에 실제 VS 선택이 누적되며, 여러 번 참여하면 개인 TOP10도 확인할 수 있어요.</p>
+        <div class="hero-actions">
+            <a class="button primary" href="{% url 'rankings:vote_default' %}">지금 투표하기</a>
+            <a class="button secondary" href="{% url 'rankings:ranking_default' %}">랭킹 둘러보기</a>
+        </div>
+    </div>
+    <div class="hero-panel">
+        <div class="hero-stat"><span>등록 대학</span><strong>{{ university_count }}</strong></div>
+        <div class="hero-stat"><span>종합 유효 투표</span><strong>{{ total_votes }}</strong></div>
+        <div class="hero-stat"><span>입시 데이터 대학</span><strong>{{ admission_coverage }}</strong></div>
+    </div>
+</section>
+
+
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">LIVE RANKING</span>
+            <h2>종합 TOP 10</h2>
+        </div>
+        <a class="section-link" href="{% url 'rankings:ranking' overall.slug %}">전체 랭킹 보기 →</a>
+    </div>
+    <div class="ranking-list">
+        {% for item in top_ratings %}
+        <a class="rank-row" href="{% url 'universities:detail' item.university_id %}">
+            <span class="rank">{{ forloop.counter }}</span>
+            <div class="mini-logo">
+                {% if item.university.logo_path %}
+                    <img src="{% static item.university.logo_path %}" alt="{{ item.university.name }}">
+                {% else %}
+                    <span class="logo-placeholder">K</span>
+                {% endif %}
+            </div>
+            <span class="school-name">{{ item.university.name }}</span>
+            <span class="change">{{ item.university.location_label }}</span>
+            <span class="score">{{ item.rating|floatformat:0 }}</span>
+            <span class="matches" title="초기 시드 표본 포함 · 실제 사용자 비교 {{ item.match_count }}회">{{ item.display_match_count }}전*</span>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">VS</div>
+            <strong>아직 랭킹을 만들 투표가 없어요.</strong>
+            <p>첫 선택부터 바로 점수에 반영됩니다.</p>
+            <a class="button primary" href="{% url 'rankings:vote_default' %}">첫 투표 시작하기</a>
+        </div>
+        {% endfor %}
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:12px;">※ 비교 횟수(*)는 초기 시드 표본과 실제 사용자 비교를 합친 표시값입니다. 실제 사용자 투표 수는 상단 ‘종합 유효 투표’에 별도로 표시됩니다.</p>
+</section>
+{% endblock %}

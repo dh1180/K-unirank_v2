@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load admission_extras %}
+{% block title %}입시 데이터 · K-unirank{% endblock %}
+{% block content %}
+<section class="data-hero" data-ga-view="admission_overview_view" data-ga-param-year="{{ selected_year|default:'' }}" data-ga-param-result-count="{{ result_count }}">
+    <div>
+        <span class="eyebrow">ADMISSIONS DATA</span>
+        <h1>대학 입시 결과</h1>
+        <p>대입정보포털 어디가(ADIGA) 등 원문 출처를 함께 저장합니다.</p>
+    </div>
+    {% if selected_year %}
+    <div class="data-hero-stats">
+        <div><span>학년도</span><strong>{{ selected_year }}</strong></div>
+        <div><span>데이터 보유 대학</span><strong>{{ coverage_count }}</strong></div>
+        <div><span>모집단위 결과</span><strong>{{ result_count }}</strong></div>
+    </div>
+    {% endif %}
+</section>
+
+{% if years %}
+<div class="region-chips admission-year-tabs">
+    {% for y in years %}
+        <a class="region-chip {% if selected_year == y %}active{% endif %}" href="?year={{ y }}" data-ga-event="admission_filter" data-ga-param-filter-kind="year" data-ga-param-filter-value="{{ y }}">{{ y }}학년도</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if selected_year %}
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">REPRESENTATIVE METRICS</span>
+            <h2>{{ selected_year }}학년도 대표 지표</h2>
+            <p class="muted">수시는 학생부교과 70% 컷을 표시합니다. 정시는 대학이 공개한 공식 평균 백분위 70% 컷을 표시합니다.</p>
+        </div>
+    </div>
+
+    <div class="admission-board-grid">
+        <div class="admission-panel">
+            <div class="admission-panel-head">
+                <div>
+                    <span class="phase-badge susi">수시</span>
+                    <h3>학생부교과 70% 컷</h3>
+                </div>
+                <span class="subtle">등급 · 낮을수록 상위</span>
+            </div>
+            <div class="metric-ranking-list">
+                {% for item in susi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="metric-rank-row" data-ga-event="admission_university_open" data-ga-param-university="{{ item.university.name }}" data-ga-param-phase="SUSI" data-ga-param-year="{{ selected_year }}">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <strong>{{ item.university.name }}</strong>
+                    <span>{{ item.value|floatformat:2 }}등급</span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">해당 지표 데이터가 아직 없습니다.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="admission-panel">
+            <div class="admission-panel-head">
+                <div>
+                    <span class="phase-badge jeongsi">정시</span>
+                    <h3>공식 평균 백분위 70% 컷</h3>
+                </div>
+                <span class="subtle">대학 공개값</span>
+            </div>
+            <div class="metric-ranking-list">
+                {% for item in jeongsi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="metric-rank-row" data-ga-event="admission_university_open" data-ga-param-university="{{ item.university.name }}" data-ga-param-phase="JEONGSI" data-ga-param-year="{{ selected_year }}">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <strong>{{ item.university.name }}</strong>
+                    <span>{{ item.value|floatformat:2 }}</span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">공식 평균 백분위를 공개한 대학이 없습니다.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+    </div>
+</section>
+
+<section>
+    <div class="section-title admissions-results-title">
+        <div>
+            <span class="eyebrow">RAW RESULTS</span>
+            <h2>모집단위별 결과</h2>
+            {% if page_obj %}
+            <p class="muted admission-page-summary">전체 {{ result_count }}건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건을 표시합니다.</p>
+            {% endif %}
+        </div>
+        <div class="section-title-side"><span class="result-count-pill">{{ result_count }}건</span></div>
+    </div>
+
+    <div class="table-wrap admissions-table-wrap overview-results-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>대학</th>
+                    <th>구분</th>
+                    <th>전형</th>
+                    <th>모집단위</th>
+                    <th>모집인원</th>
+                    <th>경쟁률</th>
+                    <th>대표 지표</th>
+                    <th>출처</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for result in recent_results %}
+                <tr>
+                    <td data-label="대학"><a class="table-school-link" href="{% url 'admissions:university' result.university_id %}?year={{ selected_year }}" data-ga-event="admission_university_open" data-ga-param-university="{{ result.university.name }}" data-ga-param-phase="{{ result.admission_phase }}" data-ga-param-year="{{ selected_year }}">{{ result.university.name }}</a></td>
+                    <td data-label="구분"><span class="phase-badge {{ result.admission_phase|lower }}">{{ result.get_admission_phase_display }}</span></td>
+                    <td data-label="전형">{{ result.selection_category }}{% if result.selection_name %}<br><small class="subtle">{{ result.selection_name }}</small>{% endif %}</td>
+                    <td data-label="모집단위"><strong class="unit-name">{{ result.recruitment_unit.name }}</strong></td>
+                    <td data-label="모집인원">{% if result.recruitment_count != None %}{{ result.recruitment_count }}{% else %}-{% endif %}</td>
+                    <td data-label="경쟁률">{% if result.competition_rate != None %}{{ result.competition_rate|floatformat:2 }} : 1{% else %}-{% endif %}</td>
+                    <td data-label="대표 지표" class="metrics-cell">
+                        <div class="metric-stack">
+                        {% for metric in result.metrics.all %}
+                            {% if metric.metric_code == "STUDENT_GRADE_70_CUT" or metric.metric_code == "CONVERTED_SCORE_70_CUT" or metric.metric_code == "CSAT_PERCENTILE_MEAN_70_CUT" or metric.metric_code == "CSAT_KOREAN_PERCENTILE_70_CUT" or metric.metric_code == "CSAT_MATH_PERCENTILE_70_CUT" or metric.metric_code == "CSAT_INQUIRY_PERCENTILE_70_CUT" or metric.metric_code == "CSAT_INQUIRY1_PERCENTILE_70_CUT" or metric.metric_code == "CSAT_INQUIRY2_PERCENTILE_70_CUT" or metric.metric_code == "CSAT_CONVERTED_SCORE_70_CUT" %}
+                                <span class="metric-item{% if 'GRADE' in metric.metric_code %} metric-grade{% elif 'PERCENTILE' in metric.metric_code %} metric-percentile{% elif 'SCORE' in metric.metric_code %} metric-score{% endif %}">
+                                    <span class="metric-label">{{ metric.metric_code|admission_metric_label }}</span>
+                                    <strong class="metric-value">{{ metric.value|floatformat:2 }}{% if metric.unit %}<small>{{ metric.unit }}</small>{% endif %}</strong>
+                                    
+                                </span>
+                            {% endif %}
+                        {% empty %}<span class="subtle">-</span>{% endfor %}
+                        </div>
+                    </td>
+                    <td data-label="출처"><a class="source-link" href="{{ result.source.source_url }}" target="_blank" rel="noopener" data-ga-event="admission_source_click" data-ga-param-university="{{ result.university.name }}" data-ga-param-source="{{ result.source.get_source_type_display }}">{{ result.source.get_source_type_display }} ↗</a></td>
+                </tr>
+            {% empty %}
+                <tr class="empty-table-row"><td colspan="8"><div class="mini-empty">아직 가져온 입시 데이터가 없습니다.</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <nav class="results-pager" aria-label="입시 결과 페이지">
+        <div class="pagination-side">
+            {% if page_obj.has_previous %}
+                <a class="page-button" href="?year={{ selected_year }}&page=1">처음</a>
+                <a class="page-button" href="?year={{ selected_year }}&page={{ page_obj.previous_page_number }}">이전</a>
+            {% else %}
+                <span class="page-button disabled">처음</span>
+                <span class="page-button disabled">이전</span>
+            {% endif %}
+        </div>
+
+        <div class="pagination-center">
+            <strong>{{ page_obj.number }}</strong>
+            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
+        </div>
+
+        <div class="pagination-side">
+            {% if page_obj.has_next %}
+                <a class="page-button" href="?year={{ selected_year }}&page={{ page_obj.next_page_number }}">다음</a>
+                <a class="page-button" href="?year={{ selected_year }}&page={{ page_obj.paginator.num_pages }}">마지막</a>
+            {% else %}
+                <span class="page-button disabled">다음</span>
+                <span class="page-button disabled">마지막</span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+</section>
+{% else %}
+<div class="empty-state card-empty">
+    <div class="empty-state-icon">입</div>
+    <strong>아직 입시 데이터를 가져오지 않았습니다.</strong>
+    <p>ADIGA 동기화 명령을 실행하면 수시·정시 결과와 원문 출처가 표시됩니다.</p>
+</div>
+{% endif %}
+{% endblock %}

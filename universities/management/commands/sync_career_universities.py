@@ -16,9 +16,13 @@ from universities.models import (
 )
 from universities.services.university_normalizer import (
     canonical_university_name,
+    fallback_split_name,
+    ranking_university_name,
     clean_text,
     is_excluded_university,
     normalize_university_name,
+    normalize_address,
+    normalize_region,
 )
 
 
@@ -88,7 +92,7 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"CareerNet 원본 {len(schools)}건, "
-                f"캠퍼스 통합 후 {len(grouped)}개 대학, "
+                f"랭킹 단위 정리 후 {len(grouped)}개 대학, "
                 f"제외 {len(excluded)}건"
             )
         )
@@ -105,7 +109,7 @@ class Command(BaseCommand):
         active_names = set()
 
         with transaction.atomic():
-            for canonical_name, rows in grouped.items():
+            for canonical_name, rows in sorted(grouped.items(), key=self.group_order_key):
                 active_names.add(canonical_name)
 
                 result = self.sync_university_group(
@@ -241,7 +245,7 @@ class Command(BaseCommand):
             ) from exc
 
     def group_schools(self, schools):
-        grouped = defaultdict(list)
+        base_groups = defaultdict(list)
         excluded = []
 
         for school in schools:
@@ -258,8 +262,29 @@ class Command(BaseCommand):
                 excluded.append(school)
                 continue
 
-            canonical_name = canonical_university_name(name)
-            grouped[canonical_name].append(school)
+            base_name = canonical_university_name(name)
+            base_groups[base_name].append(school)
+
+        grouped = defaultdict(list)
+
+        for base_name, rows in base_groups.items():
+            if len(rows) == 1:
+                row = rows[0]
+                rank_name = ranking_university_name(
+                    row.get("schoolName"),
+                    row.get("campusName"),
+                    row.get("adres"),
+                )
+                grouped[rank_name].append(row)
+                continue
+
+            for row in rows:
+                rank_name = fallback_split_name(
+                    row.get("schoolName"),
+                    row.get("campusName"),
+                    row.get("adres"),
+                )
+                grouped[rank_name].append(row)
 
         return dict(grouped), excluded
 
@@ -270,7 +295,7 @@ class Command(BaseCommand):
         apply_changes,
         create_new,
     ):
-        university = self.find_by_mapping(rows)
+        university = self.find_by_mapping(rows, canonical_name)
 
         if university:
             if apply_changes:
@@ -300,8 +325,8 @@ class Command(BaseCommand):
 
                 university = University.objects.create(
                     name=canonical_name,
-                    address=clean_text(representative.get("adres")),
-                    region=clean_text(representative.get("region")),
+                    address=normalize_address(representative.get("adres")),
+                    region=normalize_region(representative.get("region"), representative.get("adres")),
                     university_type=clean_text(
                         representative.get("schoolType")
                         or representative.get("schoolGubun")
@@ -313,7 +338,7 @@ class Command(BaseCommand):
                     college_info_url=clean_text(
                         representative.get("collegeinfourl")
                     ),
-                    logo_path=None,
+                    logo_path=self.find_logo_from_mapping(rows),
                     is_active=True,
                 )
 
@@ -327,7 +352,51 @@ class Command(BaseCommand):
 
         return "unmatched"
 
-    def find_by_mapping(self, rows):
+    def find_by_mapping(self, rows, canonical_name):
+        seqs = [
+            clean_text(row.get("seq"))
+            for row in rows
+            if clean_text(row.get("seq"))
+        ]
+
+        mappings = list(
+            UniversityExternalMapping.objects
+            .select_related("university")
+            .filter(
+                source=CAREER_SOURCE,
+                external_code__in=seqs,
+            )
+        )
+
+        target_key = normalize_university_name(canonical_name)
+
+        for mapping in mappings:
+            university = mapping.university
+            if normalize_university_name(university.name) == target_key:
+                return university
+
+        # 이전 버전에서 캠퍼스가 하나로 합쳐져 있던 경우,
+        # 첫 번째(주 캠퍼스) 그룹은 기존 대학 레코드를 재사용한다.
+        for mapping in mappings:
+            university = mapping.university
+            old_name = canonical_university_name(university.name)
+
+            target_exists = (
+                University.objects
+                .filter(name=canonical_name)
+                .exclude(pk=university.pk)
+                .exists()
+            )
+
+            if target_exists:
+                continue
+
+            if canonical_name.startswith(f"{old_name} ") and "캠퍼스" not in university.name:
+                return university
+
+        return None
+
+    def find_logo_from_mapping(self, rows):
         seqs = [
             clean_text(row.get("seq"))
             for row in rows
@@ -341,10 +410,22 @@ class Command(BaseCommand):
                 source=CAREER_SOURCE,
                 external_code__in=seqs,
             )
+            .exclude(university__logo_path__isnull=True)
             .first()
         )
 
-        return mapping.university if mapping else None
+        if mapping and mapping.university.logo_path:
+            return mapping.university.logo_path
+
+        return None
+
+    def group_order_key(self, item):
+        _, rows = item
+        primary = any(
+            clean_text(row.get("campusName")) in {None, "", "본교", "본캠퍼스", "제1캠퍼스", "1캠퍼스"}
+            for row in rows
+        )
+        return (0 if primary else 1, item[0])
 
     def find_existing_university(self, canonical_name):
         target = normalize_university_name(canonical_name)
@@ -364,8 +445,8 @@ class Command(BaseCommand):
         representative = self.pick_representative(rows)
 
         university.name = canonical_name
-        university.address = clean_text(representative.get("adres"))
-        university.region = clean_text(representative.get("region"))
+        university.address = normalize_address(representative.get("adres"))
+        university.region = normalize_region(representative.get("region"), representative.get("adres"))
 
         university.university_type = clean_text(
             representative.get("schoolType")
@@ -409,8 +490,8 @@ class Command(BaseCommand):
                 defaults={
                     "university": university,
                     "campus_name": campus_name,
-                    "address": clean_text(row.get("adres")),
-                    "region": clean_text(row.get("region")),
+                    "address": normalize_address(row.get("adres")),
+                    "region": normalize_region(row.get("region"), row.get("adres")),
                     "homepage_url": clean_text(row.get("link")),
                     "is_primary": is_primary,
                 },

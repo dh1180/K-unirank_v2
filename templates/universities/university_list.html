@@ -1,53 +1,91 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>K-unirank 2.0</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+{% block title %}대학 찾기 · K-unirank{% endblock %}
+{% block content %}
+<div class="section-title" data-ga-view="university_list_view" data-ga-param-query="{{ query }}" data-ga-param-region="{{ selected_region }}">
+    <div>
+        <span class="eyebrow">UNIVERSITIES</span>
+        <h1>대학 찾기</h1>
+        <p class="muted">현재 {{ total_count }}개 대학을 한 번에 찾아볼 수 있습니다.</p>
+    </div>
+</div>
 
-        .university {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 14px 0;
-            border-bottom: 1px solid #ddd;
-        }
+<div class="toolbar">
+    <form method="get" class="search-form" data-ga-submit="university_search" data-ga-search-field="q" data-ga-param-region="{{ selected_region }}">
+        <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="대학명 또는 주소로 검색">
+        {% if selected_region %}<input type="hidden" name="region" value="{{ selected_region }}">{% endif %}
+        <button class="button primary" type="submit">검색</button>
+    </form>
+</div>
 
-        .logo {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-        }
-    </style>
-</head>
-<body>
-    <h1>K-unirank 2.0 대학 목록</h1>
-    <p>총 {{ universities.count }}개</p>
-
-    {% for university in universities %}
-        <div class="university">
-            {% if university.logo_path %}
-                <img
-                    class="logo"
-                    src="{% static university.logo_path %}"
-                    alt="{{ university.name }}"
-                >
-            {% endif %}
-
-            <div>
-                <strong>{{ university.name }}</strong><br>
-                <small>{{ university.address|default:"주소 없음" }}</small>
-            </div>
-        </div>
-    {% empty %}
-        <p>대학 데이터가 없습니다.</p>
+<div class="region-chips">
+    <a class="region-chip {% if not selected_region %}active{% endif %}" href="?q={{ query|urlencode }}" data-ga-event="university_region_filter" data-ga-param-region="전체">전체</a>
+    {% for region in regions %}
+        <a class="region-chip {% if selected_region == region %}active{% endif %}" href="?q={{ query|urlencode }}&region={{ region|urlencode }}" data-ga-event="university_region_filter" data-ga-param-region="{{ region }}">{{ region }}</a>
     {% endfor %}
-</body>
-</html>
+</div>
+
+<div class="school-grid">
+{% for university in universities %}
+<a class="school-card" href="{% url 'universities:detail' university.pk %}"
+   data-ga-event="university_open"
+   data-ga-param-university="{{ university.name }}"
+   data-ga-param-region="{{ university.location_label }}">
+    <div class="mini-logo">
+        {% if university.logo_path %}
+            <img src="{% static university.logo_path %}" alt="{{ university.name }}">
+        {% else %}
+            <span class="logo-placeholder">K</span>
+        {% endif %}
+    </div>
+    <div class="school-card-content">
+        <strong>{{ university.name }}</strong>
+        <span class="school-location">⌖ {{ university.location_label }}</span>
+    </div>
+</a>
+{% empty %}
+<div class="empty-state">
+    <div class="empty-state-icon">?</div>
+    <strong>검색 결과가 없습니다.</strong>
+    <p>대학 이름이나 지역을 다시 확인해주세요.</p>
+</div>
+{% endfor %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="list-pagination" aria-label="대학 목록 페이지 이동">
+    <div class="list-pagination-side">
+        {% if page_obj.has_previous %}
+            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page=1">처음</a>
+            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.previous_page_number }}">이전</a>
+        {% else %}
+            <span class="list-page-link disabled">처음</span>
+            <span class="list-page-link disabled">이전</span>
+        {% endif %}
+    </div>
+
+    <div class="list-pagination-center">
+        <div class="list-pagination-numbers">
+            {% for number in page_obj.paginator.page_range %}
+                {% if number == page_obj.number %}
+                    <span class="list-page-link current">{{ number }}</span>
+                {% elif number >= page_obj.number|add:'-2' and number <= page_obj.number|add:'2' %}
+                    <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ number }}">{{ number }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="list-pagination-summary">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 페이지</div>
+    </div>
+
+    <div class="list-pagination-side end">
+        {% if page_obj.has_next %}
+            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.next_page_number }}">다음</a>
+            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.paginator.num_pages }}">마지막</a>
+        {% else %}
+            <span class="list-page-link disabled">다음</span>
+            <span class="list-page-link disabled">마지막</span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}
+{% endblock %}

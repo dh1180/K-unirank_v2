@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ board.name }} 랭킹 · K-unirank{% endblock %}
+{% block content %}
+<div class="ranking-hero" data-ga-view="ranking_view" data-ga-param-board="{{ board.slug }}" data-ga-param-min-matches="{{ min_matches }}">
+    <div>
+        <span class="eyebrow">LIVE RANKING</span>
+        <h1>{{ board.name }} 랭킹</h1>
+        <p>종합 선호도 단일 랭킹입니다. 운영자가 설정한 초기 시드값에 실제 사용자 VS 선택이 누적됩니다. 분리 운영되는 캠퍼스 대학은 별도 항목으로 유지하되 본교와 다른 초기 시드를 사용하며, 시드 표본은 실제 사용자 투표와 구분됩니다.</p>
+    </div>
+    <a class="button primary" href="{% url 'rankings:vote' board.slug %}">이 기준으로 투표하기</a>
+</div>
+
+<form method="get" class="filter-form ranking-filter" data-ga-submit="ranking_filter" data-ga-param-board="{{ board.slug }}">
+    <label>
+        최소 실제 비교 횟수
+        <input type="number" min="0" name="min_matches" value="{{ min_matches }}">
+    </label>
+    <button class="button" type="submit">적용</button>
+</form>
+
+<div class="ranking-list full-ranking">
+{% for row in rows %}
+<a class="rank-row" href="{% url 'universities:detail' row.rating.university_id %}"
+   data-ga-event="ranking_university_open"
+   data-ga-param-board="{{ board.slug }}"
+   data-ga-param-rank="{{ row.rank }}"
+   data-ga-param-university="{{ row.rating.university.name }}">
+    <span class="rank">{{ row.rank }}</span>
+    <div class="mini-logo">
+        {% if row.rating.university.logo_path %}
+            <img src="{% static row.rating.university.logo_path %}" alt="{{ row.rating.university.name }}">
+        {% else %}
+            <span class="logo-placeholder">K</span>
+        {% endif %}
+    </div>
+    <span class="school-name-wrap">
+        <strong class="school-name">{{ row.rating.university.name }}</strong>
+        <small>{{ row.rating.university.location_label }}</small>
+    </span>
+    <span class="change">
+        {% if row.change > 0 %}<b class="rank-up">▲ {{ row.change }}</b>
+        {% elif row.change < 0 %}<b class="rank-down">▼ {{ row.change|stringformat:"d"|slice:"1:" }}</b>
+        {% elif row.change == 0 %}<span>-</span>
+        {% else %}<span class="subtle">NEW</span>{% endif %}
+    </span>
+    <span class="score">{{ row.rating.rating|floatformat:0 }}</span>
+    <span class="matches" title="초기 시드 표본 포함 · 실제 사용자 비교 {{ row.real_match_count }}회">{{ row.display_match_count }}전*</span>
+</a>
+{% empty %}
+<div class="empty-state">
+    <div class="empty-state-icon">VS</div>
+    <strong>아직 표시할 랭킹이 없어요.</strong>
+    <p>첫 투표부터 랭킹 점수가 만들어집니다.</p>
+    <a class="button primary" href="{% url 'rankings:vote' board.slug %}">첫 투표 시작하기</a>
+</div>
+{% endfor %}
+</div>
+<p class="muted" style="margin-top:10px;font-size:12px;">※ 비교 횟수(*)는 초기 시드 표본 + 실제 사용자 비교의 표시값이며, 실제 사용자 투표를 위조한 값이 아닙니다.</p>
+{% endblock %}

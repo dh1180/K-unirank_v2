@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}회원가입 · K-unirank{% endblock %}
+{% block content %}
+<section class="auth-shell signup-shell">
+    <div class="auth-intro">
+        <span class="auth-kicker">JOIN K-UNIRANK</span>
+        <h1>내가 직접 만드는<br>대학 선호도.</h1>
+        <p>가입 후 투표를 이어가면 익명 세션보다 안정적으로 개인 결과를 저장하고 확인할 수 있습니다.</p>
+        <div class="auth-points">
+            <div><span>01</span><strong>간단한 가입</strong><small>아이디와 비밀번호만으로 바로 시작합니다.</small></div>
+            <div><span>02</span><strong>투표 기록 유지</strong><small>로그인 상태에서 개인 선호 데이터를 이어갑니다.</small></div>
+            <div><span>03</span><strong>대학 정보 탐색</strong><small>랭킹과 입시 결과를 한 곳에서 비교합니다.</small></div>
+        </div>
+    </div>
+
+    <div class="auth-panel">
+        <div class="auth-panel-head">
+            <span class="brand-mark auth-brand-mark">K</span>
+            <div>
+                <span class="eyebrow">CREATE ACCOUNT</span>
+                <h2>회원가입</h2>
+                <p>몇 가지 정보만 입력하면 바로 시작할 수 있어요.</p>
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="auth-error-box">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+
+            <div class="auth-field">
+                <label for="{{ form.username.id_for_label }}">아이디</label>
+                {{ form.username }}
+                {% if form.username.help_text %}<small class="field-help">{{ form.username.help_text|safe }}</small>{% endif %}
+                {% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+            </div>
+
+            <div class="auth-field">
+                <label for="{{ form.email.id_for_label }}">이메일 <span>선택</span></label>
+                {{ form.email }}
+                {% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+            </div>
+
+            <div class="auth-field-grid">
+                <div class="auth-field">
+                    <label for="{{ form.password1.id_for_label }}">비밀번호</label>
+                    {{ form.password1 }}
+                    {% for error in form.password1.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                </div>
+                <div class="auth-field">
+                    <label for="{{ form.password2.id_for_label }}">비밀번호 확인</label>
+                    {{ form.password2 }}
+                    {% for error in form.password2.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                </div>
+            </div>
+
+            {% if form.password1.help_text %}
+            <div class="password-guide">{{ form.password1.help_text|safe }}</div>
+            {% endif %}
+
+            <button class="button primary auth-submit" type="submit">K-unirank 시작하기</button>
+        </form>
+
+        <div class="auth-switch">
+            <span>이미 계정이 있나요?</span>
+            <a href="{% url 'login' %}">로그인</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

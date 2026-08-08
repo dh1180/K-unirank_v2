@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}나의 대학 TOP10 · K-unirank{% endblock %}
+{% block content %}
+<section class="result-hero"><span class="eyebrow">{{ result.board.name }}</span><h1>나의 대학 TOP10</h1><p>{{ result.vote_count }}번의 선택을 바탕으로 만든 개인 결과입니다.</p></section>
+<div class="ranking-list result-list">
+{% for item in payload.top10 %}
+<div class="rank-row">
+    <span class="rank">{{ item.rank }}</span>
+    {% if item.logo_path %}<img src="{% static item.logo_path %}" alt="">{% endif %}
+    <span class="school-name">{{ item.name }}</span>
+    <span class="matches">{{ item.wins }}승 {{ item.losses }}패</span>
+</div>
+{% empty %}<p>아직 결과가 없습니다.</p>{% endfor %}
+</div>
+<div class="share-box"><label>공유 링크</label><input value="{{ request.build_absolute_uri }}" readonly onclick="this.select()"></div>
+{% endblock %}

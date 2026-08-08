@@ -15,7 +15,10 @@ from universities.models import (
 from universities.services.university_normalizer import (
     campus_label_from_name,
     canonical_university_name,
+    ranking_university_name,
     is_excluded_university,
+    normalize_address,
+    normalize_region,
 )
 
 
@@ -23,7 +26,7 @@ LEGACY_SOURCE = "LEGACY_SQLITE"
 
 
 class Command(BaseCommand):
-    help = "기존 SQLite의 대학 데이터를 캠퍼스 통합 방식으로 이전합니다."
+    help = "기존 SQLite의 대학 데이터를 현재 랭킹 단위 기준으로 이전합니다."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -63,7 +66,10 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            canonical_name = canonical_university_name(raw_name)
+            canonical_name = ranking_university_name(
+                raw_name,
+                address=row["school_address"],
+            )
             groups[canonical_name].append(row)
 
         logo_destination = (
@@ -88,12 +94,15 @@ class Command(BaseCommand):
                     representative["school_image"]
                 )
 
+                representative_address = normalize_address(
+                    representative["school_address"]
+                )
+
                 university, created = University.objects.update_or_create(
                     name=canonical_name,
                     defaults={
-                        "address": (
-                            representative["school_address"] or None
-                        ),
+                        "address": representative_address,
+                        "region": normalize_region(address=representative_address),
                         "logo_path": logo_path,
                         "is_active": True,
                     },
@@ -119,7 +128,8 @@ class Command(BaseCommand):
                         defaults={
                             "university": university,
                             "campus_name": campus_name,
-                            "address": row["school_address"] or None,
+                            "address": normalize_address(row["school_address"]),
+                            "region": normalize_region(address=row["school_address"]),
                             "is_primary": raw_name == canonical_name,
                         },
                     )

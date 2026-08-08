@@ -8,3 +8,4 @@ legacy/
 .DS_Store
 .idea/
 .vscode/
+*.dump
