@@ -272,3 +272,163 @@ python manage.py shell -c "from universities.models import University; print(lis
 python manage.py shell -c "from universities.models import UniversityExternalMapping; print(list(UniversityExternalMapping.objects.filter(source='ADIGA',external_code__in=['0000117','0002959']).values_list('external_code','external_name','university__name')))"
 
 DB schema migration 없음.
+
+
+v71 - ADIGA 캠퍼스 통합 자동 감사
+
+신규 명령:
+python manage.py audit_adiga_campus_splits
+
+목적:
+- 현재 K-unirank에서는 하나의 University인데
+- UniversityExternalMapping 기준 ADIGA external_code가 2개 이상 연결된 대학을 찾고
+- 각 code의 캠퍼스명 / 주소 / 지역 / 해당 학년도 입결 건수를 비교
+- 자동 분리 권고 여부를 출력
+
+기본 출력:
+- SPLIT_RECOMMENDED만 표시
+
+보류 후보까지 모두:
+python manage.py audit_adiga_campus_splits --all
+
+특정 대학:
+python manage.py audit_adiga_campus_splits --name 중앙대학교 --all
+
+특정 학년도 입결 건수:
+python manage.py audit_adiga_campus_splits --year 2026 --all
+
+CSV 저장:
+python manage.py audit_adiga_campus_splits --year 2026 --all --csv adiga-campus-audit.csv
+
+판정:
+SPLIT_RECOMMENDED
+- 같은 University에 ADIGA code가 2개 이상
+- 주소/지역이 서로 다르거나 캠퍼스 라벨이 명확히 다름
+
+POLICY_REVIEW
+- MERGED_UNIVERSITIES 또는 COLLAPSED_CAMPUS_BASES
+- 현재 normalizer가 의도적으로 합치고 있는 대학
+- 자동 분리 금지, 통합 이력/입시 구조 별도 검토
+
+REVIEW
+- code는 여러 개지만 현재 저장된 주소/캠퍼스 정보만으로 자동 판정하기 어려움
+
+안전성:
+- 읽기 전용
+- DB 수정 없음
+- migration 없음
+- --apply 옵션 자체가 없음
+
+
+v72 - ADIGA 캠퍼스 11개 대학 일괄 분리
+
+분리 대상
+1. 건양대학교
+   0000054 논산/글로컬 -> 건양대학교
+   0000055 대전/메디컬 -> 건양대학교 메디컬캠퍼스
+
+2. 경기대학교
+   0000056 수원 -> 경기대학교
+   0000058 서울 -> 경기대학교 서울캠퍼스
+
+3. 경동대학교
+   0000060 고성/글로벌 -> 경동대학교
+   0002574 원주/메디컬 -> 경동대학교 메디컬캠퍼스
+   0002744 양주/메트로폴 -> 경동대학교 메트로폴캠퍼스
+
+4. 신한대학교
+   0002800 의정부 -> 신한대학교
+   0002712 동두천 -> 신한대학교 동두천캠퍼스
+
+5. 안양대학교
+   0000147 안양 -> 안양대학교
+   0000148 강화 -> 안양대학교 강화캠퍼스
+
+6. 영산대학교
+   0003193 해운대 -> 영산대학교
+   0003194 양산 -> 영산대학교 양산캠퍼스
+
+7. 을지대학교
+   0000162 성남 -> 을지대학교
+   0000161 대전 -> 을지대학교 대전캠퍼스
+   0002911 의정부 -> 을지대학교 의정부캠퍼스
+
+8. 전남대학교
+   0000023 광주 -> 전남대학교
+   0000024 여수 -> 전남대학교 여수캠퍼스
+
+9. 중앙대학교
+   0000175 서울 -> 중앙대학교
+   0000174 안성/다빈치 -> 중앙대학교 다빈치캠퍼스
+
+10. 예원예술대학교
+    0000219 경기드림 -> 예원예술대학교
+    0000218 전북희망 -> 예원예술대학교 전북희망캠퍼스
+
+11. 인천가톨릭대학교
+    0000167 송도국제 -> 인천가톨릭대학교
+    0000168 강화 -> 인천가톨릭대학교 강화캠퍼스
+
+통합 유지
+- 강원대학교: MERGED_UNIVERSITIES 유지
+- 가톨릭대학교: COLLAPSED_CAMPUS_BASES 유지
+- 국립창원대학교: MERGED_UNIVERSITIES 추가
+  경남도립거창/남해대학 옛 이름도 국립창원대학교 alias 추가
+
+핵심 안전 정책
+- 기존 대표 University PK 유지
+- 기존 비교투표/Rating/랭킹 history는 대표 캠퍼스에 그대로 유지
+- 새 캠퍼스에 과거 투표/Rating을 복제하지 않음
+- AdmissionSource는 source_url의 exact unvCd로 이동
+- AdmissionResult / RecruitmentUnit / Aggregate 함께 재배치
+- 불명확 Campus는 억지로 이동하지 않고 로그에 보류
+- 기본은 transaction 미리보기 / --apply만 실제 반영
+- migration 없음
+
+실행
+
+1) Django 확인
+python manage.py check
+
+2) 전체 미리보기
+python manage.py split_adiga_campuses_bulk
+
+3) 특정 대학만 미리보기
+python manage.py split_adiga_campuses_bulk --university 중앙대학교
+
+4) 전체 적용
+python manage.py split_adiga_campuses_bulk --apply
+
+5) 캠퍼스 region 전체 미리보기
+python manage.py repair_campus_regions
+
+6) 캠퍼스 region 전체 적용
+python manage.py repair_campus_regions --apply
+
+7) 최종 감사
+python manage.py audit_adiga_campus_splits --year 2026 --all
+
+예상:
+- 이번 11개 분리 대학은 동일 University 아래 multi-code 감사 목록에서 사라짐
+- 강원대학교 / 국립창원대학교는 POLICY_REVIEW
+- 가톨릭대학교는 POLICY_REVIEW
+
+
+v73 - 전남 지역 표시명 통일
+
+정책:
+- 전남 -> 전남광주통합특별시
+- 전라남도 -> 전남광주통합특별시
+- 기존 전남광주통합특별시 값도 그대로 유지
+- 광주광역시는 변경하지 않음
+
+영향:
+- University.location_label
+- UniversityCampus.location_label
+- 대학 찾기 카드의 지역 표시
+- 대학 찾기 지역 필터 chip
+- selected_region 필터 비교
+- normalize_region()을 사용하는 향후 동기화/region 보정
+
+DB schema migration 없음.
+기존 address는 수정하지 않음.
