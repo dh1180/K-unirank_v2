@@ -17,7 +17,7 @@ from universities.services.university_normalizer import normalize_address, norma
 
 
 LEGACY_NAME = "홍익대학교"
-SEOUL_NAME = "홍익대학교 서울캠퍼스"
+SEOUL_NAME = "홍익대학교"
 SEJONG_NAME = "홍익대학교 세종캠퍼스"
 
 SEOUL_FALLBACK_ADDRESS = "서울특별시 마포구 와우산로 94 (상수동, 홍익대학교)"
