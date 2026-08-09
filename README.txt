@@ -1,51 +1,47 @@
-K-unirank v51 CLEAN RANKING START
+K-unirank v52 - 지역 미상 대학 대표주소 제1캠퍼스 보정
 
-목표
-- 운영자 초기 시드 완전 제거
-- synthetic n전 제거
-- 기존 테스트/실제 투표 포함 랭킹 데이터 초기화
-- 모든 대학은 동일한 1500 / RD 350 / 0전에서 시작
-- 이후 실제 ComparisonVote만 점수/전적에 반영
+목적
+- University 상단이 '지역 미상'인 대학만 대상
+- CareerNet UniversityCampus 중
+  1) is_primary=True
+  2) 본교 / 본캠퍼스 / 제1캠퍼스 / 1캠퍼스
+  순서로 대표 캠퍼스를 선택
+- 해당 캠퍼스의 주소 + 지역을 University.address / University.region에 저장
+- 제2캠퍼스를 임의로 대표로 선택하지 않음
 
-절대 삭제하지 않는 데이터
-- University / UniversityCampus
-- CareerNet / ADIGA 외부 매핑
-- 입시 AdmissionResult / AdmissionMetric / AdmissionAggregate
-- 대학 로고 및 static
-- 사용자 계정
+예시
+가천대학교
+기존:
+  지역 미상
+  인천 연수구 함박뫼로 191
 
-코드 적용 파일
-- rankings/baseline.py
-- rankings/views.py
-- rankings/management/commands/seed_ranking_baseline.py
-- rankings/management/commands/reset_ranking_clean.py
-- templates/rankings/home.html
-- templates/rankings/ranking.html
-- universities/views.py
-- templates/universities/university_detail.html
+보정:
+  경기도
+  경기도 성남시 수정구 성남대로 1342 (복정동, 가천대학교)
 
-1. 파일 덮어쓰기 후
+적용 파일
+universities/management/commands/backfill_primary_campus_address.py
+
+1. 코드 확인
 python manage.py check
 
-2. 삭제 예정 데이터 확인 (DB 변경 없음)
-python manage.py reset_ranking_clean
+2. 가천대만 미리보기
+python manage.py backfill_primary_campus_address --university "가천대학교"
 
-3. 출력 확인 후 실제 랭킹 데이터만 초기화
-python manage.py reset_ranking_clean --apply
+3. 전체 지역 미상 대학 미리보기
+python manage.py backfill_primary_campus_address
 
-4. 확인
-python manage.py shell -c "from rankings.models import ComparisonVote, UniversityRating; print('votes=', ComparisonVote.objects.count(), 'ratings=', UniversityRating.objects.count())"
+4. 실제 반영
+python manage.py backfill_primary_campus_address --apply
 
-정상:
-votes= 0 ratings= 0
+5. 확인
+python manage.py shell -c "from universities.models import University; u=University.objects.get(name='가천대학교'); print(u.name, u.location_label, u.display_address)"
 
-이후 사이트 상태
-- 메인 종합 유효 투표: 0
-- TOP10: 비어 있음
-- 전체 랭킹: 비어 있음
-- 대학 상세: '아직 실제 비교 기록이 없어요.'
-- 첫 실제 VS 투표 시 해당 두 대학이 1500점 중립 상태에서 Glicko-2 계산 시작
+실서버
+railway ssh -s web -- python manage.py backfill_primary_campus_address
+railway ssh -s web -- python manage.py backfill_primary_campus_address --apply
 
 주의
-reset_ranking_clean --apply는 현재 존재하는 실제 투표도 모두 삭제한다.
-한번 삭제하면 DB 백업 없이는 복구할 수 없다.
+- University / Campus / Admission / Ranking 데이터 삭제 없음
+- 지역 미상이 아닌 대학은 건드리지 않음
+- 제1캠퍼스를 확인할 수 없는 대학은 경고만 출력하고 건너뜀
