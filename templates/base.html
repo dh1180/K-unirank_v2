@@ -25,6 +25,7 @@
     <title>{% block title %}K-unirank{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <link rel="stylesheet" href="{% static 'css/vs.css' %}">
+    {% block extra_head %}{% endblock %}
     <link rel="icon" href="/static/university/K-uniran.png">
 </head>
 <body>
@@ -55,7 +56,6 @@
      data-ad-height = "100"></ins>
 <script type="text/javascript" src="//t1.kakaocdn.net/kas/static/ba.min.js" async></script>
 
-
 <main class="container">
     {% if messages %}
         {% for message in messages %}
@@ -64,6 +64,7 @@
     {% endif %}
     {% block content %}{% endblock %}
 </main>
+
 <footer class="footer">
     사용자 투표 기반 선호도 랭킹이며 공식 대학평가가 아닙니다. 입시 데이터는 원문 출처와 함께 제공합니다.
 </footer>

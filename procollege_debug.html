@@ -1,0 +1,2206 @@
+<html lang="ko"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	
+	<!--
+	<link rel="shortcut icon" type="image/x-icon" href="/" />
+	-->
+	<link href="/common/favi.ico" rel="shortcut icon">
+	<!--
+	<link href="/common/css/main_new.css" rel="stylesheet" type="text/css" />
+	-->
+	
+	<link href="/common/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css">
+	<link href="/common/css/owl.carousel.css" rel="stylesheet" type="text/css">
+	<link href="/common/jquery_plugin/redmond/jquery-ui-1.9.1.custom.min.css" rel="stylesheet" type="text/css">
+	<!-- <link href="/common/css/base.css?ver=20180503" rel="stylesheet" type="text/css" />
+	<link href="/common/css/sub.css?ver=20180503" rel="stylesheet" type="text/css" /> -->
+	<link href="/common/css/bootstrap.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="/common/css/sm.css">
+	<link rel="stylesheet" href="/common/css/md.css" media="screen and (min-width: 768px)">
+	<link rel="stylesheet" href="/common/css/lg.css" media="screen and (min-width: 1320px)">
+	<link rel="stylesheet" href="/common/css/xl.css" media="screen and (min-width: 1600px)">
+	
+	<script src="/common/js/jquery-1.10.2.min.js"></script>
+	<script src="/common/js/jquery-migrate-1.2.1.min.js"></script>
+	<script src="/common/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script src="/common/js/owl.carousel.min.js"></script>
+	<script src="/common/js/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script src="/common/js/bootstrap.min.js"></script>
+	<script src="/common/js/jquery.js?ver=20180503"></script>
+	<script src="/common/js/jquery_ui.js"></script>
+	<script src="/common/jquery_plugin/kakao.story.min.js"></script>
+	<script type="text/javascript" src="/common_admin/js/common_functions.js"></script>
+	<script type="text/javascript" src="/common/jquery_plugin/jquery.ui.datepicker-ko.js"></script>
+	<script src="/common/js/script_.js"></script>
+	
+	<!--
+	[if lte IE 8]>
+		<script src="/common/js/html5shiv.js"></script>
+		<link href="/common/css/row.css" rel="stylesheet" type="text/css" />
+	<![endif]
+	-->
+	<title>전문대학포털  | 입학정보 &gt; 전년도입시결과 </title>
+	<!--
+	<meta property="fb:app_id" content="310021635874667" />
+	-->
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="프로칼리지">
+	<meta property="og:description" content=" ">
+	<meta property="og:image" content="https://www.procollege.kr/common/img/common/logo_new.png">
+	
+	<meta property="og:url" content="">
+	<meta property="og:site_name" content="전문대학포털">
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:title" content="프로칼리지">
+	<meta name="twitter:description" content=" ">
+	<meta name="twitter:image" content="">
+	<meta name="twitter:domain" content="전문대학포털">
+
+	<script type="text/javascript">
+		
+		
+		function send(sns){//facebook twitter kakaostory band
+			
+			var univcode = "";
+			//univcode라는 단어가 들어갔을시 추출
+			if(univcode != null || univcode != ""){
+				//대학명 가져오기
+				$.ajax({
+					type:"POST"
+					,url:"/common/collegeTagAjax.do"
+					,data:"univcode="+univcode+"&codeyear="+"2015"
+					,dataType:"text"
+					,success:function(data){
+						sendSns(sns, "", "("+data+")"+"", "//www.procollege.kr/common/img/common/logo.png", "", "" );
+					}
+					,error:function(request,status,error){
+						alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+					}
+				});
+			}else{
+				sendSns(sns, "", "", "//www.procollege.kr/common/img/common/logo.png", "", "" );	
+			}
+		}
+		
+		function fn_datePicker(dateId){
+			$( dateId ).datepicker(        
+			{          
+				showOn: "both",
+				buttonImage: "../../common/jquery_plugin/i_calender_20.gif",
+				buttonImageOnly: true,
+				changeMonth: true,
+				changeYear: true,
+				yearRange:"c-10:c+10"
+			},
+			$.datepicker.regional[ "ko" ]);
+		}
+		
+		function fn_datePickerRange(startId, endId) {
+			$( startId ).datepicker(        
+			{          
+				showOn: "both",
+				buttonImage: "../../common/jquery_plugin/i_calender_20.gif",
+				buttonImageOnly: true,
+				changeMonth: true,
+				changeYear: true,
+				yearRange:"c-10:c+10",
+				onClose: function( selectedDate ) {  $( endId ).datepicker( "option", "minDate", selectedDate );      }
+			},
+			$.datepicker.regional[ "ko" ]);
+			
+			$( endId ).datepicker(        
+			{          
+				showOn: "both",
+				buttonImage: "../../common/jquery_plugin/i_calender_20.gif",
+				buttonImageOnly: true,
+				changeMonth: true,
+				changeYear: true,
+				yearRange:"c-10:c+10",
+				onClose: function( selectedDate ) {      $( startId ).datepicker( "option", "maxDate", selectedDate );       }
+			},
+			$.datepicker.regional[ "ko" ]);
+		}
+		
+		function fn_mainSearch(){
+			var frm = document.searchForm;
+			var categoryValue =  $("#chkVal").val();
+		
+			//all
+			if(categoryValue == 'all'){
+				frm.action = '/web/search/webSearchMain.do';
+				frm.q.value = frm.schStr.value;
+				frm.submit();
+			}
+			//major
+			if(categoryValue == 'major'){
+				frm.action ='/web/college/webCollegeSearchMajor.do';
+				frm.submit();
+			}
+			//job
+			if(categoryValue == 'job'){
+				frm.action = '/web/department/webDepartmentCourseList.do';
+				frm.schCon.value = '2';
+				frm.submit();
+			}
+		}
+
+		function applyLazyImages(scope){
+			var $scope = scope ? $(scope) : $(document);
+			$scope.find("img").each(function(){
+				var $img = $(this);
+				if (!$img.attr("loading")) {
+					$img.attr("loading", "lazy");
+				}
+				if (!$img.attr("decoding")) {
+					$img.attr("decoding", "async");
+				}
+			});
+		}
+
+		$(function(){
+			applyLazyImages(document);
+			$(document).ajaxComplete(function(){
+				applyLazyImages(document);
+			});
+		});
+	
+	</script>
+<script type="text/javascript" async="" src="https://ssl.pstatic.net/melona/libs/gfp-nac-module/synchronizer.js"></script></head>
+
+<body style="">
+	
+	<!--wrap-->
+	<div id="wrap" class="sub">
+		
+		<!--바로가기메뉴-->
+		<div id="accessibility">
+			<a href="#container">본문 바로가기</a>
+			<a href="#gnb">주메뉴 바로가기</a>
+			<a href="#lnb">서브메뉴 바로가기</a>
+		</div>
+		<!--//바로가기메뉴-->
+
+		<!--header-->
+		<header>
+			<div class="w">
+				<div class="top_area">
+					<button type="button" class="btn-search"><span class="sr-only">검색</span></button>
+					<a href="/web/main/webMainSitemap.do" class="btn_gnb"><span class="blind">주메뉴열기</span></a>
+					<button type="button" class="btn_gnb btn_gnb-mobile" onclick="opengnb();"><span class="blind">주메뉴열기</span></button>					
+					<ul class="usernav">
+						<li><a href="/web/main/index.do">HOME</a></li>
+						
+							
+							
+								<li><a href="/web/member/webMemberLogin.do">MEMBER LOGIN</a></li>
+							
+									
+						<li><a href="/web/main/webMainSitemap.do">SITEMAP</a></li>
+					</ul>
+				</div>
+				<h1 class="logo"><a href="/web/main/index.do"><span class="sr-only">전문대학포털</span></a></h1>
+				
+				<h2 class="blind">SNS</h2>
+				<ul class="snsList snsList-tablet">
+					<li><a href="https://www.facebook.com/collegeportal" class="m_sns icon icon-f" target="_blank" title="새창으로 열림"><span class="blind">페이스북</span></a></li>
+					<li><a href="https://www.instagram.com/collegeportal_official/" class="m_sns icon icon-i" target="_blank" title="새창으로 열림"><span class="blind">인스타그램</span></a></li>
+					<li><a href="https://blog.naver.com/collegeportal" class="m_sns icon icon-b" target="_blank" title="새창으로 열림"><span class="blind">블로그</span></a></li>							
+					<li><a href="http://www.youtube.com/channel/UCk-ya_ZutaR81iOXa3Rt0mQ" class="m_sns icon icon-y" target="_blank" title="새창으로 열림"><span class="blind">유튜브</span></a></li>
+				</ul>
+				
+				<!--sera 검색기능확인 -->
+				<div class="search_ban" style="display: block;">
+					<button class="search-close"><span class="sr-only">닫기</span></button>
+					<form method="post" name="searchForm" id="searchForm" action="/web/search/webSearchMain.do" onsubmit="fn_mainSearch();"> 				
+						<input type="hidden" id="searchTxt" name="q">
+						<input type="hidden" id="schCon" name="schCon">
+						<select id="chkVal" name="chkVal" class="search_select">
+							<option id="all" value="all" selected="selected">전체</option>
+							<option id="major" value="major">전공명</option>
+							<option id="job" value="job">직업명</option>
+						</select>
+						<input class="search_input" type="text" value="" id="schStr" name="schStr" maxlength="50" placeholder="검색할 내용을 입력하세요">
+						<a href="#none" onclick="fn_mainSearch();" class="search-btn"></a>
+					</form>		
+				</div>						
+				<!-- //search_box -->
+				
+				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+ 
+ 
+ 
+            
+       
+  
+  
+<script type="text/javascript">
+//<![CDATA[
+	// 성적반영방법.
+	function fn_goModelList(){
+		$("#loading").show(); //로딩중 이미지 보여줌
+		var url = "/web/entrance/webEntranceTypeGradeModel.do";	
+		$(location).attr('href',url);
+	}
+	
+	$(document).bind("contextmenu", function(e){
+	    //alert("오른쪽마우스버튼 금지입니다.");
+	    return false;
+	 });
+//]]>
+</script>
+
+				<div id="gnb">
+					<nav>
+						<h2 class="blind">주메뉴</h2>
+						<ul class="gnb">
+						    
+
+							
+							<li class="has">
+								<a href="#">전문대학소식</a>
+								<span class="gnb-depth1"><strong>전문</strong>대학 소식</span>
+								<ul class="dp2">									
+									<li><a href="/web/college/webCollegeDefineList.do">전문대학?!</a></li>
+									<li><a href="/web/board/13191.do">전문대학 통계</a></li>
+									<li><a href="/web/college/webCollegeHistoryList.do">전문대학 히스토리</a></li>
+									<li class="has">
+										<a href="#">대학소식</a>
+										<ul class="dp3">
+											<!--  
+											<li><a href="/web/board/27366.do">전문대학 주간소식</a></li>
+											-->
+											<li><a href="/web/board/10254.do">뉴스&amp;전문대학</a></li>
+											<li><a href="/web/board/11046.do">전문대학 무비</a></li>
+											<li><a href="/web/webzine/webWebzineMain.do">웹진</a></li>
+											<li><a href="/web/board/6743.do">대학 사진</a></li>
+											<li><a href="/web/board/6936.do">대학 영상</a></li>
+											<li><a href="/web/board/7871.do">우리대학 소식 및 행사</a></li>
+										</ul>
+									</li>
+									<li class="has">
+										<a href="#">공지사항</a>
+										<ul class="dp3">
+											<li><a href="/web/board/9812.do">공지</a></li>
+											<li><a href="/web/board/8321.do">교직원 채용</a></li>
+											<li><a href="/web/board/28584.do">교원(강사·초빙교원&nbsp;등) 채용</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li class="has">
+								<a href="#">진로정보</a>
+								<span class="gnb-depth1"><strong>진로</strong>정보</span>
+								<ul class="dp2">
+									<li><a href="/web/board/5618.do">진로∙전공탐색</a></li>	
+									<li><a href="/web/college/webCollegeSearch.do">대학 및 전공정보</a></li>	
+									<li><a href="/web/department/webDepartmentCourseList.do">전문대학 직업세계</a></li>							
+								</ul>
+							</li>
+							<li class="has">
+								<a href="#">입학정보</a>
+								<span class="gnb-depth1"><strong>입학</strong>정보</span>
+								<ul class="dp2">	
+									<li><a href="/web/entrance/webEntranceMainSchedule.do">모집시기별 일정</a></li>
+									<li><a href="/web/entrance/webEntranceCollegeSchedule.do">대학별 전형일정</a></li>
+									<li><a href="/web/entrance/webEntranceTypeGradeModel.do">대학별 전형방법</a></li>
+									<li><a href="/web/board/26108.do">진학정보 자료실</a></li>
+									<li class="active"><a href="/web/entrance/webEntrancePreResult.do" class="active">전년도 입시결과</a></li>
+								</ul>
+							</li>
+							<li class="has">
+								<a href="#">평생교육정보</a>
+								<span class="gnb-depth1"><strong>평생</strong>교육 정보</span>
+								<ul class="dp2">	
+									<li><a href="/web/lifetime/webLifetimeEducationCenter.do">평생교육원</a></li>
+									<li><a href="/web/lifetime/webLifetimeIndustrialCons.do?">산업체 위탁</a></li>
+									<li><a href="/web/lifetime/webLifetimeUnivDegree.do">학사학위전공심화</a></li>
+								</ul>
+							</li>
+							<li class="has">
+								<a href="#">진학지원</a>
+								<span class="gnb-depth1"><strong>진학</strong>지원</span>
+								<ul class="dp2">
+									<li><a href="/web/request/request_entrance.do">찾아가는 고교 진로ㆍ진학 설명회</a></li>
+
+									<li><a href="/web/fair/admission.do">입학정보박람회</a></li>
+									<li><a href="/web/consult/webConsultMonitor.do">온라인 상담</a></li>
+								</ul>
+							</li>
+						
+						
+							
+						</ul>
+						
+						<h2 class="blind">사용자 메뉴</h2>
+						<ul class="usernav">
+							<li><a href="/web/main/index.do">HOME</a></li>
+							
+								
+								
+									<li><a href="/web/member/webMemberLogin.do">MEMBER LOGIN</a></li>
+									<li><a href="/web/member/webMemberJoin.do">JOIN US</a></li>
+								
+										
+							<li><a href="/web/main/webMainSitemap.do">SITEMAP</a></li>
+						</ul>
+						<ul class="usernav usernav-mobile">
+							
+								
+								
+									<li><a href="/web/member/webMemberLogin.do">LOGIN</a></li>
+									<li><a href="/web/member/webMemberJoin.do">JOIN</a></li>
+								
+							
+						</ul>
+						
+						<h2 class="blind">SNS</h2>
+						<ul class="snsList">
+							<li><a href="https://www.facebook.com/collegeportal" class="m_sns icon icon-f" target="_blank" title="새창으로 열림"><span class="blind">페이스북</span></a></li>
+							<li><a href="https://www.instagram.com/collegeportal_official/" class="m_sns icon icon-i" target="_blank" title="새창으로 열림"><span class="blind">인스타그램</span></a></li>
+							<li><a href="https://blog.naver.com/collegeportal" class="m_sns icon icon-b" target="_blank" title="새창으로 열림"><span class="blind">블로그</span></a></li>							
+							<li><a href="http://www.youtube.com/channel/UCk-ya_ZutaR81iOXa3Rt0mQ" class="m_sns icon icon-y" target="_blank" title="새창으로 열림"><span class="blind">유튜브</span></a></li>
+						</ul>
+					</nav>
+				</div>
+				
+<div id="loading" style="display:none">
+	<div class="msg"><img src="/common/img/common/loadmsg.png" alt="처리중입니다. 잠시만 기다려주세요, 자료의 양에 따라 수초 또는 수분이 걸릴 수 있습니다." loading="lazy" decoding="async"></div>
+</div> 				
+				
+				<!-- <button type="button" class="btn_mypage" onclick="mypage();"><span class="blind">맞춤정보</span></button> -->
+			</div>
+			<div class="gnbbg" style="display: block;"></div>
+		</header>
+		
+		<button class="go-top"><span class="sr-only">위로이동</span></button>
+	
+		<!-- S : bookmark -->
+		<div class="bookmark">
+			<button class="bookmark-btn"><span class="sr-only">바로가기 버튼</span></button>
+			<div class="bookmark-con">
+				<span class="bookmark-tit">
+					전문대학포털<br><strong>바로가기</strong> 서비스
+				</span>
+				<ul>
+					<li>
+						<a href="/web/consult/webConsultMonitor.do">
+							<i class="bookmark-icon icon-bookmark1"></i>
+							<span class="bookmark-txt">진로진학상담</span>
+						</a>
+					</li>
+					<li>
+						<a href="/web/board/7975.do">
+							<i class="bookmark-icon icon-bookmark2"></i>
+							<span class="bookmark-txt">행사안내</span>
+						</a>
+					</li>
+					<li>
+						<a href="/web/entrance/webEntranceMainSchedule.do">
+							<i class="bookmark-icon icon-bookmark3"></i>
+							<span class="bookmark-txt">입학정보</span>
+						</a>
+					</li>
+					<!-- <li>
+						<a href="#">
+							<i class="bookmark-icon icon-bookmark4"></i>
+							<span class="bookmark-txt">용어사전</span>
+						</a>
+					</li> -->
+					<li>
+						<a href="/web/board/6743.do">
+							<i class="bookmark-icon icon-bookmark5"></i>
+							<span class="bookmark-txt">대학사진</span>
+						</a>
+					</li>
+					<li>
+						<a href="/web/board/6936.do">
+							<i class="bookmark-icon icon-bookmark6"></i>
+							<span class="bookmark-txt">대학영상</span>
+						</a>
+					</li>
+					<li>
+						<a href="/web/webzine/webWebzineMain.do">
+							<i class="bookmark-icon icon-bookmark7"></i>
+							<span class="bookmark-txt">웹진</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- E : bookmark -->
+		
+		<!--header_end-->
+		<hr>
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--lnb-->
+
+<div id="lnb">
+	
+	<div class="w">
+	
+		<ul class="lnb">
+			<li class="home"><a href="/web/main/index.do">HOME</a></li>
+			<li class="nav first">
+				<a href="#">입학정보</a>
+				<ul class="dp2">
+					<li><a href="/web/college/webCollegeDefineList.do">전문대학소식</a></li>
+					<li><a href="/web/board/5618.do">진로정보</a></li>
+					<li><a href="/web/entrance/webEntranceMainSchedule.do">입학정보</a></li>
+					<li><a href="/web/lifetime/webLifetimeEducationCenter.do">평생교육정보</a></li>
+					<li><a href="/web/request/request_entrance.do">진학지원</a></li>
+				</ul>
+			</li>
+			<li class="nav last">
+				<a href="#">전년도 입시결과</a>
+				<ul class="dp2">
+					<li><a href="/web/entrance/webEntranceMainSchedule.do">모집시기별 일정</a></li>
+					<li><a href="/web/entrance/webEntranceCollegeSchedule.do">대학별 전형일정</a></li>
+					<li><a href="/web/entrance/webEntranceTypeGradeModel.do">대학별 전형방법</a></li>
+					<li><a href="/web/board/26108.do">진학정보 자료실</a></li>
+					<li><a href="/web/entrance/webEntrancePreResult.do">전년도 입시결과</a></li>
+				</ul>
+			</li>
+		</ul>
+
+	</div>
+
+</div>
+
+<!--lnb_end-->
+
+<script type="text/javascript">
+//<![CDATA[
+    
+    $(document).ready(function() {
+    	// on/off 상세검색.
+    	var openyn = $("#openyn").val();    	
+    	
+    	if (openyn == "1") {    			
+   			$("div").find(".detail").hide();
+   			$("div").find(".detail").removeClass("open");
+    			
+    	} else if (openyn == "2") {
+    		$("div").find(".detail").show();
+   			$("div").find(".detail").addClass("open");
+   			
+   			$("div").find(".btn_detail").show();
+   			$("div").find(".btn_detail").addClass("open");
+    	}
+    	
+    	// 지역 설정.
+     	if ($("#univregion").val() != "") {
+    		var univstr = $("#univregion").val().replace(/'/g,"");
+    		var univtemp  = univstr.split(",");
+    		var univregion = [];
+    		
+    		for (var i = 0; i < univtemp.length; i++) {
+    			univregion[i] = new Array(univtemp[i]);
+
+    			var id1 = "";
+				var text1 = "";
+				var str1 = "";
+				
+    			$("input:checkbox[name=dc_univregion]").each(function(index, val) {
+    				if (univregion[i] == $(this).val()) {
+    					// checkbox 재설정
+    					$(this).attr("checked",true);	
+    					
+    					// datailList 재설정
+    					id1 = $(this).attr("id");
+    					text1 = $("#l_"+id1).text();
+    					str1 = "<li id="+id1+">지역 &gt; " + text1 + " <a href=\"#\" onClick=\"fn_del(this);return false;\" ><img src=\"/common/img/sub/detail_del.png\" alt=\"선택조건 지우기\"/></a></li>";	
+
+    					$(".detailList").append(str1); 
+    				}
+    			});
+    		}
+    		
+    		if ($("#chktot1").val() == "1") {
+    			$("#chk1_01").attr("checked",true);
+    			
+    		}
+    		
+    	} 
+    	
+     	// 설립구분 설정.
+     	if ($("#foundtype").val() != "") {
+    		var foundstr = $("#foundtype").val().replace(/'/g,"");
+    		var foundtemp  = foundstr.split(",");
+    		var foundtype = [];
+    		
+    		for (var i = 0; i < foundtemp.length; i++) {
+    			foundtype[i] = new Array(foundtemp[i]);
+
+    			var id2 = "";
+				var text2 = "";
+				var str2 = "";
+				
+    			$("input:checkbox[name=dc_foundtype]").each(function(index, val){
+    				if (foundtype[i] == $(this).val()) {
+    					// checkbox 재설정
+    					$(this).attr("checked",true);	
+    					
+    					// datailList 재설정
+    					id2 = $(this).attr("id");
+    					text2 = $("#l_"+id2).text();
+    					str2 = "<li id="+id2+">설립구분 &gt; " + text2 + " <a href=\"#\" onClick=\"fn_del(this);return false;\" ><img src=\"/common/img/sub/detail_del.png\" alt=\"선택조건 지우기\"/></a></li>";	
+
+    					$(".detailList").append(str2); 
+    				}
+    			});
+    		}
+    		
+    		if ($("#chktot2").val() == "1") {
+    			$("#chk2_01").attr("checked",true);
+    			
+    		}
+    		
+    	} 
+    });
+    
+  	// 세부검색보기.
+	function detailview(elm){
+		if(elm.hasClass("open")){
+			elm.parent().parent().find(">.detail").hide();
+			elm.removeClass("open");
+			
+			$("#openyn").val("1");	
+			
+		}else{
+			elm.parent().parent().find(">.detail").show();
+			elm.addClass("open");
+			
+			$("#openyn").val("2");	
+		};
+	};
+    	
+    	
+	// 검색.
+	function fn_preResultList(){
+		// set 선택조건.
+		fn_univregionGet();	
+		
+		$("#schOrderField").val("");
+		$("#schOrderBy").val("");
+		$("#pageIndex").val("1");
+		$("#listForm").attr("action", "?");
+		document.listForm.submit();
+	}
+	
+	// Pagination.
+	function fn_linkPage(page){
+		$("#pageIndex").val(page);
+	   	$("#listForm").attr("action", "?");
+	   	document.listForm.submit();
+	}
+	
+	// set 선택조건.
+	function fn_univregionGet() {
+		// 지역.
+		var checkArray1 = "";
+		var check1 = "";
+		$("input:checkbox[name=dc_univregion]").each(function(index, val) {
+			check1 = $(this).attr("checked");
+	
+			if (check1 == "checked") {
+				if (checkArray1 != "") checkArray1 = checkArray1 + ","; 
+				checkArray1 = checkArray1 + "'" + $(this).val() + "'" ;
+			}
+		});
+		
+		$("#univregion").val(checkArray1);
+		
+		
+		// 설립구분.
+		var checkArray2 = "";
+		var check2 = "";
+		$("input:checkbox[name=dc_foundtype]").each(function(index, val) {
+			check2 = $(this).attr("checked");
+	
+			if (check2 == "checked") {
+				if (checkArray2 != "") checkArray2 = checkArray2 + ","; 
+				checkArray2 = checkArray2 + "'" + $(this).val() + "'" ;
+			}
+		});
+		
+		$("#foundtype").val(checkArray2);
+	}
+	
+	// contr 선택조건.
+	function fn_courseCheck(div) {
+		var id = $(div).attr("id");
+		
+		var subid = "";
+		var text = "";
+		var str = "";
+		var val = "";
+		
+		// checked.
+		if ($("#"+id).attr("checked") == "checked") {
+			// 전체.
+			if (id == "chk1_01") {
+				$("input:checkbox[name=dc_univregion]").each(function(index, val){
+					// 중복체크.
+					if ($(this).attr("checked") == "checked") return true;
+					
+   					// check all.
+   					$(this).attr("checked",true);	
+   					
+   					// set datailList.
+   					subid = $(this).attr("id");
+   					text = $("#l_"+subid).text();
+   					str = "<li id="+subid+">지역 &gt; " + text + " <a href=\"#\" onClick=\"fn_del(this);return false;\" ><img src=\"/common/img/sub/detail_del.png\" alt=\"선택조건 지우기\"/></a></li>";	
+   					
+   					$(".detailList").append(str); 
+    			});
+				
+				// check 여부.
+				$("#chktot1").val("1");
+			
+			} else if (id == "chk2_01") {
+				$("input:checkbox[name=dc_foundtype]").each(function(index, val){
+					// 중복체크.
+					if ($(this).attr("checked") == "checked") return true;
+					
+   					// check all.
+   					$(this).attr("checked",true);	
+   					
+   					// set datailList.
+   					subid = $(this).attr("id");
+   					text = $("#l_"+subid).text();
+   					str = "<li id="+subid+">설립구분 &gt; " + text + " <a href=\"#\" onClick=\"fn_del(this);return false;\" ><img src=\"/common/img/sub/detail_del.png\" alt=\"선택조건 지우기\"/></a></li>";	
+   					
+   					$(".detailList").append(str); 
+    			});
+				
+				// check 여부.
+				$("#chktot2").val("1");
+				
+			// 전체 외.	
+			} else {
+				code = id;
+				if (id.substring(3,4) == "1")
+					area = "지역";
+				else
+					area = "설립구분";
+				text = $("#l_"+id).text();
+				str = "<li id="+code+">"+area+ "&gt; " + text + " <a href=\"#\" onClick=\"fn_del(this);return false;\" ><img src=\"/common/img/sub/detail_del.png\" alt=\"선택조건 지우기\"/></a></li>";	
+				
+				$(".detailList").append(str);
+				
+			}
+			
+		// unchecked.
+		} else {
+			// 지역 전체.
+			if (id == "chk1_01") {
+				$("input:checkbox[name=dc_univregion]").each(function(index, val){
+   					// uncheck all.
+   					$(this).attr("checked",false);	
+   					
+   					// clear datailList.
+   					subid = $(this).attr("id");
+   					$("li[id='"+subid+"']").remove();	
+    			});
+				
+				// check 여부.
+				$("#chktot1").val("2");
+			
+			// 설립구분 전체.
+			} else if (id == "chk2_01") {
+				$("input:checkbox[name=dc_foundtype]").each(function(index, val){
+					
+   					// uncheck all.
+   					$(this).attr("checked",false);	
+   					
+   					// clear datailList.
+   					subid = $(this).attr("id");
+   					$("li[id='"+subid+"']").remove();	
+    			});
+				
+				// check 여부.
+				$("#chktot2").val("2");
+				
+			// 전체 외.	
+			} else {				
+				
+				$("li[id='"+id+"']").remove();	
+				
+			}
+		}
+	}
+	
+	// remove 선택조건.
+	function fn_del(div) {
+		var id = $(div).parent().attr("id");
+
+		// 선택조건 clear.
+		$("li[id='"+id+"']").remove();	
+
+		// 체크 box 해제
+		$("input[id='"+id+"']").attr("checked",false);	
+	}
+	
+	// 선택초기화
+	function fn_reset() {
+		// 모집학년도
+		$("#sel_1").val($("#codeyear").val());	
+		
+		// 모집시기
+		$("#sel_2").val("");					
+		
+		// 전형구분
+		$("#sel_3").val("");					
+		
+		// 전형방법
+		$("#sel_4").val("");					
+		
+		// 선택영역
+		$(".detailList").empty();
+		
+		// 전체
+		$("input[value='']").attr("checked",false);
+		
+		// 지역
+		$("input:checkbox[name=dc_univregion]").attr("checked",false);
+		$("#chktot1").val("2");
+		
+		// 설립구분
+		$("input:checkbox[name=dc_foundtype]").attr("checked",false);
+		$("#chktot2").val("2");
+	}
+	
+	function onOrderby(schOrderField, schOrderBy){
+		
+		$("#schOrderField").val(schOrderField);
+		$("#schOrderBy").val(schOrderBy);
+		
+		document.listForm.action = "?";
+		document.listForm.submit();
+	}
+	
+	function fn_excel(){
+		fn_univregionGet();
+		
+		var url = "/web/entrance/preResultList_excel.do;jsessionid=93EC05D074EF9F89C1BD0ABE1C8E7994";
+		url = url + "?cate="+$("#cate").val();
+		url = url + "&univName="+$("#univName").val();
+		url = url + "&sel_1="+$("#sel_1").val();
+		url = url + "&sel_2="+$("#sel_2").val();
+		url = url + "&sel_3="+$("#sel_3").val();
+		url = url + "&sel_4="+$("#sel_4").val();
+		url = url + "&univregion="+$("#univregion").val();
+		url = url + "&foundtype="+$("#foundtype").val();
+		
+		location.href = url; 
+	}
+
+//]]>
+</script>
+
+<!--container-->
+<section id="container">
+
+	<div class="pagehead">
+		<div class="w">
+			<h2>전년도 입시결과</h2>
+		</div>
+	</div>
+
+	<div class="content">
+
+		<form method="post" action="?" name="listForm" id="listForm" onsubmit="fn_preResultList(); return false;">
+			<div class="searchBox">
+				<input type="hidden" name="schOrderField" id="schOrderField" value="korname">
+                <input type="hidden" name="schOrderBy" id="schOrderBy" value="asc">
+				<input type="hidden" name="pageIndex" id="pageIndex" value="1">
+				<input type="hidden" name="openyn" id="openyn" value="">
+				<input type="hidden" name="chktot1" id="chktot1" value="">
+				<input type="hidden" name="chktot2" id="chktot2" value="">
+				<input type="hidden" name="codeyear" id="codeyear" value="2026">
+				
+										
+				<fieldset>
+				<div class="text-right">
+					<div class="searchCondi d-block">
+						<div class="basic">	
+								<div class="searchCon-listcount pull-left">
+									<label for="pageUnit" class="blind">게시물 출력갯수</label>
+									<select name="pageUnit" id="pageUnit" onchange="fn_preResultList();">
+										<option value="15" selected="selected">15</option>
+										<option value="30">30</option>
+										<option value="50">50</option>
+										<option value="100">100</option>
+									</select>
+								</div>
+								<legend>전공검색 설정</legend>	
+								<label for="cate" class="blind">검색조건</label>
+								<select id="cate" name="cate">
+									<option value="1">대학명</option>
+									<option value="2">전공명</option>
+								</select>
+								<div class="form-search">
+									<label for="univName" class="blind">검색어입력</label>
+									<input type="text" placeholder="검색어를 입력하세요." id="univName" name="univName" value="">
+									<button type="button" class="search" onclick="fn_preResultList();">검색</button>
+								</div>
+							<button type="button" class="btn_detail" onclick="detailview($(this));">상세검색</button>
+						</div>	
+						<div class="detail">
+							<div class="t">
+								<div>
+									<div class="n_body">
+										<ul class="chkList tp4">
+											<li>
+												<label for="sel_1" class="s_tit">모집학년도</label>
+												<select name="sel_1" id="sel_1" onchange="fn_preResultList();">
+													
+													
+														
+															
+															
+																<option value="2028">2028학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2027">2027학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2026" selected="&quot;selected&quot;">2026학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2025">2025학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2024">2024학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2023">2023학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2022">2022학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2021">2021학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2020">2020학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2019">2019학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2018">2018학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2017">2017학년도</option>
+															
+														
+													
+														
+															
+															
+																<option value="2016">2016학년도</option>
+															
+														
+													
+												</select>
+											</li>
+											<li>
+												<label for="sel_2" class="s_tit">모집시기</label>
+												<select id="sel_2" name="sel_2">
+													<option value="">전체</option>
+													
+														
+														
+															
+														
+													
+													
+													
+														
+																<option value="11">수시1차</option>
+														
+																<option value="12">수시2차</option>
+														
+																<option value="20">정시모집</option>
+														
+													
+													
+												</select>
+											</li>
+											<li>
+												<label for="sel_3" class="s_tit">전형구분</label>
+												<select id="sel_3" name="sel_3">
+													<option value="">전체</option>
+													<option value="1">일반전형</option>
+													<option value="2">특별전형</option>
+													
+												</select>
+											</li>
+											<li>
+												<label for="sel_4" class="s_tit">주/야</label>
+												<select id="sel_4" name="sel_4">
+													<option value="">전체</option>
+													<option value="1">주간</option>
+													<option value="2">야간</option>
+												</select>
+											</li>
+										</ul>
+	
+									</div>
+								</div>
+								<div>
+									<strong class="s_tit">지역</strong>
+									<div class="s_body">
+										<ul class="chkList tp2">
+											<li class="crb"><input type="checkbox" id="chk1_01" name="" value="" onclick="fn_courseCheck(this);"> <label for="chk1_01" id="l_chk1_01">전체</label></li>
+											
+											
+												<li class="crb"><input type="checkbox" id="chk1_02" name="dc_univregion" value="01" onclick="fn_courseCheck(this);">
+												<label for="chk1_02" id="l_chk1_02">서울</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_03" name="dc_univregion" value="02" onclick="fn_courseCheck(this);">
+												<label for="chk1_03" id="l_chk1_03">부산</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_04" name="dc_univregion" value="03" onclick="fn_courseCheck(this);">
+												<label for="chk1_04" id="l_chk1_04">대구</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_05" name="dc_univregion" value="04" onclick="fn_courseCheck(this);">
+												<label for="chk1_05" id="l_chk1_05">인천</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_06" name="dc_univregion" value="05" onclick="fn_courseCheck(this);">
+												<label for="chk1_06" id="l_chk1_06">광주</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_07" name="dc_univregion" value="06" onclick="fn_courseCheck(this);">
+												<label for="chk1_07" id="l_chk1_07">대전</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_08" name="dc_univregion" value="07" onclick="fn_courseCheck(this);">
+												<label for="chk1_08" id="l_chk1_08">울산</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_09" name="dc_univregion" value="08" onclick="fn_courseCheck(this);">
+												<label for="chk1_09" id="l_chk1_09">경기</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_010" name="dc_univregion" value="09" onclick="fn_courseCheck(this);">
+												<label for="chk1_010" id="l_chk1_010">강원</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_011" name="dc_univregion" value="10" onclick="fn_courseCheck(this);">
+												<label for="chk1_011" id="l_chk1_011">충북</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_012" name="dc_univregion" value="11" onclick="fn_courseCheck(this);">
+												<label for="chk1_012" id="l_chk1_012">충남</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_013" name="dc_univregion" value="12" onclick="fn_courseCheck(this);">
+												<label for="chk1_013" id="l_chk1_013">전북</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_014" name="dc_univregion" value="13" onclick="fn_courseCheck(this);">
+												<label for="chk1_014" id="l_chk1_014">전남</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_015" name="dc_univregion" value="14" onclick="fn_courseCheck(this);">
+												<label for="chk1_015" id="l_chk1_015">경북</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_016" name="dc_univregion" value="15" onclick="fn_courseCheck(this);">
+												<label for="chk1_016" id="l_chk1_016">경남</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_017" name="dc_univregion" value="16" onclick="fn_courseCheck(this);">
+												<label for="chk1_017" id="l_chk1_017">제주</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk1_018" name="dc_univregion" value="17" onclick="fn_courseCheck(this);">
+												<label for="chk1_018" id="l_chk1_018">세종</label></li>
+												
+											
+											<li class="crb"><input type="hidden" id="univregion" name="univregion" value="">
+										</li></ul>
+									</div>
+								</div>
+								<div>
+									<strong class="s_tit pt">설립구분</strong>
+									<div class="s_body">
+										<ul class="chkList tp2">
+											<li class="crb"><input type="checkbox" id="chk2_01" name="" value="" onclick="fn_courseCheck(this);"> <label for="chk2_01" id="l_chk2_01">전체</label></li>
+											
+											
+												<li class="crb"><input type="checkbox" id="chk2_02" name="dc_foundtype" value="10" onclick="fn_courseCheck(this);">
+												<label for="chk2_02" id="l_chk2_02">국립</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk2_03" name="dc_foundtype" value="20" onclick="fn_courseCheck(this);">
+												<label for="chk2_03" id="l_chk2_03">공립</label></li>
+												
+											
+												<li class="crb"><input type="checkbox" id="chk2_04" name="dc_foundtype" value="30" onclick="fn_courseCheck(this);">
+												<label for="chk2_04" id="l_chk2_04">사립</label></li>
+												
+											
+											<li class="crb"><input type="hidden" id="foundtype" name="foundtype" value="">
+										</li></ul>
+									</div>
+								</div>
+							</div>
+							<div class="b">
+								<div class="chkGuide">
+									<ul class="detailList">
+									</ul>
+									<div class="detailSearch">
+										<button type="button" class="btn1" onclick="fn_preResultList();">선택조건검색</button>
+										<button type="button" class="btn2" onclick="fn_reset()">선택초기화</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</fieldset>
+			</div>
+	
+			<div class="boardTop mb0">
+				<fieldset>
+					<legend>게시물 리스트 갯수설정</legend>
+
+					<p>
+						※ 아래 입시결과 자료는 "
+						
+							2026
+						
+						
+						" 조회 기준 입니다.
+					</p>
+				</fieldset>
+			</div>
+		</form>
+
+		<div>
+			<div class="boxx2 mCustomScrollbar _mCS_1 mCS_no_scrollbar"><div id="mCSB_1" class="mCustomScrollBox mCS-dark mCSB_horizontal mCSB_inside" tabindex="0"><div id="mCSB_1_container" class="mCSB_container mCS_x_hidden mCS_no_scrollbar_x" style="position: relative; top: 0px; left: 0px; width: 1140px;" dir="ltr">
+				<table class="defTable min1140">
+					<caption>전년도 입시결과 보기</caption>
+					<colgroup>
+						<!-- <col style="width:35px"/> -->
+						<col style="width:40px">
+						<col style="width:140px">
+						<col style="width:40px">
+						<col style="width:auto">
+						<col style="width:65px">
+						<col style="width:40px">
+						<col style="width:80px">
+						<col style="width:80px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+						<col style="width:50px">
+					</colgroup>
+					<thead>
+						<tr>
+							<!-- <th scope="col" rowspan="2"><span class="crb2"><input type="checkbox" id="chkall" /><label for="chkall"></label></span></th> -->
+							<th scope="col" rowspan="2">지역</th>
+							<th scope="col" rowspan="2">대학명</th>
+							<th scope="col" rowspan="2">모집<br>시기</th>
+							<th scope="col" rowspan="2">전공명</th>
+							<th scope="col" rowspan="2">모집시기별<br>입학정원</th>
+							<th scope="col" rowspan="2">주/야</th>
+							<th scope="col" rowspan="2" colspan="2">전형구분</th>
+							<th scope="col" colspan="2">점수산출기준</th>
+							<th scope="col" rowspan="2">경쟁률</th>
+							<th scope="col" colspan="2">합격자평균</th>
+							<th scope="col" colspan="2" class="last">합격자최저</th>
+						</tr>
+						<tr>
+							<th scope="col">수능</th>
+							<th scope="col">학생부</th>
+							<th scope="col">수능</th>
+							<th scope="col">학생부</th>
+							<!-- <th scope="col">교과외</th> -->
+							<th scope="col">수능</th>
+							<th scope="col" class="last">학생부</th>
+							<!-- <th scope="col" class="last">교과외</th> -->
+						</tr>
+					</thead>
+					<tbody>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>유아교육과</td>
+							<td>25</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>2.1</td>
+							<td></td>
+							<td>5.6</td>
+							
+							<td></td>
+							<td class="last">8</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>전산세무회계과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>1.7</td>
+							<td></td>
+							<td>4.5</td>
+							
+							<td></td>
+							<td class="last">6.4</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>사회복지과</td>
+							<td>80</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>2.6</td>
+							<td></td>
+							<td>4.5</td>
+							
+							<td></td>
+							<td class="last">7.6</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>간호학과</td>
+							<td>192</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>5.9</td>
+							<td></td>
+							<td>5.5</td>
+							
+							<td></td>
+							<td class="last">6.3</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>치위생과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>6.5</td>
+							<td></td>
+							<td>6.3</td>
+							
+							<td></td>
+							<td class="last">7.6</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>바이오제약과</td>
+							<td>16</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>7.5</td>
+							<td></td>
+							<td>5.2</td>
+							
+							<td></td>
+							<td class="last">8.3</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>철도운전시스템과</td>
+							<td>28</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>2.8</td>
+							<td></td>
+							<td>6.1</td>
+							
+							<td></td>
+							<td class="last">7.3</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>하이브리드자동차과</td>
+							<td>25</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>1.6</td>
+							<td></td>
+							<td>6.5</td>
+							
+							<td></td>
+							<td class="last">8</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>전기과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>1.6</td>
+							<td></td>
+							<td>6.9</td>
+							
+							<td></td>
+							<td class="last">8.4</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시1차</td>
+							<td>글로벌뷰티케어과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>4.8</td>
+							<td></td>
+							<td>6.4</td>
+							
+							<td></td>
+							<td class="last">8.3</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시2차</td>
+							<td>유아교육과</td>
+							<td>25</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>6.3</td>
+							<td></td>
+							<td>5.7</td>
+							
+							<td></td>
+							<td class="last">8.3</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시2차</td>
+							<td>전산세무회계과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>1.7</td>
+							<td></td>
+							<td>5.6</td>
+							
+							<td></td>
+							<td class="last">6.6</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시2차</td>
+							<td>사회복지과</td>
+							<td>80</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>2.5</td>
+							<td></td>
+							<td>5.2</td>
+							
+							<td></td>
+							<td class="last">8.4</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시2차</td>
+							<td>간호학과</td>
+							<td>192</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>22.6</td>
+							<td></td>
+							<td>4.4</td>
+							
+							<td></td>
+							<td class="last">6.5</td>
+							
+						</tr>
+						
+						<tr>
+							
+							<td>경북</td>
+							<td><a href="#" onclick="fn_goLink(2, '73001000', '');return false;">가톨릭상지대학교</a></td>
+							<td>수시2차</td>
+							<td>치위생과</td>
+							<td>15</td>
+							<td>주간</td>
+							<td>일반전형</td>
+							<td>일반전형</td>
+							
+							
+							
+								
+								
+									<td></td>
+									<td>등급</td>
+								
+							
+							
+							<td>22</td>
+							<td></td>
+							<td>5.6</td>
+							
+							<td></td>
+							<td class="last">7.9</td>
+							
+						</tr>
+						
+							
+					</tbody>
+				</table>
+			</div><div id="mCSB_1_scrollbar_horizontal" class="mCSB_scrollTools mCSB_1_scrollbar mCS-dark mCSB_scrollTools_horizontal" style="display: none;"><div class="mCSB_draggerContainer"><div id="mCSB_1_dragger_horizontal" class="mCSB_dragger" style="position: absolute; min-width: 30px; width: 0px; left: 0px;" oncontextmenu="return false;"><div class="mCSB_dragger_bar"></div></div><div class="mCSB_draggerRail"></div></div></div></div></div>
+
+			<!-- <div class="compar">
+				<p class="txt"><strong class="fcPink">비교하기</strong>는 최대 <strong>4개</strong>, <strong class="fcBlue">관심전공</strong>은 최대 <strong>10개</strong>까지 선택 가능합니다.</p>
+				<p>
+					<a href="#" onClick="fn_compareVal(2, 'courseCheck');return false;" class="midBtn btnPink">비교하기</a>
+					<a href="#" onClick="fn_inter_course('courseCheck');return false;" class="midBtn btnLblue">관심전공</a>
+				</p>
+			</div> -->
+
+		</div>
+
+		<div class="pagingWrap">
+			<a class="prev1 btn prevAll" href="#" onclick="fn_linkPage(1); return false;"><span class="blind">처음 페이지</span></a><a class="prev2 btn prev" href="#" onclick="fn_linkPage(1); return false;"><span class="blind">이전 페이지</span></a><strong class="on">1</strong><a href="#" onclick="fn_linkPage(2); return false;">2</a><a href="#" onclick="fn_linkPage(3); return false;">3</a><a href="#" onclick="fn_linkPage(4); return false;">4</a><a href="#" onclick="fn_linkPage(5); return false;">5</a><a href="#" onclick="fn_linkPage(6); return false;">6</a><a href="#" onclick="fn_linkPage(7); return false;">7</a><a href="#" onclick="fn_linkPage(8); return false;">8</a><a href="#" onclick="fn_linkPage(9); return false;">9</a><a href="#" onclick="fn_linkPage(10); return false;">10</a><a class="next1 btn next" href="#" onclick="fn_linkPage(11); return false;"><span class="blind">다음 페이지</span></a><a class="next2 btn nextAll" href="#" onclick="fn_linkPage(847); return false;"><span class="blind">마지막 페이지</span></a>
+
+		</div>
+	
+	</div>
+
+</section>
+<!--container_end-->
+<script>
+	nowpage(3,5);
+	scrollingBox(".boxx2");
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		<script type="text/javascript">
+			$(function(){
+				fn_searchCollege("Footer"); //Footer 주변대학 표시
+				
+			});
+			//전문대학리스트 현재위치
+			function fn_collegeLocale(div){
+				fn_setCookie("myRegionCode", "", 0);
+				fn_searchCollege(div);
+			}
+		</script>
+		
+
+		<!--footer-->
+		<h2 class="blind">하단 컨텐츠 영역</h2>
+		<footer>			
+			<div class="footer-header">	
+				<div class="w">
+					<ul class="f_menu">
+						<li><a href="http://www.kcce.or.kr/" target="_blank" title="새창으로 열림">한국전문대학교육협의회</a></li>
+						<li><a href="http://www.kcce.or.kr/web/main/webPersonalInfoPolicy.do" target="_blank" title="새창으로 열림">개인정보처리방침</a></li>
+						<li><a href="http://www.kcce.or.kr/web/main/webEmailCollectPolicy.do" target="_blank" title="새창으로 열림">이메일주소무단수집거부</a></li>
+						<!--  <a href="/web/main/webMainPrivacy.do" title="새창으로 열림">-->						
+						<li><a href="/web/main/webMainService.do">이용약관</a></li>
+						<li><a href="/web/main/webMainCopyrights.do">저작권정책</a></li>
+						<li><a href="/web/main/webMainSitemap.do">사이트맵</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="cont">
+				<div class="w">
+					<div class="fmbox">
+						<strong><a href="/web/main/webMainRelationSite.do">관련 사이트 바로가기</a></strong>
+						<!-- <ul class="fmlist">
+							<li><a href="http://www.career.go.kr/cnet/front/main/main.do" target="_blank" title="새창으로 열림">커리어넷</a></li>
+							<li><a href="http://www.work.go.kr/index.jsp" target="_blank" title="새창으로 열림">워크넷</a></li>
+							<li><a href="http://www.hifive.go.kr/" target="_blank" title="새창으로 열림">하이파이브</a></li>
+						</ul> -->
+					</div>
+					
+					<address>
+						<p>04505 서울특별시 중구 서소문로 38 (중림동 센트럴타워 7층)  대표전화 : 02-3145-1200  팩스 : 02-364-1584</p>
+						<p>사업자번호 : 116-82-03287 | 대표자(회장) : 김영도  | E-mail : kccemaster@kcce.or.kr</p>
+						<p>ⓒ 2020 KCCE. All Rights Reserved.</p>
+					</address>
+				</div>
+			</div>
+		</footer>
+		<!--footer_end-->
+
+	</div>
+	<!--wrap_end-->
+
+<script type="text/javascript">
+	// 접속 통계
+	$(document).ready(function() {
+		/* 20200526 사용 안 함 (T_LOG 테이블), 네이버 통계 활용으로 대체
+		var titleName = $.trim(" | 입학정보 &gt; 전년도입시결과");
+		var tmpMenuCt = titleName.split("&gt;");
+		var menuCt = tmpMenuCt[0].replace(/\|/gi, "");
+		
+		var menu = "";
+		if (menuCt.length > 0) {
+			menu = $.trim(menuCt);
+		}
+
+		var url = "/web/setVisit.do";
+		var referrer = document.referrer;
+		var params = {
+			menu: menu,
+			referrer: referrer
+		};
+		
+		$.ajax({
+			cache: false,
+			async: true,
+			type: "get",
+			url: url,
+			dataType: "text",
+			data: params,
+			success : function(data) {},
+			error: function(jqXHR, textStatus, errorThrown) {
+				var err = jqXHR.status + " " + errorThrown + " " + textStatus + " " + jqXHR.responseText + "\n";
+				console.log(err);
+			}
+		});
+		*/
+	});
+</script>
+<script type="text/javascript" src="https://wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+	if(!wcs_add) var wcs_add = {};
+	wcs_add["wa"] = "ef82812e35bdf";
+	wcs_do();
+</script>
+<!--
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62062100-2', 'auto');
+  ga('send', 'pageview');
+</script>
+-->
+<script>$(function(){$.ajaxSetup({ cache: false });})</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+//<![CDATA[
+	function openMyPage(){
+		//스케줄태그
+		fn_schedule();
+		//관심대학,관심전공
+		fn_interest();
+		//상담
+		fn_consult();
+		//공유
+		fn_share();
+		//위치별 대학찾기
+		fn_collegePosition();
+		//컨텐츠
+		//fn_contents(''); 
+		//전문대학 바로알기
+		fn_univQuick();
+		
+	}
+	
+	function fn_schedule(){
+		$(".schedule").load("/common/scheduleTag.do", "", function(){
+			//스케줄
+			$("#mypage .schedule > .b").mCustomScrollbar({
+				axis:"x",
+				advanced:{autoExpandHorizontalScroll:true},
+				theme:"dark-thin"
+			});
+		});
+	}
+	function fn_interest(){
+		$(".myuniv").load("/common/interestTag.do", "", function(){});
+	}
+	function fn_consult(){
+		$(".consultContent").load("/common/consultTag.do", "", function(){});
+	}
+	function fn_share(){
+		//$(".shareContent").load("/common/shareTag.do", "", function(){});
+	}
+	function fn_collegePosition(){
+		$(".myunivList").load("/common/collegePositionTag.do", "", function(){});
+	}
+	function fn_contents(univUnion){
+		$(".latelyContent").load("/common/contentsTag.do?univUnion="+univUnion, "", function(){
+			//우리대학 사진, 영상 스크롤
+			/* $("#mypage .photo .photoWrap").owlCarousel({
+				items:1,
+				loop:false,
+				margin:0,
+				dots:false,
+				nav:true,
+				margin:5
+			}); */
+			mypagePhoto("#mypage .photo.t1 .photoWrap");
+			mypagePhoto("#mypage .photo.last .photoWrap");
+
+		});
+	}
+	function fn_univQuick(){
+		$(".univQuick").load("/common/univQuickTag.do", "", function(){
+			//전문대학 바로알기
+			$("#mypage .univQuick > .b").mCustomScrollbar({
+				axis:"x",
+				advanced:{autoExpandHorizontalScroll:true},
+				theme:"dark-thin"
+			});
+		});
+	}
+	function fn_tabClick(href){
+		if("#mTab02" == href) fn_interestCollege();
+		if("#mTab03" == href) fn_interestCourse();
+		if("#mTab04" == href || "#mTab04_1" == href) fn_consulSubList('consult_course', '1', '', '');
+		if("#mTab04_2" == href) fn_consulSubList('consult_entrance', '1', '', '');
+		if("#mTab04_3" == href) fn_consulSubList('consult_college', '1', '', '');
+		if("#mTab05" == href) fn_shareContents('', '', '1'); //공유컨텐츠 
+		if("#mTab06" == href || "#mTab06_1" == href) fn_compareCollege('');
+		if("#mTab06_2" == href) fn_compareCourse('', '');
+		if("#mTab07" == href) fn_gradeReport('', '');
+		
+	}
+	
+	function loadScrollBar(){
+		$("#mypage .drawBox > .w").mCustomScrollbar({
+			axis:"x",
+			advanced:{autoExpandHorizontalScroll:false},
+			theme:"dark-thin"
+		});
+	} 
+	
+	
+	//tab2	관심대학
+	function fn_interestCollege(){
+		$(".interestCourse").empty();
+		$(".interestCollege").load("/common/interestCollegeTag.do", "", function(){});
+	}
+	
+	//tab3	관심전공
+	function fn_interestCourse(){
+		$(".interestCollege").empty();
+		$(".interestCourse").load("/common/interestCourseTag.do", "", function(){});
+	}
+	
+	//tab4 상담 List
+	function fn_consulSubList(consulttype, pageIndex, schCon, schStr){
+		
+		if(consulttype == "consult_course"){//진로상담
+			$("#mTab04_2").empty();
+			$("#mTab04_3").empty();
+		} else if(consulttype == "consult_entrance"){//입학상담
+			$("#mTab04_1").empty();
+			$("#mTab04_3").empty();
+		} else {//대학별 상담
+			$("#mTab04_1").empty();
+			$("#mTab04_2").empty();
+		}
+		
+		$("."+consulttype).load("/common/"+consulttype+".do?mo=list&pageIndex="+pageIndex+"&schCon="+schCon+"&schStr="+encodeURIComponent(schStr), "", function(){});
+	}
+	
+	//tab4 상담 View
+	function fn_consulSubView(mainDiv, consulttype, idx, pageIndex, schCon, schStr){
+		
+		if(mainDiv == "main"){
+			
+			var tabOrd = "";
+			if(consulttype == "consult_course"){//진로상담
+				tabOrd = "1";
+			} else if(consulttype == "consult_entrance"){//입학상담
+				tabOrd = "2";
+			} else {//대학별 상담
+				tabOrd = "3";
+			}
+			
+			$("#mypage .mytabbox").find("a").each(function(){
+				if($(this).attr("href") == "#mTab04") {
+					$(this).trigger("click",["mypageMain"]);
+				}
+			});
+			$("#mTab04").find("a").each(function(){
+				if($(this).attr("href") == "#mTab04_"+tabOrd){
+					$(this).trigger("click",["mypageMain"]);
+				}
+			});
+		}
+		
+		$("."+consulttype).load("/common/"+consulttype+".do?mo=view&idx="+idx+"&pageIndex="+pageIndex+"&schCon="+schCon+"&schStr="+encodeURIComponent(schStr), "", function(){});
+	}
+	
+	//tab5	공유컨텐츠
+	function fn_shareContents(schCon, schStr, page){
+		$(".shareContents").load("/common/shareContentsTag.do?schCon="+schCon+"&schStr="+encodeURIComponent(schStr)+"&page="+page, "", function(){});
+	}
+	
+	//tab6_1	대학비교
+	function fn_compareCollege(univcode){
+		$(".compareCollege").load("/common/compareCollegeTag.do?univcode="+univcode, "", function(){loadScrollBar();});
+	}
+	
+	//tab6_2	전공비교
+	function fn_compareCourse(univcode, coursecode){
+		$(".compareCourse").load("/common/compareCourseTag.do?univcode="+univcode+"&coursecode="+coursecode, "", function(){loadScrollBar();});
+	}
+	
+	function fn_gradeReport() {
+	}
+	
+	//모든대학보기 클릭
+	function fn_collegeMap(){
+		var region = "";
+		var cookiename = fn_getCookie("myRegionCode");
+		if(cookiename != ''){
+			if(cookiename == '01') region = 'seoul'; 
+			if(cookiename == '02') region = 'busan';
+			if(cookiename == '03') region = 'daegu';
+			if(cookiename == '04') region = 'incheon';
+			if(cookiename == '05') region = 'gwangju';
+			if(cookiename == '06') region = 'daegeon';
+			if(cookiename == '07') region = 'ulsan';
+			if(cookiename == '08') region = 'gyunggi';
+			if(cookiename == '09') region = 'gangwon';
+			if(cookiename == '10') region = 'chungbuk';
+			if(cookiename == '11') region = 'chungnam';
+			if(cookiename == '12') region = 'jeonbuk';
+			if(cookiename == '13') region = 'jeonnam';
+			if(cookiename == '14') region = 'gyungbuk';
+			if(cookiename == '15') region = 'gyungnam';
+			if(cookiename == '16') region = 'jeju';
+			if(cookiename == '17') region = 'sejong';
+		}
+		if(region == '') region = 'all';
+		
+		var url = '/web/college/webCollegeDefineMap.do;jsessionid=93EC05D074EF9F89C1BD0ABE1C8E7994'+"?region="+region;
+		location.href = url;
+	}
+//]]>
+</script>
+	
+	<div class="bbg"></div>
+	<div class="gnbg"></div>
+
+	<!--mypage-->
+	<div id="mypage">
+
+		<div class="wrap">
+
+			<button type="button" class="fixed_btn_mypage" onclick="mypage();"><span class="blind">맞춤정보</span></button>
+
+			<div class="head">
+			
+				<ul class="myp_user">
+					<li class="home"><a href="#mypageMain" onclick="openMyPage();return false;"><span class="blind">맞춤정보 초기화</span></a></li>
+					
+					
+					
+						<li><a href="/web/member/webMemberLogin.do" class="login">로그인</a></li>
+						<li><a href="/web/member/webMemberJoin.do">회원가입</a></li>
+					
+				</ul>
+			</div>
+
+			<div class="content">
+				<div class="header">
+					<h2 class="tit">맞춤정보</h2>
+					<p class="welcome"><strong class="fcBlue"></strong> 방문을 환영합니다.</p>
+					<!--p class="welcome wc2"><strong class="fcBlue">비회원</strong> 으로 접속중입니다. 로그인하시면 더 많은 정보를 확인하실 수 있습니다.</p-->
+					
+				</div>
+
+				<div class="mytabbox">
+					<strong class="now"><a href="#">선택하세요</a></strong>
+					
+						
+						
+							<ul class="tab c4">
+								<li><a href="#mTab02">관심대학 목록</a></li>
+								<li><a href="#mTab03">관심전공 목록</a></li>
+								<li><a href="#mTab06">대학/전공 비교</a></li>
+								<li class="last"><a href="#mTab08">고객센터</a></li>
+							</ul>
+						
+					
+				</div>
+
+				<!-- main tab start -->
+				<div id="mypageMain" class="mypageTabs" style="display:block">
+
+					<!-- 주요일정 관리 start -->
+					<div class="schedule">
+					</div>
+					<!-- 주요일정 관리 End -->
+
+					<!-- 관심대학,관심전공 start -->
+					<div class="myuniv">
+					</div>
+					<!-- 관심대학,관심전공 end -->
+					
+					<!-- 상담 start -->
+					
+					<!-- 상담 end -->
+
+					<!-- 공유컨텐츠 start -->
+					<div class="shareContent">
+					</div>
+					<!-- 공유컨텐츠 end -->
+
+					<!-- 위치별 대학리스트 start -->
+					<div class="myunivList">
+					</div>
+					<!-- 위치별 대학리스트 end -->
+
+					<!-- 컨텐츠 start -->
+					<div class="latelyContent">
+					</div>
+					<!-- 컨텐츠  end -->
+
+					<!-- 전문대학 바로알기 start -->
+					<!-- 전문대학 바로알기 end -->
+				
+				</div>
+				<!-- main tab end -->
+
+				<!-- 관심대학 목록 start -->
+				<div id="mTab02" class="mypageTabs interestCollege">
+				</div>
+				<!-- 관심대학 목록 end -->
+
+				<!-- 관심전공 목록 start -->
+				<div id="mTab03" class="mypageTabs interestCourse">
+				</div>
+				<!-- 관심전공 목록 end -->
+				
+				<!-- 상담 start -->
+				<div id="mTab04" class="mypageTabs consultSub">
+				
+					<ul class="scTab c3 mb10">
+						<li class="active"><a href="#mTab04_1">진로상담</a></li>
+						<li><a href="#mTab04_2">입학상담</a></li>
+						<li class="last"><a href="#mTab04_3">대학별 상담</a></li>
+					</ul>
+					
+					<!-- 진로상담 start -->
+					<div id="mTab04_1" class="mypagesubTabs consult_course" style="display:block">
+					</div>
+					<!-- 진로상담 end -->
+					
+					<!-- 입학상담 start -->
+					<div id="mTab04_2" class="mypagesubTabs consult_entrance">
+					</div>
+					<!-- 입학상담 end -->
+					
+					<!-- 대학별 상담 start -->
+					<div id="mTab04_3" class="mypagesubTabs consult_college">
+					</div>
+					<!-- 대학별 상담 end -->
+ 
+				</div>
+				<!-- 상담 end -->
+
+				<!-- 공유컨텐츠 start -->
+				<div id="mTab05" class="mypageTabs shareContents">
+					<!-- <div class="serviceReady">
+						<h3><span class="fcBlue">서비스</span> 준비중 입니다</h3>
+						<p class="mb5">빠른 시일내에 서비스가 가능하도록 최선을 다하겠습니다.</p>
+						<p>홈페이지를 방문해 주셔서 감사합니다.</p>
+					</div> -->
+				</div>
+				<!-- 공유컨텐츠 end -->
+
+				<!-- 대학/전공 비교 start -->
+				<div id="mTab06" class="mypageTabs">
+
+					<ul class="scTab c2 mb10">
+						<li class="active"><a href="#mTab06_1">대학비교</a></li>
+						<li class="last"><a href="#mTab06_2">전공비교</a></li>
+					</ul>
+
+					<!-- 대학 비교 start -->
+					<div id="mTab06_1" class="mypagesubTabs compareCollege" style="display:block">
+					</div>
+					<!-- 대학 비교 end -->
+					
+					<!-- 전공 비교 start -->
+					<div id="mTab06_2" class="mypagesubTabs compareCourse">
+					</div>
+					<!-- 전공 비교 end -->
+
+				</div>
+				<!-- 대학/전공 비교 end -->
+
+				<!-- 내신등급 산출 start -->
+				<div id="mTab07" class="mypageTabs compareCourse">
+
+<!-- 					<div class="serviceReady"> -->
+<!-- 						<h3><span class="fcBlue">서비스</span> 준비중 입니다</h3> -->
+<!-- 						<p class="mb5">빠른 시일내에 서비스가 가능하도록 최선을 다하겠습니다.</p> -->
+<!-- 						<p>홈페이지를 방문해 주셔서 감사합니다.</p> -->
+<!-- 					</div> -->
+
+				</div>
+				<!-- 내신등급 산출 end -->
+
+				<!-- 고객센터 start -->
+				<div id="mTab08" class="mypageTabs">
+
+					<div class="customerMsg">
+						<h3 class="tit">고객의 소리</h3>
+						<p>고객님의 소중한 의견을 신속하게 처리하겠습니다</p>
+						<p class="fcYellow mb10"></p>
+						<p><a href="/web/consult/customer_info.do" class="bigBtn btnDblue">문의하기</a></p>
+					</div>
+
+				</div>
+				<!-- 고객센터 end -->
+
+			</div>
+
+		</div>
+
+	</div>
+	<!--mypage_end-->
+
+</body></html>

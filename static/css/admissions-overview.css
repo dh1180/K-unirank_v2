@@ -1,0 +1,1300 @@
+.admission-overview-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    padding: 42px 46px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, .8fr);
+    align-items: center;
+    gap: 38px;
+    border: 1px solid #dfe5f5;
+    border-radius: 30px;
+    background:
+        radial-gradient(circle at 88% 10%, rgba(49, 87, 229, .16), transparent 16rem),
+        linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
+    box-shadow: 0 22px 60px rgba(28, 45, 94, .08);
+}
+
+.admission-overview-copy h1 {
+    margin-bottom: 15px;
+    font-size: clamp(38px, 5vw, 58px);
+    line-height: 1.04;
+    letter-spacing: -.06em;
+}
+
+.admission-overview-copy p {
+    max-width: 620px;
+    margin-bottom: 0;
+    color: #667085;
+    font-size: 16px;
+    line-height: 1.75;
+}
+
+.admission-overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.overview-stat {
+    min-width: 0;
+    padding: 20px 16px;
+    border: 1px solid rgba(49, 87, 229, .11);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .8);
+    text-align: center;
+}
+
+.overview-stat.primary {
+    background: #3157e5;
+    color: #fff;
+    border-color: #3157e5;
+}
+
+.overview-stat span,
+.overview-stat small {
+    display: block;
+}
+
+.overview-stat span {
+    margin-bottom: 10px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.overview-stat.primary span,
+.overview-stat.primary small {
+    color: #dbe4ff;
+}
+
+.overview-stat strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 29px;
+    letter-spacing: -.05em;
+}
+
+.overview-stat small {
+    overflow: hidden;
+    color: #98a2b3;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.representative-title {
+    margin-bottom: 24px;
+}
+
+.metric-source-block {
+    margin-bottom: 28px;
+    padding: 24px;
+    border: 1px solid #e4e7ec;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, .6);
+}
+
+.metric-source-block.college-block {
+    background: linear-gradient(180deg, rgba(247, 249, 255, .95), rgba(255,255,255,.8));
+}
+
+.metric-source-heading {
+    margin-bottom: 17px;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.metric-source-heading h3 {
+    margin: 5px 0 0;
+    font-size: 22px;
+}
+
+.source-kicker {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+}
+
+.source-kicker.four-year {
+    color: #3157e5;
+}
+
+.source-kicker.college {
+    color: #6d4aff;
+}
+
+.source-note {
+    color: #98a2b3;
+    font-size: 12px;
+}
+
+.metric-feature-card {
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.metric-feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(16, 24, 40, .08);
+}
+
+.metric-feature-card.college-card {
+    border-color: #ddd7ff;
+}
+
+.metric-direction {
+    padding: 6px 9px;
+    border-radius: 999px;
+    color: #475467;
+    background: #f2f4f7;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.metric-rank-row {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+}
+
+.metric-rank-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.metric-rank-value small {
+    color: #98a2b3;
+    font-size: 10px;
+}
+
+.explorer-section {
+    margin-top: 56px;
+}
+
+.admission-explorer {
+    margin-bottom: 20px;
+    padding: 17px;
+    border: 1px solid #dfe4ee;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, .05);
+}
+
+.overview-search-box {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.overview-search-box input {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #101828;
+    font-size: 15px;
+}
+
+.search-icon {
+    color: #98a2b3;
+    font-size: 24px;
+    text-align: center;
+}
+
+.explorer-filter-row {
+    margin-top: 14px;
+    padding-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 18px;
+    border-top: 1px solid #eef0f4;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.filter-label {
+    margin-right: 2px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.explorer-chip {
+    padding: 7px 11px;
+    border-radius: 999px;
+    color: #667085;
+    background: #f5f7fa;
+    font-size: 12px;
+    font-weight: 800;
+    transition: .14s ease;
+}
+
+.explorer-chip:hover {
+    background: #eef2ff;
+    color: #3157e5;
+}
+
+.explorer-chip.active {
+    color: #fff;
+    background: #3157e5;
+}
+
+.filter-reset {
+    margin-left: auto;
+    color: #98a2b3;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.filter-reset:hover {
+    color: #3157e5;
+}
+
+.result-range {
+    margin: -4px 0 14px;
+    color: #98a2b3;
+    font-size: 12px;
+}
+
+.admission-result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.admission-result-card {
+    min-width: 0;
+    padding: 19px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(16, 24, 40, .025);
+    transition: .16s ease;
+}
+
+.admission-result-card:hover {
+    transform: translateY(-3px);
+    border-color: #c9d3ff;
+    box-shadow: 0 14px 34px rgba(16, 24, 40, .08);
+}
+
+.result-card-top,
+.result-source-line {
+    display: flex;
+    align-items: center;
+}
+
+.result-card-top {
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.result-source-line {
+    gap: 5px;
+}
+
+.source-type-badge {
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.source-type-badge.four {
+    color: #3157e5;
+    background: #edf2ff;
+}
+
+.source-type-badge.college {
+    color: #6941c6;
+    background: #f4f0ff;
+}
+
+.source-mini-link {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.result-school-name {
+    overflow: hidden;
+    margin-bottom: 7px;
+    color: #3157e5;
+    font-size: 13px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result-unit-name {
+    min-height: 48px;
+    margin-bottom: 11px;
+    font-size: 19px;
+    line-height: 1.28;
+}
+
+.result-selection {
+    min-height: 54px;
+    margin-bottom: 15px;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.result-selection strong,
+.result-selection span {
+    display: block;
+}
+
+.result-selection strong {
+    color: #344054;
+}
+
+.result-key-stats {
+    margin-bottom: 13px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.result-key-stats > div {
+    padding: 11px 12px;
+    border-radius: 13px;
+    background: #f7f9fc;
+}
+
+.result-key-stats span,
+.result-key-stats strong {
+    display: block;
+}
+
+.result-key-stats span {
+    margin-bottom: 5px;
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.result-key-stats strong {
+    font-size: 17px;
+}
+
+.result-key-stats small {
+    margin-left: 2px;
+    color: #667085;
+    font-size: 10px;
+}
+
+.result-metrics {
+    min-height: 50px;
+    margin-bottom: 15px;
+}
+
+.result-metric {
+    padding: 8px 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px dashed #eceff4;
+}
+
+.result-metric:last-child {
+    border-bottom: 0;
+}
+
+.result-metric span {
+    color: #667085;
+    font-size: 10px;
+}
+
+.result-metric strong {
+    flex: none;
+    font-size: 12px;
+}
+
+.result-metric small {
+    margin-left: 2px;
+    color: #98a2b3;
+    font-size: 9px;
+}
+
+.result-detail-link {
+    margin-top: auto;
+    padding-top: 13px;
+    border-top: 1px solid #eef0f4;
+    color: #3157e5;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.no-search-results {
+    grid-column: 1 / -1;
+    padding: 52px 24px;
+    border: 1px dashed #d0d5dd;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+}
+
+.no-search-results strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 17px;
+}
+
+.no-search-results p {
+    margin-bottom: 16px;
+    color: #667085;
+    font-size: 13px;
+}
+
+@media (max-width: 900px) {
+    .admission-overview-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .admission-overview-stats {
+        max-width: 620px;
+    }
+
+    .admission-result-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .admission-overview-hero {
+        padding: 30px 24px;
+        border-radius: 24px;
+    }
+
+    .admission-overview-copy h1 {
+        font-size: 38px;
+    }
+
+    .admission-overview-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .overview-stat {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        text-align: left;
+    }
+
+    .overview-stat span,
+    .overview-stat strong,
+    .overview-stat small {
+        margin: 0;
+    }
+
+    .overview-stat small {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+    }
+
+    .metric-source-block {
+        padding: 16px;
+    }
+
+    .metric-source-heading {
+        align-items: start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .overview-search-box {
+        grid-template-columns: 22px minmax(0, 1fr);
+    }
+
+    .overview-search-box .button {
+        grid-column: 1 / -1;
+    }
+
+    .explorer-filter-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .filter-reset {
+        margin-left: 0;
+    }
+
+    .admission-result-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-unit-name,
+    .result-selection {
+        min-height: 0;
+    }
+}
+
+
+/* v58: 대표지표를 단순한 2x2 TOP10 보드로 통일 */
+.metric-source-block,
+.metric-source-heading,
+.college-metric-grid {
+    display: none !important;
+}
+
+.representative-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.representative-card {
+    overflow: hidden;
+    border: 1px solid #e2e6ef;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgba(16, 24, 40, .045);
+    transition: .16s ease;
+}
+
+.representative-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5ff;
+    box-shadow: 0 14px 34px rgba(16, 24, 40, .075);
+}
+
+.representative-card.college {
+    border-color: #ded9ff;
+}
+
+.representative-card-head {
+    min-height: 104px;
+    padding: 19px 20px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    border-bottom: 1px solid #eef1f5;
+    background: linear-gradient(180deg, #fff, #fbfcff);
+}
+
+.representative-source {
+    display: inline-block;
+    margin-bottom: 9px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .04em;
+}
+
+.representative-source.four {
+    color: #3157e5;
+}
+
+.representative-source.college {
+    color: #6941c6;
+}
+
+.representative-title-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.representative-title-line h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.representative-list {
+    /* 중요: 내부 스크롤 제거 */
+    max-height: none;
+    overflow: visible;
+}
+
+.representative-row {
+    min-height: 48px;
+    padding: 9px 16px;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f0f2f5;
+    transition: background .12s ease;
+}
+
+.representative-row:last-child {
+    border-bottom: 0;
+}
+
+.representative-row:hover {
+    background: #f8faff;
+}
+
+.representative-row .metric-rank {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.representative-row:nth-child(-n+3) .metric-rank {
+    color: #3157e5;
+}
+
+.representative-row strong {
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.representative-note {
+    margin: 12px 2px 0;
+    color: #98a2b3;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+@media (max-width: 820px) {
+    .representative-metric-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* v60 - 검색/필터는 비동기, 결과는 이전 표 UI로 복원 */
+.compact-explorer {
+    margin-bottom: 16px;
+}
+
+.explorer-chip,
+.filter-reset {
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.filter-reset {
+    background: transparent;
+}
+
+.async-results-meta {
+    margin: 0 0 12px 2px;
+    color: #98a2b3;
+    font-size: 12px;
+}
+
+.async-results-meta strong {
+    color: #667085;
+}
+
+#between-placeholder {}
+
+.overview-results-table {
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, .03);
+}
+
+.overview-results-table table {
+    min-width: 1080px;
+}
+
+.overview-results-table thead th {
+    padding: 15px 14px;
+    color: #475467;
+    background: #f8f9fb;
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.overview-results-table tbody td {
+    padding: 14px;
+    vertical-align: middle;
+    border-top: 1px solid #eef0f3;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.overview-results-table tbody tr {
+    transition: background .12s ease;
+}
+
+.overview-results-table tbody tr:hover {
+    background: #fafbff;
+}
+
+.overview-results-table .table-school-link {
+    display: inline-block;
+    color: #3157e5;
+    font-weight: 850;
+}
+
+.table-school-type {
+    display: block;
+    margin-top: 4px;
+    color: #98a2b3;
+    font-size: 9px;
+}
+
+.overview-results-table .unit-name {
+    font-size: 12px;
+}
+
+.overview-results-table .metrics-cell {
+    min-width: 190px;
+}
+
+.overview-results-table .metric-stack {
+    display: grid;
+    gap: 5px;
+}
+
+.overview-results-table .metric-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.overview-results-table .metric-label {
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.overview-results-table .metric-value {
+    flex: none;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.overview-results-table .metric-value small {
+    margin-left: 2px;
+    color: #98a2b3;
+    font-size: 9px;
+}
+
+.async-error {
+    padding: 44px 24px;
+    display: grid;
+    gap: 5px;
+    border: 1px solid #fecdca;
+    border-radius: 18px;
+    color: #b42318;
+    background: #fff8f7;
+    text-align: center;
+}
+
+.async-error span {
+    color: #667085;
+    font-size: 12px;
+}
+
+@keyframes admission-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+    .overview-results-table table {
+        min-width: 920px;
+    }
+}
+
+
+.is-loading #admission-results-region {
+    opacity: .72;
+    pointer-events: none;
+    transition: opacity .12s ease;
+}
+
+
+/* =========================================================
+   v67 — /admissions/ MOBILE UX
+   Desktop layout is unchanged. Mobile only.
+   ========================================================= */
+
+@media (max-width: 720px) {
+    /* 전체 간격 */
+    .representative-section,
+    .explorer-section {
+        margin-bottom: 34px;
+    }
+
+    .section-title {
+        align-items: flex-start;
+    }
+
+    .section-title-side {
+        flex: none;
+    }
+
+    .admissions-results-title {
+        gap: 10px;
+    }
+
+    .admissions-results-title h2 {
+        margin-bottom: 5px;
+        font-size: 22px;
+    }
+
+    .admissions-results-title .muted {
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .result-count-pill {
+        padding: 7px 9px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    /* 상단 overview hero */
+    .admission-overview-hero {
+        min-height: 0;
+        padding: 26px 20px;
+        gap: 22px;
+        border-radius: 22px;
+    }
+
+    .admission-overview-copy h1 {
+        margin-bottom: 11px;
+        font-size: 34px;
+        line-height: 1.08;
+    }
+
+    .admission-overview-copy p {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    /* 통계는 세로 3칸 대신 좌우 스크롤 가능한 작은 카드 */
+    .admission-overview-stats {
+        width: 100%;
+        max-width: none;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .admission-overview-stats::-webkit-scrollbar {
+        display: none;
+    }
+
+    .overview-stat {
+        flex: 0 0 136px;
+        min-width: 136px;
+        padding: 14px;
+        display: block;
+        text-align: left;
+    }
+
+    .overview-stat span {
+        margin-bottom: 6px;
+        font-size: 10px;
+    }
+
+    .overview-stat strong {
+        margin-bottom: 3px;
+        font-size: 24px;
+    }
+
+    .overview-stat small {
+        display: block;
+        margin-top: 0;
+        font-size: 9px;
+    }
+
+    /* 학년도 탭 */
+    .admission-year-tabs {
+        margin-top: -2px;
+        margin-bottom: 28px;
+        padding-bottom: 4px;
+    }
+
+    .admission-year-tabs .region-chip {
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+
+    /* 대표 지표 */
+    .representative-title h2 {
+        font-size: 22px;
+    }
+
+    .representative-title .muted {
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .representative-metric-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .representative-card {
+        border-radius: 18px;
+        box-shadow: 0 4px 16px rgba(16, 24, 40, .045);
+    }
+
+    .representative-card:hover {
+        transform: none;
+    }
+
+    .representative-card-head {
+        min-height: 0;
+        padding: 16px 15px 13px;
+        gap: 8px;
+    }
+
+    .representative-source {
+        margin-bottom: 7px;
+        font-size: 9px;
+    }
+
+    .representative-title-line {
+        gap: 6px;
+    }
+
+    .representative-title-line h3 {
+        font-size: 15px;
+    }
+
+    .metric-direction {
+        padding: 5px 7px;
+        font-size: 9px;
+    }
+
+    .representative-row {
+        min-height: 44px;
+        padding: 8px 13px;
+        grid-template-columns: 24px minmax(0, 1fr) auto;
+        gap: 7px;
+    }
+
+    .representative-row .metric-rank {
+        font-size: 10px;
+    }
+
+    .representative-row strong {
+        font-size: 12px;
+    }
+
+    .representative-row .metric-rank-value {
+        font-size: 12px;
+    }
+
+    .representative-row .metric-rank-value small {
+        font-size: 8px;
+    }
+
+    .representative-note {
+        margin-top: 10px;
+        font-size: 10px;
+    }
+
+    /* 검색/필터 */
+    .explorer-section {
+        margin-top: 38px;
+    }
+
+    .admission-explorer {
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .overview-search-box {
+        grid-template-columns: 20px minmax(0, 1fr) auto;
+        gap: 5px;
+    }
+
+    .overview-search-box input {
+        min-width: 0;
+        min-height: 42px;
+        font-size: 14px;
+    }
+
+    .overview-search-box .button {
+        grid-column: auto;
+        min-width: 65px;
+        min-height: 40px;
+        padding: 0 13px;
+        border-radius: 11px;
+        font-size: 13px;
+    }
+
+    .search-icon {
+        font-size: 20px;
+    }
+
+    .explorer-filter-row {
+        margin-top: 10px;
+        padding-top: 10px;
+        display: block;
+    }
+
+    .filter-group {
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 5px;
+        overflow-x: auto;
+        padding: 2px 0 5px;
+        scrollbar-width: none;
+    }
+
+    .filter-group + .filter-group {
+        margin-top: 5px;
+    }
+
+    .filter-group::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-label {
+        flex: none;
+        width: 58px;
+        margin-right: 1px;
+        font-size: 10px;
+    }
+
+    .explorer-chip {
+        flex: none;
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .filter-reset {
+        margin: 6px 0 0 60px;
+        padding: 5px 0;
+        font-size: 10px;
+    }
+
+    .async-results-meta {
+        margin: 0 0 9px 1px;
+        font-size: 11px;
+    }
+
+    /* -----------------------------------------------------
+       모바일에서는 데스크톱 표를 세로형 결과 카드로 변환
+       ----------------------------------------------------- */
+    .overview-results-table {
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .overview-results-table table,
+    .overview-results-table tbody {
+        width: 100%;
+        min-width: 0;
+        display: block;
+    }
+
+    .overview-results-table thead {
+        display: none;
+    }
+
+    .overview-results-table tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .overview-results-table tbody tr {
+        overflow: hidden;
+        display: block;
+        border: 1px solid #e4e7ec;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(16, 24, 40, .035);
+    }
+
+    .overview-results-table tbody tr:hover {
+        background: #fff;
+    }
+
+    .overview-results-table tbody td {
+        width: 100%;
+        min-width: 0;
+        padding: 8px 13px;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        align-items: start;
+        gap: 9px;
+        border: 0;
+        border-bottom: 1px solid #f1f3f6;
+        font-size: 12px;
+    }
+
+    .overview-results-table tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .overview-results-table tbody td::before {
+        content: attr(data-label);
+        padding-top: 1px;
+        color: #98a2b3;
+        font-size: 9px;
+        font-weight: 800;
+        line-height: 1.5;
+    }
+
+    /* 대학명은 카드 헤더처럼 강조 */
+    .overview-results-table tbody td[data-label="대학"] {
+        padding-top: 13px;
+        padding-bottom: 11px;
+        display: block;
+        background: #fafbff;
+    }
+
+    .overview-results-table tbody td[data-label="대학"]::before {
+        display: none;
+    }
+
+    .overview-results-table .table-school-link {
+        font-size: 14px;
+    }
+
+    .table-school-type {
+        display: inline-block;
+        margin: 0 0 0 5px;
+        font-size: 9px;
+    }
+
+    .overview-results-table .phase-badge {
+        justify-self: start;
+    }
+
+    .overview-results-table .unit-name {
+        font-size: 12px;
+    }
+
+    .overview-results-table .metrics-cell {
+        min-width: 0;
+    }
+
+    .overview-results-table .metric-stack {
+        width: 100%;
+        gap: 4px;
+    }
+
+    .overview-results-table .metric-item {
+        gap: 6px;
+    }
+
+    .overview-results-table .metric-label {
+        font-size: 10px;
+    }
+
+    .overview-results-table .metric-value {
+        font-size: 11px;
+    }
+
+    .overview-results-table .source-link {
+        justify-self: start;
+        padding: 7px 9px;
+        font-size: 10px;
+    }
+
+    .overview-results-table .empty-table-row {
+        border: 0;
+        box-shadow: none;
+    }
+
+    .overview-results-table .empty-table-row td {
+        display: block;
+        border: 1px dashed #d0d5dd;
+        border-radius: 14px;
+    }
+
+    .overview-results-table .empty-table-row td::before {
+        display: none;
+    }
+
+    /* 페이지네이션: 모바일에서는 처음/마지막 숨기고 이전/다음 중심 */
+    .results-pager {
+        margin-top: 14px;
+        gap: 6px;
+    }
+
+    .results-pager .pagination-side {
+        gap: 4px;
+    }
+
+    .results-pager .pagination-side .page-button:first-child {
+        display: none;
+    }
+
+    .page-button {
+        min-width: 52px;
+        min-height: 38px;
+        padding: 0 10px;
+        font-size: 11px;
+    }
+
+    .pagination-center {
+        min-width: 76px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    /* 비동기 전환은 너무 흐리지 않게 */
+    .is-loading #admission-results-region {
+        opacity: .86;
+    }
+}
+
+@media (max-width: 390px) {
+    .admission-overview-copy h1 {
+        font-size: 30px;
+    }
+
+    .overview-search-box {
+        grid-template-columns: 18px minmax(0, 1fr) 58px;
+    }
+
+    .overview-search-box .button {
+        min-width: 58px;
+        padding: 0 9px;
+        font-size: 12px;
+    }
+
+    .filter-label {
+        width: 52px;
+    }
+
+    .filter-reset {
+        margin-left: 54px;
+    }
+
+    .overview-results-table tbody td {
+        grid-template-columns: 64px minmax(0, 1fr);
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+
+    .representative-row {
+        grid-template-columns: 20px minmax(0, 1fr) auto;
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+}

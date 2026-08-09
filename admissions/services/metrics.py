@@ -26,6 +26,13 @@ METRIC_LABELS = {
     "CSAT_PERCENTILE_MEAN_70_CUT": "공식 평균 백분위 70% 컷",
     "CSAT_GRADE_50_CUT": "평균 수능등급 50% 컷",
     "CSAT_GRADE_70_CUT": "평균 수능등급 70% 컷",
+
+    # 전문대학포털은 4년제 ADIGA의 50/70% 컷이 아니라
+    # 자체 '합격자평균 / 합격자최저' 형식으로 공개한다.
+    "COLLEGE_CSAT_AVERAGE": "수능 합격자 평균",
+    "COLLEGE_STUDENT_AVERAGE": "학생부 합격자 평균",
+    "COLLEGE_CSAT_MINIMUM": "수능 합격자 최저",
+    "COLLEGE_STUDENT_MINIMUM": "학생부 합격자 최저",
 }
 
 

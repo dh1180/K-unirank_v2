@@ -26,7 +26,12 @@ class RecruitmentUnit(models.Model):
 
 
 class AdmissionSource(models.Model):
-    SOURCE_CHOICES = [("ADIGA", "대입정보포털 어디가"), ("UNIVERSITY", "대학 입학처"), ("OTHER", "기타")]
+    SOURCE_CHOICES = [
+        ("ADIGA", "대입정보포털 어디가"),
+        ("PROCOLLEGE", "전문대학포털"),
+        ("UNIVERSITY", "대학 입학처"),
+        ("OTHER", "기타"),
+    ]
 
     source_id = models.BigAutoField(primary_key=True)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="admission_sources")

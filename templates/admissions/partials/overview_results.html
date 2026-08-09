@@ -1,0 +1,147 @@
+{% load admission_extras %}
+<div class="async-results-meta">
+    {% if page_obj and filtered_result_count %}
+    <span>전체 <strong>{{ filtered_result_count }}</strong>건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건</span>
+    {% else %}
+    <span>검색 결과 <strong>0</strong>건</span>
+    {% endif %}
+</div>
+
+<div class="table-wrap admissions-table-wrap overview-results-table">
+    <table>
+        <thead>
+            <tr>
+                <th>대학</th>
+                <th>구분</th>
+                <th>전형</th>
+                <th>모집단위</th>
+                <th>모집인원</th>
+                <th>경쟁률</th>
+                <th>대표 지표</th>
+                <th>출처</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for result in recent_results %}
+            <tr>
+                <td data-label="대학">
+                    <a class="table-school-link"
+                       href="{% url 'admissions:university' result.university_id %}?year={{ selected_year }}"
+                       data-ga-event="admission_university_open"
+                       data-ga-param-university="{{ result.university.name }}"
+                       data-ga-param-phase="{{ result.admission_phase }}"
+                       data-ga-param-year="{{ selected_year }}">
+                        {{ result.university.name }}
+                    </a>
+                    <small class="table-school-type">
+                        {% if result.source.source_type == "PROCOLLEGE" %}전문대{% else %}4년제{% endif %}
+                    </small>
+                </td>
+
+                <td data-label="구분">
+                    <span class="phase-badge {{ result.admission_phase|lower }}">
+                        {{ result.get_admission_phase_display }}
+                    </span>
+                </td>
+
+                <td data-label="전형">
+                    <strong>{{ result.selection_category|default:"-" }}</strong>
+                    {% if result.selection_name %}
+                    <br><small class="subtle">{{ result.selection_name }}</small>
+                    {% endif %}
+                    {% if result.recruitment_group %}
+                    <br><small class="subtle">{{ result.recruitment_group }}</small>
+                    {% endif %}
+                </td>
+
+                <td data-label="모집단위">
+                    <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                </td>
+
+                <td data-label="모집인원">
+                    {% if result.recruitment_count != None %}
+                        {{ result.recruitment_count }}
+                    {% else %}-{% endif %}
+                </td>
+
+                <td data-label="경쟁률">
+                    {% if result.competition_rate != None %}
+                        {{ result.competition_rate|floatformat:2 }} : 1
+                    {% else %}-{% endif %}
+                </td>
+
+                <td data-label="대표 지표" class="metrics-cell">
+                    <div class="metric-stack">
+                    {% for metric in result.metrics.all %}
+                        {% if metric.metric_code == "STUDENT_GRADE_70_CUT" or metric.metric_code == "CONVERTED_SCORE_70_CUT" or metric.metric_code == "CSAT_PERCENTILE_MEAN_70_CUT" or metric.metric_code == "CSAT_CONVERTED_SCORE_70_CUT" or metric.metric_code == "COLLEGE_STUDENT_AVERAGE" or metric.metric_code == "COLLEGE_STUDENT_MINIMUM" or metric.metric_code == "COLLEGE_CSAT_AVERAGE" or metric.metric_code == "COLLEGE_CSAT_MINIMUM" %}
+                        <span class="metric-item{% if 'GRADE' in metric.metric_code %} metric-grade{% elif 'PERCENTILE' in metric.metric_code %} metric-percentile{% elif 'SCORE' in metric.metric_code %} metric-score{% endif %}">
+                            <span class="metric-label">{{ metric.metric_code|admission_metric_label }}</span>
+                            <strong class="metric-value">
+                                {{ metric.value|floatformat:2 }}
+                                {% if metric.unit %}<small>{{ metric.unit }}</small>{% endif %}
+                            </strong>
+                        </span>
+                        {% endif %}
+                    {% empty %}
+                        <span class="subtle">-</span>
+                    {% endfor %}
+                    </div>
+                </td>
+
+                <td data-label="출처">
+                    <a class="source-link"
+                       href="{{ result.source.source_url }}"
+                       target="_blank"
+                       rel="noopener"
+                       data-ga-event="admission_source_click"
+                       data-ga-param-university="{{ result.university.name }}"
+                       data-ga-param-source="{{ result.source.get_source_type_display }}">
+                        {{ result.source.get_source_type_display }} ↗
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="empty-table-row">
+                <td colspan="8">
+                    <div class="mini-empty">
+                        조건에 맞는 입시 결과가 없습니다.
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+<nav class="results-pager async-pager" aria-label="입시 결과 페이지">
+    <div class="pagination-side">
+        {% if page_obj.has_previous %}
+            <a class="page-button js-async-page"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a>
+            <a class="page-button js-async-page"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
+        {% else %}
+            <span class="page-button disabled">처음</span>
+            <span class="page-button disabled">이전</span>
+        {% endif %}
+    </div>
+
+    <div class="pagination-center">
+        <strong>{{ page_obj.number }}</strong>
+        <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
+    </div>
+
+    <div class="pagination-side">
+        {% if page_obj.has_next %}
+            <a class="page-button js-async-page"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+            <a class="page-button js-async-page"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>
+        {% else %}
+            <span class="page-button disabled">다음</span>
+            <span class="page-button disabled">마지막</span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

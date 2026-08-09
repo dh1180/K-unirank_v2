@@ -21,19 +21,19 @@
 <div class="admission-control-card">
     <div class="admission-filter-row">
         <div class="region-chips">
-            <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}" data-ga-event="admission_filter" data-ga-param-university="{{ university.name }}" data-ga-param-filter-kind="year" data-ga-param-filter-value="all">전체 연도</a>
+            <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체 연도</a>
             {% for y in years %}
-                <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}" data-ga-event="admission_filter" data-ga-param-university="{{ university.name }}" data-ga-param-filter-kind="year" data-ga-param-filter-value="{{ y }}">{{ y }}</a>
+                <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ y }}</a>
             {% endfor %}
         </div>
         <div class="phase-tabs" aria-label="전형 구분">
-            <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}" data-ga-event="admission_filter" data-ga-param-university="{{ university.name }}" data-ga-param-filter-kind="phase" data-ga-param-filter-value="ALL">전체</a>
-            <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}" data-ga-event="admission_filter" data-ga-param-university="{{ university.name }}" data-ga-param-filter-kind="phase" data-ga-param-filter-value="SUSI">수시</a>
-            <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}" data-ga-event="admission_filter" data-ga-param-university="{{ university.name }}" data-ga-param-filter-kind="phase" data-ga-param-filter-value="JEONGSI">정시</a>
+            <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체</a>
+            <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">수시</a>
+            <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">정시</a>
         </div>
     </div>
 
-    <form method="get" class="admission-search-form" data-ga-submit="admission_search" data-ga-search-field="q" data-ga-param-university="{{ university.name }}" data-ga-param-phase="{{ selected_phase|default:'ALL' }}">
+    <form method="get" class="admission-search-form">
         {% if show_all_years %}
             <input type="hidden" name="year" value="all">
         {% elif selected_year %}
@@ -56,7 +56,7 @@
         <div>
             <span class="eyebrow">UNIVERSITY SUMMARY</span>
             <h2>대학 단위 집계</h2>
-            <p class="muted">모집단위별 공개 결과를 K-unirank가 집계한 참고용 파생값입니다.</p>
+            <p class="muted">동일한 산출기준으로 비교 가능한 모집단위별 공개 결과를 K-unirank가 집계한 참고용 파생값입니다.</p>
         </div>
     </div>
     <div class="admission-summary-grid">
@@ -80,7 +80,7 @@
         <div>
             <span class="eyebrow">DETAIL</span>
             <h2>모집단위별 상세 결과</h2>
-            <p class="muted">대학이 공개한 환산점수·환산등급과 수능 과목별 지표를 원문 기준으로 표시합니다.</p>
+            <p class="muted">대입정보포털·전문대학포털 등 출처가 공개한 지표를 원문 기준으로 표시합니다. 출처에 따라 50/70% 컷 또는 합격자 평균·최저 등 공개 형식이 다를 수 있습니다.</p>
             {% if page_obj and result_count %}
                 <p class="muted admission-page-summary">전체 {{ result_count }}건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건을 표시합니다.</p>
             {% endif %}
@@ -129,14 +129,13 @@
                             <span class="metric-item{% if 'GRADE' in metric.metric_code %} metric-grade{% elif 'PERCENTILE' in metric.metric_code %} metric-percentile{% elif 'SCORE' in metric.metric_code %} metric-score{% endif %}">
                                 <span class="metric-label">{{ metric.metric_code|admission_metric_label }}</span>
                                 <strong class="metric-value">{{ metric.value|floatformat:2 }}{% if metric.unit %}<small>{{ metric.unit }}</small>{% endif %}</strong>
-                                
                             </span>
                             {% endif %}
                         {% empty %}<span class="subtle">-</span>{% endfor %}
                         </div>
                     </td>
                     <td data-label="출처">
-                        <a class="source-link" href="{{ result.source.source_url }}" target="_blank" rel="noopener" data-ga-event="admission_source_click" data-ga-param-university="{{ university.name }}" data-ga-param-source="{{ result.source.get_source_type_display }}">
+                        <a class="source-link" href="{{ result.source.source_url }}" target="_blank" rel="noopener">
                             {{ result.source.get_source_type_display }} ↗
                         </a>
                     </td>
