@@ -527,3 +527,31 @@ python manage.py merge_korea_welfare_cyber_university --apply
 - 최종적으로 한국복지사이버대학 중복 University 삭제
 
 migration 없음.
+
+
+v77 - 한국폴리텍 IV 대학 충남캠퍼스 로고 적용
+
+대상:
+한국폴리텍 IV 대학 충남캠퍼스
+
+방식:
+- 새 이미지 파일을 추가하지 않음
+- DB에 이미 존재하는 같은 한국폴리텍 IV 대학의 logo_path를 재사용
+- 우선순위:
+  1. 대전캠퍼스
+  2. 아산캠퍼스
+  3. 청주캠퍼스
+  4. 홍성캠퍼스
+  5. 다른 IV 대학 캠퍼스
+  6. 다른 한국폴리텍 대학의 기존 로고
+
+실행:
+python manage.py fix_polytech_chungnam_logo
+python manage.py fix_polytech_chungnam_logo --apply
+
+안전:
+- 기본 미리보기
+- --apply에서만 DB 반영
+- University.logo_path만 수정
+- 다른 대학/입결/투표/랭킹 데이터는 수정하지 않음
+- migration 없음
