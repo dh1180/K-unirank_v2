@@ -494,3 +494,36 @@ python manage.py merge_korea_golf_university --apply
 - 마지막에만 "한국골프대학교" University 삭제
 
 migration 없음.
+
+
+v76 - 한국복지사이버대학 중복 병합
+
+최종 University:
+한국복지사이버대학교
+
+병합 대상:
+한국복지사이버대학 -> 한국복지사이버대학교
+
+normalizer:
+"한국복지사이버대학" -> "한국복지사이버대학교"
+향후 대학 동기화 시 구/축약 교명으로 중복 University가 다시 만들어지지 않도록 방지.
+
+관리 명령:
+python manage.py merge_korea_welfare_cyber_university
+python manage.py merge_korea_welfare_cyber_university --apply
+
+병합 정책:
+- 최종 이름은 한국복지사이버대학교
+- target에 logo_path가 비어 있고 source에 로고가 있으면 source 로고 보존
+- Campus / ExternalMapping 이동
+- RecruitmentUnit 중복 정리
+- AdmissionSource / AdmissionResult 이동
+- AdmissionAggregate 재계산
+- ComparisonVote / UniversityRating / RankingSnapshotItem 안전 이전
+- 두 레코드 사이 직접 VS 투표가 있으면 중단
+- 양쪽 모두 실제 rating 이력이 있으면 중단
+- 같은 snapshot에 양쪽이 동시에 있으면 중단
+- 미처리 reverse FK가 남아 있으면 삭제 전에 중단
+- 최종적으로 한국복지사이버대학 중복 University 삭제
+
+migration 없음.
