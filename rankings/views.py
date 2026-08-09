@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
 
@@ -10,7 +10,7 @@ from universities.models import University
 
 from .models import ComparisonVote, PersonalResult, RankingBoard, RankingSnapshot, UniversityRating
 from .services import build_personal_result, ensure_default_boards, get_vote_session, record_vote, select_pair
-from .baseline import display_match_count_for_rating, ranking_university_queryset
+from .baseline import ranking_university_queryset
 from .admission_hover import attach_admission_hover, build_admission_hover
 
 
@@ -23,6 +23,7 @@ def home(request):
     boards = ensure_default_boards()
     overall = next((board for board in boards if board.slug == "overall"), boards[0])
     eligible_ids = ranking_university_queryset().values_list("university_id", flat=True)
+
     top_ratings = list(
         UniversityRating.objects.filter(
             board=overall,
@@ -32,15 +33,10 @@ def home(request):
         .select_related("university", "board")
         .order_by("-rating", "university__name")[:10]
     )
-    for rating in top_ratings:
-        rating.display_match_count = display_match_count_for_rating(rating)
+
     total_votes = ComparisonVote.objects.filter(board=overall, skipped=False).count()
     university_count = ranking_university_queryset().count()
-    admission_coverage = (
-        AdmissionResult.objects.values("university_id")
-        .distinct()
-        .count()
-    )
+    admission_coverage = AdmissionResult.objects.values("university_id").distinct().count()
 
     return render(
         request,
@@ -133,11 +129,13 @@ def ranking_page(request, slug="overall"):
             "rank": rank,
             "rating": rating,
             "change": change,
-            "display_match_count": display_match_count_for_rating(rating),
-            "real_match_count": rating.match_count,
         })
 
-    return render(request, "rankings/ranking.html", {"board": board, "rows": rows, "min_matches": min_matches})
+    return render(request, "rankings/ranking.html", {
+        "board": board,
+        "rows": rows,
+        "min_matches": min_matches,
+    })
 
 
 @require_POST
@@ -237,7 +235,6 @@ def api_ranking(request, slug):
                     "name": rating.university.name,
                     "rating": round(rating.rating, 2),
                     "match_count": rating.match_count,
-                    "seeded_display_match_count": display_match_count_for_rating(rating),
                     "win_count": rating.win_count,
                     "loss_count": rating.loss_count,
                 }

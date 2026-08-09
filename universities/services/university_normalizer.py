@@ -87,6 +87,17 @@ EXPLICIT_CAMPUS_ALIASES = {
     "연세대학교 (미래)": "연세대학교 미래캠퍼스",
     "한양대학교(ERICA)": "한양대학교 ERICA캠퍼스",
     "한양대학교 (ERICA)": "한양대학교 ERICA캠퍼스",
+
+    # 홍익대학교는 ADIGA/CareerNet에서 본교와 제2캠퍼스로 분리되어 있다.
+    # 서비스에서는 실제 지역을 반영해 서울/세종캠퍼스로 표기한다.
+    "홍익대학교 본교": "홍익대학교 서울캠퍼스",
+    "홍익대학교(본교)": "홍익대학교 서울캠퍼스",
+    "홍익대학교 (본교)": "홍익대학교 서울캠퍼스",
+    "홍익대학교 제2캠퍼스": "홍익대학교 세종캠퍼스",
+    "홍익대학교(제2캠퍼스)": "홍익대학교 세종캠퍼스",
+    "홍익대학교 (제2캠퍼스)": "홍익대학교 세종캠퍼스",
+    "홍익대학교(세종)": "홍익대학교 세종캠퍼스",
+    "홍익대학교 (세종)": "홍익대학교 세종캠퍼스",
 }
 
 ADDRESS_CAMPUS_RULES = {
@@ -97,6 +108,11 @@ ADDRESS_CAMPUS_RULES = {
     "명지대학교": (
         ("서울특별시", "인문캠퍼스"),
         ("경기도 용인", "자연캠퍼스"),
+    ),
+    # ADIGA 기준 본교(서울) / 제2캠퍼스(세종)를 별도 대학 단위로 유지한다.
+    "홍익대학교": (
+        ("서울특별시", "서울캠퍼스"),
+        ("세종특별자치시", "세종캠퍼스"),
     ),
 }
 
@@ -195,7 +211,7 @@ def normalize_campus_label(value):
     if value.upper() == "WISE":
         return "WISE캠퍼스"
 
-    if value in {"글로컬", "세종", "미래", "인문", "자연", "죽전", "천안"}:
+    if value in {"글로컬", "세종", "미래", "인문", "자연", "죽전", "천안", "서울"}:
         return f"{value}캠퍼스"
 
     if value.endswith("캠퍼스") or value.endswith("교정"):
@@ -249,7 +265,8 @@ def ranking_university_name(name, campus_name=None, address=None):
         return f"{base_name} {address_label}"
 
     label = normalize_campus_label(campus_name)
-    # 제2캠퍼스/2캠퍼스 같은 단순 번호 캠퍼스는 별도 대학으로 만들지 않는다.
+    # 제2캠퍼스/2캠퍼스 같은 단순 번호 캠퍼스는 기본적으로 별도 대학으로 만들지 않는다.
+    # 홍익대는 위 ADDRESS_CAMPUS_RULES에서 주소 기준으로 먼저 서울/세종으로 분리된다.
     if label and re.fullmatch(r"(?:제)?\d+캠퍼스", label):
         return base_name
 
