@@ -457,3 +457,40 @@ v74 - 광주/전남 지역 표시명 최종 통일
 - UniversityCampus.location_label
 
 DB schema migration 없음.
+
+
+v75 - 한국골프대학교 중복 병합
+
+최종 University:
+한국골프과학기술대학교
+
+병합 대상:
+한국골프대학교 -> 한국골프과학기술대학교
+
+normalizer:
+"한국골프대학교" -> "한국골프과학기술대학교"
+향후 대학 동기화 시 구 교명으로 별도 University가 재생성되지 않도록 방지.
+
+관리 명령:
+python manage.py merge_korea_golf_university
+python manage.py merge_korea_golf_university --apply
+
+안전 정책:
+- 기본 미리보기 / transaction rollback
+- target University PK 유지
+- target에 logo_path가 없고 source에 있으면 source 로고 보존
+- Campus 이동
+- UniversityExternalMapping 이동
+- RecruitmentUnit 중복 정리
+- AdmissionSource / AdmissionResult 이동
+- AdmissionAggregate 재계산
+- ComparisonVote의 University FK 이동
+- UniversityRating 충돌 안전 처리
+- RankingSnapshotItem 이동
+- target/source 직접 VS 투표가 있으면 자동 병합 중단
+- 양쪽 모두 실제 rating match_count가 있으면 자동 병합 중단
+- 같은 snapshot에 두 대학이 동시에 존재하면 자동 병합 중단
+- 처리하지 않은 다른 reverse FK 데이터가 남아 있으면 삭제 전 중단
+- 마지막에만 "한국골프대학교" University 삭제
+
+migration 없음.
