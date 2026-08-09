@@ -7,6 +7,15 @@
 {% endblock %}
 
 {% block content %}
+<div class="admission-mode-tabs" aria-label="입시 메뉴">
+    <a class="admission-mode-tab active" href="{% url 'admissions:overview' %}">
+        입결 찾기
+    </a>
+    <a class="admission-mode-tab" href="{% url 'admissions:ranking' %}">
+        입결 순위
+    </a>
+</div>
+
 <section class="admission-overview-hero"
          data-ga-view="admission_overview_view"
          data-ga-param-year="{{ selected_year|default:'' }}"

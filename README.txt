@@ -194,3 +194,81 @@ v68 - 입시 결과 표 대표지표 글씨 크기 조정
   metric-value: 11px
 
 레이아웃/DB/JS 변경 없음.
+
+
+v69 - 입결 순위 전용 페이지
+
+신규 URL
+/admissions/ranking/
+
+구조
+- 입결 찾기 / 입결 순위 상단 탭
+- 학년도 선택
+- 4년제 / 전문대 선택
+- 수시 / 정시 선택
+- 대학명 검색
+- 대학 클릭 -> 해당 대학 입결 상세
+
+4년제
+수시:
+- 학생부교과 70% 컷
+- 등급 낮을수록 상위
+
+정시:
+- 공식 평균 백분위 70% 컷
+- 백분위 높을수록 상위
+
+전문대
+수시:
+- 학생부 합격자 평균 등급
+- 낮을수록 상위
+
+정시:
+- 수능 합격자 평균 백분위
+- 높을수록 상위
+
+중요
+- 4년제와 전문대는 절대 한 순위에 섞지 않음
+- 동일 공개지표끼리만 비교
+- 검색 시 원래 전체 순위 번호 유지
+- 페이지당 50개
+- 모바일 전용 순위 카드 레이아웃 포함
+
+DB migration 없음.
+현재 AdmissionAggregate / AdmissionMetric 데이터를 이용해 실시간 계산.
+
+
+v70 - 상명대학교 서울/천안 캠퍼스 분리
+
+공식 ADIGA 기준
+- 서울: unvCd=0000117
+- 천안: unvCd=0002959
+
+서비스 표시
+- 서울 -> 상명대학교
+- 천안 -> 상명대학교 천안캠퍼스
+
+핵심 정책
+- 기존 "상명대학교" University PK는 서울이 그대로 사용
+- 기존 투표/랭킹 관계는 서울에 그대로 보존
+- 천안만 별도 University 생성
+- UniversityCampus / UniversityExternalMapping을 서울/천안으로 분리
+- ADIGA는 이름이 둘 다 "상명대학교"이므로 이름이 아니라 unvCd로 분리
+- 기존 AdmissionSource / AdmissionResult도 source_url의 unvCd를 기준으로 이동
+- 서울/천안 AdmissionAggregate만 재계산
+- 향후 대학 동기화에서도 상명대를 하나로 다시 collapse하지 않도록 normalizer 변경
+
+실행
+1) 미리보기
+python manage.py split_sangmyung_campuses
+
+2) 실제 적용
+python manage.py split_sangmyung_campuses --apply
+
+3) 확인
+python manage.py shell -c "from universities.models import University; print(list(University.objects.filter(name__startswith='상명대학교').values_list('university_id','name','region','address')))"
+
+4) ADIGA mapping 확인
+python manage.py shell -c "from universities.models import UniversityExternalMapping; print(list(UniversityExternalMapping.objects.filter(source='ADIGA',external_code__in=['0000117','0002959']).values_list('external_code','external_name','university__name')))"
+
+DB schema migration 없음.

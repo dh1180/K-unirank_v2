@@ -371,6 +371,233 @@ def overview(request):
     return render(request, "admissions/overview.html", context)
 
 
+
+def admission_ranking(request):
+    """대학 단위 대표 입결 순위.
+
+    4년제와 전문대는 서로 다른 공개 지표를 사용하므로 절대 한 순위에 섞지 않는다.
+    """
+    years = list(
+        AdmissionResult.objects.values_list("admission_year", flat=True)
+        .distinct()
+        .order_by("-admission_year")
+    )
+    latest_year = years[0] if years else None
+
+    requested_year = request.GET.get("year")
+    try:
+        requested_year = int(requested_year) if requested_year else None
+    except ValueError:
+        requested_year = None
+
+    selected_year = requested_year if requested_year in years else latest_year
+
+    kind = request.GET.get("kind", "four").strip().lower()
+    if kind not in {"four", "college"}:
+        kind = "four"
+
+    phase = request.GET.get("phase", "SUSI").strip().upper()
+    if phase not in {"SUSI", "JEONGSI"}:
+        phase = "SUSI"
+
+    query = request.GET.get("q", "").strip()
+
+    rows = []
+    metric_title = ""
+    metric_unit = ""
+    metric_direction = ""
+    source_label = ""
+    methodology = ""
+
+    if selected_year and kind == "four":
+        source_label = "대입정보포털 어디가"
+
+        if phase == "SUSI":
+            metric_title = "학생부교과 70% 컷"
+            metric_unit = "등급"
+            metric_direction = "낮을수록 상위"
+            methodology = (
+                "학생부교과 전형의 대학 단위 70% 컷 집계값을 비교합니다."
+            )
+
+            queryset = (
+                AdmissionAggregate.objects.filter(
+                    admission_year=selected_year,
+                    admission_phase="SUSI",
+                    selection_category="학생부교과",
+                    metric_code="STUDENT_GRADE_70_CUT",
+                )
+                .select_related("university")
+                .order_by("value", "university__name")
+            )
+        else:
+            metric_title = "공식 평균 백분위 70% 컷"
+            metric_unit = "백분위"
+            metric_direction = "높을수록 상위"
+            methodology = (
+                "정시 수능 전형에서 대학이 공개한 공식 평균 백분위 "
+                "70% 컷의 대학 단위 집계값을 비교합니다."
+            )
+
+            queryset = (
+                AdmissionAggregate.objects.filter(
+                    admission_year=selected_year,
+                    admission_phase="JEONGSI",
+                    selection_category="수능",
+                    metric_code="CSAT_PERCENTILE_MEAN_70_CUT",
+                )
+                .select_related("university")
+                .order_by("-value", "university__name")
+            )
+
+        if query:
+            queryset = queryset.filter(university__name__icontains=query)
+
+        for item in queryset:
+            rows.append(
+                {
+                    "university": item.university,
+                    "university_id": item.university_id,
+                    "value": item.value,
+                    "sample_count": item.sample_count,
+                    "unit": metric_unit,
+                }
+            )
+
+    elif selected_year and kind == "college":
+        source_label = "전문대학포털"
+
+        if phase == "SUSI":
+            metric_title = "학생부 합격자 평균"
+            metric_unit = "등급"
+            metric_direction = "낮을수록 상위"
+            methodology = (
+                "전문대학포털에서 학생부 성적을 등급으로 공개한 "
+                "수시 모집단위만 모집인원 가중평균하여 비교합니다."
+            )
+
+            rows = _build_procollege_metric_ranking(
+                admission_year=selected_year,
+                admission_phase="SUSI",
+                metric_code="COLLEGE_STUDENT_AVERAGE",
+                unit="등급",
+                ascending=True,
+                limit=1000,
+            )
+        else:
+            metric_title = "수능 합격자 평균"
+            metric_unit = "백분위"
+            metric_direction = "높을수록 상위"
+            methodology = (
+                "전문대학포털에서 수능 성적을 백분위로 공개한 "
+                "정시 모집단위만 모집인원 가중평균하여 비교합니다."
+            )
+
+            rows = _build_procollege_metric_ranking(
+                admission_year=selected_year,
+                admission_phase="JEONGSI",
+                metric_code="COLLEGE_CSAT_AVERAGE",
+                unit="백분위",
+                ascending=False,
+                limit=1000,
+            )
+
+        if query:
+            query_lower = query.lower()
+            rows = [
+                row
+                for row in rows
+                if query_lower in row["university"].name.lower()
+            ]
+
+    # 검색 후에도 순위는 현재 표시되는 목록 안에서 다시 매기지 않고,
+    # 전체 순위의 원래 rank를 보존한다.
+    # 따라서 검색 전 전체 순위를 먼저 다시 계산한다.
+    if selected_year:
+        if kind == "four":
+            if phase == "SUSI":
+                full_source = (
+                    AdmissionAggregate.objects.filter(
+                        admission_year=selected_year,
+                        admission_phase="SUSI",
+                        selection_category="학생부교과",
+                        metric_code="STUDENT_GRADE_70_CUT",
+                    )
+                    .select_related("university")
+                    .order_by("value", "university__name")
+                )
+            else:
+                full_source = (
+                    AdmissionAggregate.objects.filter(
+                        admission_year=selected_year,
+                        admission_phase="JEONGSI",
+                        selection_category="수능",
+                        metric_code="CSAT_PERCENTILE_MEAN_70_CUT",
+                    )
+                    .select_related("university")
+                    .order_by("-value", "university__name")
+                )
+
+            full_rank_map = {
+                item.university_id: index
+                for index, item in enumerate(full_source, start=1)
+            }
+        else:
+            if phase == "SUSI":
+                full_rows = _build_procollege_metric_ranking(
+                    admission_year=selected_year,
+                    admission_phase="SUSI",
+                    metric_code="COLLEGE_STUDENT_AVERAGE",
+                    unit="등급",
+                    ascending=True,
+                    limit=1000,
+                )
+            else:
+                full_rows = _build_procollege_metric_ranking(
+                    admission_year=selected_year,
+                    admission_phase="JEONGSI",
+                    metric_code="COLLEGE_CSAT_AVERAGE",
+                    unit="백분위",
+                    ascending=False,
+                    limit=1000,
+                )
+
+            full_rank_map = {
+                row["university_id"]: index
+                for index, row in enumerate(full_rows, start=1)
+            }
+
+        for row in rows:
+            row["rank"] = full_rank_map.get(row["university_id"])
+
+    result_count = len(rows)
+    paginator = Paginator(rows, 50)
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+
+    pagination_params = request.GET.copy()
+    pagination_params.pop("page", None)
+
+    return render(
+        request,
+        "admissions/ranking.html",
+        {
+            "years": years,
+            "selected_year": selected_year,
+            "kind": kind,
+            "phase": phase,
+            "query": query,
+            "metric_title": metric_title,
+            "metric_unit": metric_unit,
+            "metric_direction": metric_direction,
+            "source_label": source_label,
+            "methodology": methodology,
+            "result_count": result_count,
+            "rows": page_obj.object_list,
+            "page_obj": page_obj,
+            "pagination_query": pagination_params.urlencode(),
+        },
+    )
+
 def university_admissions(request, university_id):
     university = get_object_or_404(
         University,

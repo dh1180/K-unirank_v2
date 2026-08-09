@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}입결 순위 · K-unirank{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admission-mode-tabs" aria-label="입시 메뉴">
+    <a class="admission-mode-tab" href="{% url 'admissions:overview' %}">
+        입결 찾기
+    </a>
+    <a class="admission-mode-tab active" href="{% url 'admissions:ranking' %}">
+        입결 순위
+    </a>
+</div>
+
+<section class="admission-ranking-hero"
+         data-ga-view="admission_ranking_view"
+         data-ga-param-year="{{ selected_year|default:'' }}"
+         data-ga-param-kind="{{ kind }}"
+         data-ga-param-phase="{{ phase }}">
+    <div>
+        <span class="eyebrow">ADMISSION RANKING</span>
+        <h1>{{ selected_year }}학년도<br>입결 순위</h1>
+        <p>
+            공개된 입시 결과 중 같은 지표끼리 비교한 대학 단위 참고 순위입니다.
+            4년제와 전문대는 서로 다른 기준을 사용하므로 별도로 제공합니다.
+        </p>
+    </div>
+
+    <div class="ranking-method-card">
+        <span>현재 기준</span>
+        <strong>{{ metric_title }}</strong>
+        <small>{{ metric_direction }} · {{ source_label }}</small>
+    </div>
+</section>
+
+{% if years %}
+<div class="region-chips admission-ranking-years">
+    {% for y in years %}
+    <a class="region-chip {% if selected_year == y %}active{% endif %}"
+       href="?year={{ y }}&kind={{ kind }}&phase={{ phase }}{% if query %}&q={{ query|urlencode }}{% endif %}">
+        {{ y }}학년도
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<section class="admission-ranking-controls">
+    <div class="ranking-control-block">
+        <span class="ranking-control-label">대학 유형</span>
+        <div class="ranking-segment">
+            <a class="{% if kind == 'four' %}active{% endif %}"
+               href="?year={{ selected_year }}&kind=four&phase={{ phase }}{% if query %}&q={{ query|urlencode }}{% endif %}">
+                4년제
+            </a>
+            <a class="{% if kind == 'college' %}active{% endif %}"
+               href="?year={{ selected_year }}&kind=college&phase={{ phase }}{% if query %}&q={{ query|urlencode }}{% endif %}">
+                전문대
+            </a>
+        </div>
+    </div>
+
+    <div class="ranking-control-block">
+        <span class="ranking-control-label">모집 구분</span>
+        <div class="ranking-segment">
+            <a class="{% if phase == 'SUSI' %}active{% endif %}"
+               href="?year={{ selected_year }}&kind={{ kind }}&phase=SUSI{% if query %}&q={{ query|urlencode }}{% endif %}">
+                수시
+            </a>
+            <a class="{% if phase == 'JEONGSI' %}active{% endif %}"
+               href="?year={{ selected_year }}&kind={{ kind }}&phase=JEONGSI{% if query %}&q={{ query|urlencode }}{% endif %}">
+                정시
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="admission-ranking-search">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <input type="hidden" name="kind" value="{{ kind }}">
+        <input type="hidden" name="phase" value="{{ phase }}">
+        <input type="search"
+               name="q"
+               value="{{ query }}"
+               placeholder="대학명 검색"
+               aria-label="입결 순위 대학명 검색">
+        <button type="submit" class="button primary">검색</button>
+        {% if query %}
+        <a class="button ghost"
+           href="?year={{ selected_year }}&kind={{ kind }}&phase={{ phase }}">
+            초기화
+        </a>
+        {% endif %}
+    </form>
+</section>
+
+<section class="admission-ranking-section">
+    <div class="section-title admission-ranking-title">
+        <div>
+            <span class="eyebrow">
+                {% if kind == "four" %}4-YEAR UNIVERSITY{% else %}JUNIOR COLLEGE{% endif %}
+            </span>
+            <h2>
+                {% if kind == "four" %}4년제{% else %}전문대{% endif %}
+                ·
+                {% if phase == "SUSI" %}수시{% else %}정시{% endif %}
+            </h2>
+            <p class="muted">{{ methodology }}</p>
+        </div>
+        <div class="ranking-count-box">
+            <strong>{{ result_count }}</strong>
+            <span>개 대학</span>
+        </div>
+    </div>
+
+    <div class="admission-ranking-list">
+        <div class="admission-ranking-head">
+            <span>순위</span>
+            <span>대학</span>
+            <span>대표 입결</span>
+            <span>표본</span>
+        </div>
+
+        {% for row in rows %}
+        <a class="admission-ranking-row"
+           href="{% url 'admissions:university' row.university_id %}?year={{ selected_year }}&phase={{ phase }}">
+            <span class="admission-rank-number {% if row.rank <= 3 %}top{% endif %}">
+                {{ row.rank }}
+            </span>
+
+            <span class="admission-rank-university">
+                <strong>{{ row.university.name }}</strong>
+                <small>{{ row.university.location_label }}</small>
+            </span>
+
+            <span class="admission-rank-score">
+                <strong>{{ row.value|floatformat:2 }}</strong>
+                <small>{{ row.unit }}</small>
+            </span>
+
+            <span class="admission-rank-sample">
+                {{ row.sample_count }}개 모집단위
+            </span>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">입</div>
+            <strong>조건에 맞는 입결 순위가 없습니다.</strong>
+            <p>다른 학년도나 대학 유형을 선택해보세요.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="results-pager admission-ranking-pager">
+        <div class="pagination-side">
+            {% if page_obj.has_previous %}
+            <a class="page-button"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a>
+            <a class="page-button"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
+            {% else %}
+            <span class="page-button disabled">처음</span>
+            <span class="page-button disabled">이전</span>
+            {% endif %}
+        </div>
+
+        <div class="pagination-center">
+            <strong>{{ page_obj.number }}</strong>
+            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
+        </div>
+
+        <div class="pagination-side">
+            {% if page_obj.has_next %}
+            <a class="page-button"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+            <a class="page-button"
+               href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>
+            {% else %}
+            <span class="page-button disabled">다음</span>
+            <span class="page-button disabled">마지막</span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="admission-ranking-disclaimer">
+        <strong>참고용 순위입니다.</strong>
+        <p>
+            대학·전형·모집단위마다 반영 방식과 공개 범위가 다르므로 공식 대학 서열이나
+            합격 가능성을 의미하지 않습니다. 동일하게 공개된 대표 지표끼리만 비교합니다.
+        </p>
+    </div>
+</section>
+{% endblock %}

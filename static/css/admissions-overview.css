@@ -1298,3 +1298,471 @@
         padding-right: 11px;
     }
 }
+
+
+/* =========================================================
+   v69 — Admissions Ranking
+   ========================================================= */
+
+.admission-mode-tabs {
+    width: fit-content;
+    margin: 0 0 18px;
+    padding: 4px;
+    display: flex;
+    gap: 3px;
+    border: 1px solid #e1e6ef;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 2px 7px rgba(16, 24, 40, .035);
+}
+
+.admission-mode-tab {
+    min-width: 96px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    color: #667085;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.admission-mode-tab:hover {
+    color: #3157e5;
+    background: #f4f6ff;
+}
+
+.admission-mode-tab.active {
+    color: #fff;
+    background: #3157e5;
+}
+
+.admission-ranking-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 270px;
+    padding: 42px 46px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: center;
+    gap: 34px;
+    border: 1px solid #dde4f5;
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at 92% 5%, rgba(49, 87, 229, .18), transparent 18rem),
+        linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
+    box-shadow: 0 20px 55px rgba(28, 45, 94, .07);
+}
+
+.admission-ranking-hero h1 {
+    margin-bottom: 13px;
+    font-size: clamp(38px, 5vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -.06em;
+}
+
+.admission-ranking-hero p {
+    max-width: 650px;
+    margin-bottom: 0;
+    color: #667085;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.ranking-method-card {
+    padding: 22px;
+    border: 1px solid rgba(49, 87, 229, .14);
+    border-radius: 20px;
+    background: rgba(255,255,255,.84);
+}
+
+.ranking-method-card span,
+.ranking-method-card strong,
+.ranking-method-card small {
+    display: block;
+}
+
+.ranking-method-card span {
+    margin-bottom: 8px;
+    color: #98a2b3;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ranking-method-card strong {
+    margin-bottom: 8px;
+    font-size: 20px;
+    letter-spacing: -.04em;
+}
+
+.ranking-method-card small {
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.admission-ranking-years {
+    margin-top: -12px;
+    margin-bottom: 24px;
+}
+
+.admission-ranking-controls {
+    margin-bottom: 28px;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px 22px;
+    border: 1px solid #e4e7ec;
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 6px 22px rgba(16,24,40,.04);
+}
+
+.ranking-control-block {
+    display: grid;
+    gap: 6px;
+}
+
+.ranking-control-label {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.ranking-segment {
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+    border-radius: 11px;
+    background: #f2f4f7;
+}
+
+.ranking-segment a {
+    min-width: 72px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #667085;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ranking-segment a.active {
+    color: #fff;
+    background: #3157e5;
+    box-shadow: 0 3px 8px rgba(49,87,229,.18);
+}
+
+.admission-ranking-search {
+    min-width: 290px;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.admission-ranking-search input {
+    width: min(280px, 35vw);
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 11px;
+    outline: 0;
+}
+
+.admission-ranking-search input:focus {
+    border-color: #91a7ff;
+    box-shadow: 0 0 0 4px rgba(49,87,229,.08);
+}
+
+.admission-ranking-title {
+    align-items: end;
+}
+
+.admission-ranking-title h2 {
+    margin-bottom: 5px;
+}
+
+.admission-ranking-title .muted {
+    max-width: 720px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.ranking-count-box {
+    flex: none;
+    padding: 10px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    border-radius: 12px;
+    color: #3157e5;
+    background: #eef2ff;
+}
+
+.ranking-count-box strong {
+    font-size: 18px;
+}
+
+.ranking-count-box span {
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.admission-ranking-list {
+    overflow: hidden;
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(16,24,40,.035);
+}
+
+.admission-ranking-head,
+.admission-ranking-row {
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) 170px 150px;
+    align-items: center;
+    gap: 14px;
+}
+
+.admission-ranking-head {
+    min-height: 46px;
+    padding: 0 20px;
+    color: #667085;
+    background: #f8f9fb;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.admission-ranking-row {
+    min-height: 72px;
+    padding: 10px 20px;
+    border-top: 1px solid #eef0f3;
+    transition: .14s ease;
+}
+
+.admission-ranking-row:hover {
+    background: #fafbff;
+}
+
+.admission-rank-number {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    color: #667085;
+    background: #f2f4f7;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.admission-rank-number.top {
+    color: #fff;
+    background: #3157e5;
+}
+
+.admission-rank-university {
+    min-width: 0;
+}
+
+.admission-rank-university strong,
+.admission-rank-university small {
+    display: block;
+}
+
+.admission-rank-university strong {
+    overflow: hidden;
+    margin-bottom: 3px;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admission-rank-university small {
+    color: #98a2b3;
+    font-size: 10px;
+}
+
+.admission-rank-score {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.admission-rank-score strong {
+    color: #3157e5;
+    font-size: 19px;
+    letter-spacing: -.035em;
+}
+
+.admission-rank-score small {
+    color: #98a2b3;
+    font-size: 10px;
+}
+
+.admission-rank-sample {
+    color: #667085;
+    font-size: 11px;
+}
+
+.admission-ranking-disclaimer {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border: 1px solid #e4e7ec;
+    border-radius: 15px;
+    background: #fafbfc;
+}
+
+.admission-ranking-disclaimer strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.admission-ranking-disclaimer p {
+    margin-bottom: 0;
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+    .admission-ranking-hero {
+        min-height: 0;
+        padding: 30px 24px;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        border-radius: 22px;
+    }
+
+    .admission-ranking-hero h1 {
+        font-size: 38px;
+    }
+
+    .ranking-method-card {
+        padding: 16px;
+    }
+
+    .admission-ranking-controls {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ranking-segment {
+        width: 100%;
+    }
+
+    .ranking-segment a {
+        flex: 1;
+    }
+
+    .admission-ranking-search {
+        width: 100%;
+        min-width: 0;
+        margin-left: 0;
+    }
+
+    .admission-ranking-search input {
+        width: 100%;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .admission-ranking-head {
+        display: none;
+    }
+
+    .admission-ranking-list {
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .admission-ranking-row {
+        min-height: 0;
+        margin-bottom: 9px;
+        padding: 14px;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        gap: 10px;
+        border: 1px solid #e4e7ec;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(16,24,40,.035);
+    }
+
+    .admission-ranking-row:hover {
+        background: #fff;
+    }
+
+    .admission-rank-number {
+        width: 38px;
+        height: 38px;
+    }
+
+    .admission-rank-score {
+        justify-self: end;
+    }
+
+    .admission-rank-sample {
+        grid-column: 2 / -1;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 460px) {
+    .admission-mode-tabs {
+        width: 100%;
+    }
+
+    .admission-mode-tab {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .admission-ranking-hero {
+        padding: 25px 20px;
+    }
+
+    .admission-ranking-hero h1 {
+        font-size: 33px;
+    }
+
+    .admission-ranking-hero p {
+        font-size: 13px;
+    }
+
+    .admission-ranking-title {
+        align-items: flex-start;
+    }
+
+    .ranking-count-box {
+        padding: 8px 10px;
+    }
+
+    .admission-ranking-search {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .admission-ranking-search .button.ghost {
+        grid-column: 1 / -1;
+    }
+
+    .admission-ranking-row {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .admission-rank-score {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .admission-rank-sample {
+        grid-column: 2;
+    }
+}
