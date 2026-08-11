@@ -555,3 +555,18 @@ python manage.py fix_polytech_chungnam_logo --apply
 - University.logo_path만 수정
 - 다른 대학/입결/투표/랭킹 데이터는 수정하지 않음
 - migration 없음
+
+
+v78 - Google AdSense 사이트 검토 코드 추가
+
+templates/base.html <head>에 publisher script 추가:
+ca-pub-3862816878614020
+
+효과:
+- 모든 페이지 <head>에서 AdSense script 로드
+- AdSense 사이트 소유권/검토 확인에 사용 가능
+- 기존 GA4 유지
+- 기존 Kakao AdFit 유지
+- 별도 AdSense 광고 unit 추가는 하지 않음
+
+migration 없음.
