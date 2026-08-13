@@ -1,12 +1,21 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
 from django.urls import include, path
 
 from rankings.views import health
 from users.forms import LoginForm
 
 
+def ads_txt(request):
+    return HttpResponse(
+        "google.com, pub-3862816878614020, DIRECT, f08c47fec0942fa0\n",
+        content_type="text/plain; charset=utf-8",
+    )
+
+
 urlpatterns = [
+    path("ads.txt", ads_txt, name="ads_txt"),
     path("admin/", admin.site.urls),
     path(
         "accounts/login/",
