@@ -62,6 +62,7 @@ REGION_NAMES = (
 
 # 실제로 하나의 대학으로 통합된 경우만 현재 교명으로 묶는다.
 NAME_ALIASES = {
+    "서울사이버대학": "서울사이버대학교",
     "한국복지사이버대학": "한국복지사이버대학교",
     "한국골프대학교": "한국골프과학기술대학교",
     "강릉원주대학교": "강원대학교",
@@ -85,6 +86,7 @@ MERGED_UNIVERSITIES = {
 # 캠퍼스 자체 정보는 UniversityCampus에 남기고 University는 본교 하나로 묶는다.
 COLLAPSED_CAMPUS_BASES = {
     "가톨릭대학교",
+    "한국폴리텍대학",
 }
 
 # 분교·이원화 캠퍼스는 본교와 합치지 않고 표시 이름만 통일한다.
@@ -259,6 +261,10 @@ def canonical_university_name(name):
 
     name = re.sub(r"\[(본교|분교|제\d+캠퍼스)\]$", "", name).strip()
 
+    # K-unirank 정책: 전국 한국폴리텍 캠퍼스는 대학 단위로 하나만 표시한다.
+    if name.startswith("한국폴리텍"):
+        return "한국폴리텍대학"
+
     if name in NAME_ALIASES:
         return NAME_ALIASES[name]
 
@@ -339,9 +345,6 @@ def ranking_university_name(name, campus_name=None, address=None):
     if base_name in MERGED_UNIVERSITIES or base_name in COLLAPSED_CAMPUS_BASES:
         return base_name
 
-    if base_name.startswith("한국폴리텍") and "캠퍼스" in base_name:
-        return base_name
-
     explicit_campus = re.search(r"(?:\s|^)([^\s]+캠퍼스|[^\s]+교정)$", base_name)
     if explicit_campus:
         return base_name
@@ -420,6 +423,11 @@ def campus_label_from_name(name, canonical_name):
 def is_excluded_university(name, school_type=None):
     name = clean_text(name)
     school_type = clean_text(school_type)
+
+    # K-unirank 정책: 사이버대학은 서울사이버대학교만 서비스에 유지한다.
+    # 학교명이 "사이버"를 포함하는 다른 대학은 향후 동기화에서도 다시 만들지 않는다.
+    if name and "사이버" in name and name not in {"서울사이버대학교", "서울사이버대학"}:
+        return True
 
     if name in EXCLUDED_UNIVERSITY_NAMES:
         return True
