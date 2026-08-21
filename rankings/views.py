@@ -12,6 +12,7 @@ from .models import ComparisonVote, PersonalResult, RankingBoard, RankingSnapsho
 from .services import build_personal_result, ensure_default_boards, get_vote_session, record_vote, select_pair
 from .baseline import ranking_university_queryset
 from .admission_hover import attach_admission_hover, build_admission_hover
+from django.db.models import Sum
 
 
 def _active_board(slug):
@@ -34,7 +35,14 @@ def home(request):
         .order_by("-rating", "university__name")[:10]
     )
 
-    total_votes = ComparisonVote.objects.filter(board=overall, skipped=False).count()
+    total_match_count = (
+            UniversityRating.objects
+            .filter(board=overall)
+            .aggregate(total=Sum("match_count"))["total"]
+            or 0
+    )
+
+    total_votes = total_match_count // 2
     university_count = ranking_university_queryset().count()
     admission_coverage = AdmissionResult.objects.values("university_id").distinct().count()
 
