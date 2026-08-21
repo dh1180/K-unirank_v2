@@ -424,9 +424,15 @@ def is_excluded_university(name, school_type=None):
     name = clean_text(name)
     school_type = clean_text(school_type)
 
-    # K-unirank 정책: 사이버대학은 서울사이버대학교만 서비스에 유지한다.
-    # 학교명이 "사이버"를 포함하는 다른 대학은 향후 동기화에서도 다시 만들지 않는다.
-    if name and "사이버" in name and name not in {"서울사이버대학교", "서울사이버대학"}:
+    # K-unirank 정책:
+    # - 사이버대학 유형은 태재대학교, 서울사이버대학교만 서비스에 유지한다.
+    # - 학교명에 "사이버"가 들어가는 경우도 서울사이버대학교 외에는 제외한다.
+    cyber_keep_names = {"태재대학교", "서울사이버대학교", "서울사이버대학"}
+
+    if school_type and "사이버대학" in school_type and name not in cyber_keep_names:
+        return True
+
+    if name and "사이버" in name and name not in cyber_keep_names:
         return True
 
     if name in EXCLUDED_UNIVERSITY_NAMES:
