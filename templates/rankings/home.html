@@ -1,12 +1,30 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}K-unirank 2.0{% endblock %}
+{% block title %}대학 순위 · 입시결과 비교 | K-unirank{% endblock %}
+{% block meta_description %}사용자 VS 투표로 만들어지는 대한민국 대학 선호도 순위와 4년제·전문대 입시결과를 K-unirank에서 한눈에 비교해보세요.{% endblock %}
+{% block og_title %}대학 순위 · 입시결과 비교 | K-unirank{% endblock %}
+{% block og_description %}사용자 VS 투표 기반 대한민국 대학 선호도 순위와 4년제·전문대 입시결과를 한눈에 비교해보세요.{% endblock %}
+{% block twitter_title %}대학 순위 · 입시결과 비교 | K-unirank{% endblock %}
+{% block twitter_description %}사용자 VS 투표 기반 대한민국 대학 선호도 순위와 입시결과를 한눈에 비교해보세요.{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "K-unirank",
+  "alternateName": "케이유니랭크",
+  "url": "https://www.k-unirank.com/",
+  "description": "사용자 VS 투표로 만들어지는 대한민국 대학 선호도 순위와 4년제·전문대 입시결과 비교 서비스",
+  "inLanguage": "ko-KR"
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero">
     <div class="hero-copy">
-        <span class="eyebrow">사람들이 직접 만드는 대학 선호도</span>
-        <h1>둘 중 더 가고 싶은 대학을 골라주세요.</h1>
-        <p>실제 VS 선택 결과만 누적해 대학 선호도 랭킹을 만듭니다. 여러 번 참여하면 개인 TOP10도 확인할 수 있어요.</p>
+        <span class="eyebrow">사람들이 직접 만드는 대한민국 대학 선호도</span>
+        <h1>대한민국 대학 선호도 순위</h1>
+        <p>둘 중 더 가고 싶은 대학을 선택해보세요. 실제 VS 선택 결과를 누적해 대학 선호도 랭킹을 만들고, 대학별 입시결과도 함께 비교할 수 있습니다.</p>
         <div class="hero-actions">
             <a class="button primary" href="{% url 'rankings:vote_default' %}">지금 투표하기</a>
             <a class="button secondary" href="{% url 'rankings:ranking_default' %}">랭킹 둘러보기</a>
@@ -19,7 +37,7 @@
     </div>
 </section>
 
-<section>
+<section data-nosnippet>
     <div class="section-title">
         <div>
             <span class="eyebrow">LIVE RANKING</span>
