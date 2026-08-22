@@ -19,6 +19,8 @@
     <button class="button" type="submit">적용</button>
 </form>
 
+{% include "partials/display_ad.html" %}
+
 <div class="ranking-list full-ranking">
 {% for row in rows %}
 <a class="rank-row" href="{% url 'universities:detail' row.rating.university_id %}"

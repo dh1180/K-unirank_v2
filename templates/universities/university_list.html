@@ -25,6 +25,8 @@
     {% endfor %}
 </div>
 
+{% include "partials/display_ad.html" %}
+
 <div class="school-grid">
 {% for university in universities %}
 <a class="school-card" href="{% url 'universities:detail' university.pk %}"
