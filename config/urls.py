@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.urls import include, path
 
+from admissions import views as admissions_views
 from rankings.views import health
 from users.forms import LoginForm
 
@@ -15,6 +16,8 @@ def ads_txt(request):
 
 
 urlpatterns = [
+    # v84: 입결 찾기를 사이트의 canonical root/home으로 사용
+    path("", admissions_views.overview, name="home"),
     path("ads.txt", ads_txt, name="ads_txt"),
     path("admin/", admin.site.urls),
     path(

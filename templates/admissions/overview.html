@@ -1,14 +1,34 @@
 {% extends "base.html" %}
 {% load static admission_extras %}
-{% block title %}입시 데이터 · K-unirank{% endblock %}
+{% block title %}대학 입결 검색 · 입시결과 비교 | K-unirank{% endblock %}
+{% block meta_description %}4년제는 대입정보포털 어디가, 전문대는 전문대학포털의 공개 입시결과를 바탕으로 대학·학과별 수시·정시 입결과 대표 지표를 검색하고 비교해보세요.{% endblock %}
+{% block canonical_url %}https://www.k-unirank.com/{% endblock %}
+{% block og_title %}대학 입결 검색 · 입시결과 비교 | K-unirank{% endblock %}
+{% block og_description %}대학명·학과명·전형명으로 4년제와 전문대 입시결과를 빠르게 찾아보고 비교해보세요.{% endblock %}
+{% block twitter_title %}대학 입결 검색 · K-unirank{% endblock %}
+{% block twitter_description %}4년제·전문대 대학별 학과 입시결과를 한곳에서 검색하고 비교해보세요.{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/home-admissions.css' %}">
 <script defer src="{% static 'js/admissions-overview.js' %}"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "K-unirank",
+  "url": "https://www.k-unirank.com/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://www.k-unirank.com/?q={search_term_string}#admission-explorer",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="admission-mode-tabs" aria-label="입시 메뉴">
-    <a class="admission-mode-tab active" href="{% url 'admissions:overview' %}">
+    <a class="admission-mode-tab active" href="{% url 'home' %}">
         입결 찾기
     </a>
     <a class="admission-mode-tab" href="{% url 'admissions:ranking' %}">
@@ -22,8 +42,40 @@
          data-ga-param-result-count="{{ result_count }}">
     <div class="admission-overview-copy">
         <span class="eyebrow">ADMISSIONS DATA</span>
-        <h1>입결, 한 화면에서<br>비교해보세요.</h1>
-        <p>4년제는 어디가, 전문대는 전문대학포털의 공개 데이터를 바탕으로 대표 지표와 모집단위별 결과를 함께 보여줍니다.</p>
+        <h1>대학·학과 입결을<br>바로 찾아보세요.</h1>
+        <p>4년제는 대입정보포털 어디가, 전문대는 전문대학포털의 공개 데이터를 바탕으로 수시·정시 입결과 모집단위별 결과를 한곳에서 비교합니다.</p>
+
+        <form method="get"
+              action="{% url 'home' %}#admission-explorer"
+              class="home-hero-search"
+              autocomplete="off"
+              data-ga-submit="home_admission_search"
+              data-ga-search-field="q">
+            {% if selected_year %}
+            <input type="hidden" name="year" value="{{ selected_year }}">
+            {% endif %}
+            <div class="home-hero-search-shell">
+                <span class="home-search-icon" aria-hidden="true">⌕</span>
+                <input type="search"
+                       name="q"
+                       value="{{ query }}"
+                       placeholder="예: 가천대학교 간호학과, 컴퓨터공학과, 학생부교과"
+                       aria-label="대학명, 학과명, 전형명으로 입결 검색">
+                <button type="submit">입결 검색</button>
+            </div>
+        </form>
+
+        <div class="home-trust-row" aria-label="입시 데이터 출처">
+            <span>4년제 · 어디가</span>
+            <span>전문대 · 전문대학포털</span>
+            <span>원문 출처 제공</span>
+        </div>
+
+        <div class="home-quick-actions" aria-label="K-unirank 주요 기능">
+            <a href="{% url 'admissions:ranking' %}" data-ga-event="home_quick_admission_ranking">입결 순위 보기 →</a>
+            <a href="{% url 'rankings:ranking_default' %}" data-ga-event="home_quick_preference_ranking">대학 선호도 랭킹 →</a>
+            <a href="{% url 'rankings:vote_default' %}" data-ga-event="home_quick_vs">VS 참여하기 →</a>
+        </div>
     </div>
 
     {% if selected_year %}

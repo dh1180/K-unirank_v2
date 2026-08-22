@@ -1,0 +1,173 @@
+/* v84: 입결 찾기를 admissions의 주 기능으로 보이게 하는 보조 스타일 */
+
+html {
+    scroll-behavior: smooth;
+}
+
+.admission-mode-tabs-primary {
+    margin-bottom: 24px;
+}
+
+.admission-find-hero {
+    min-height: 280px;
+}
+
+.admission-find-hero .admission-overview-copy p {
+    max-width: 650px;
+}
+
+.hero-search-jump {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 18px;
+    color: #3157e5;
+    font-size: 14px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.hero-search-jump:hover {
+    text-decoration: underline;
+}
+
+.admission-year-tabs-find {
+    margin-bottom: 24px;
+}
+
+.explorer-section-primary {
+    margin-top: 34px;
+    scroll-margin-top: 108px;
+}
+
+.find-results-title {
+    margin-bottom: 18px;
+}
+
+.find-results-title h2 {
+    margin-bottom: 6px;
+}
+
+.admission-explorer-primary {
+    border-color: #ccd7ff;
+    box-shadow: 0 16px 42px rgba(49, 87, 229, .09);
+}
+
+.overview-search-box-primary {
+    min-height: 58px;
+}
+
+.overview-search-box-primary input {
+    min-height: 58px;
+    font-size: 17px;
+}
+
+.overview-search-box-primary .button {
+    min-width: 88px;
+    min-height: 46px;
+    font-size: 14px;
+}
+
+.representative-section-secondary {
+    margin-top: 72px;
+    padding-top: 42px;
+    border-top: 1px solid #e4e7ec;
+}
+
+.representative-title-with-cta {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.admission-ranking-cta {
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 17px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #cfd8ff;
+    border-radius: 14px;
+    background: #f4f7ff;
+    color: #3157e5;
+    font-size: 13px;
+    font-weight: 850;
+    text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.admission-ranking-cta strong {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.admission-ranking-cta:hover {
+    transform: translateY(-1px);
+    border-color: #aebeff;
+    box-shadow: 0 8px 22px rgba(49, 87, 229, .10);
+}
+
+@media (max-width: 900px) {
+    .admission-find-hero {
+        min-height: 0;
+    }
+
+    .representative-section-secondary {
+        margin-top: 52px;
+        padding-top: 32px;
+    }
+
+    .representative-title-with-cta {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admission-ranking-cta {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 640px) {
+    .admission-mode-tabs-primary {
+        margin-bottom: 18px;
+    }
+
+    .admission-find-hero .admission-overview-copy h1 {
+        font-size: 36px;
+        line-height: 1.08;
+    }
+
+    .hero-search-jump {
+        margin-top: 14px;
+    }
+
+    .explorer-section-primary {
+        margin-top: 24px;
+        scroll-margin-top: 82px;
+    }
+
+    .overview-search-box-primary {
+        min-height: 52px;
+    }
+
+    .overview-search-box-primary input {
+        min-height: 52px;
+        font-size: 15px;
+    }
+
+    .overview-search-box-primary .button {
+        min-width: 72px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .representative-section-secondary {
+        margin-top: 44px;
+    }
+
+    .admission-ranking-cta {
+        width: 100%;
+        justify-content: center;
+    }
+}
