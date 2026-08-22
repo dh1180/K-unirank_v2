@@ -2,6 +2,7 @@ METRIC_LABELS = {
     "STUDENT_GRADE_50_CUT": "학생부등급 50% 컷",
     "STUDENT_GRADE_70_CUT": "학생부등급 70% 컷",
     "STUDENT_GRADE_85_CUT": "학생부등급 85% 컷",
+    "STUDENT_GRADE_90_CUT": "학생부등급 90% 컷",
     "STUDENT_GRADE_AVG": "학생부등급 평균",
     "STUDENT_GRADE_STDDEV": "학생부등급 표준편차",
     "CONVERTED_SCORE_50_CUT": "대학 환산점수 50% 컷",
@@ -26,6 +27,8 @@ METRIC_LABELS = {
     "CSAT_PERCENTILE_MEAN_70_CUT": "공식 평균 백분위 70% 컷",
     "CSAT_GRADE_50_CUT": "평균 수능등급 50% 컷",
     "CSAT_GRADE_70_CUT": "평균 수능등급 70% 컷",
+    "ESSAY_SCORE_70_CUT": "논술 70% 컷",
+    "ESSAY_SCORE_90_CUT": "논술 90% 컷",
 
     # 전문대학포털은 4년제 ADIGA의 50/70% 컷이 아니라
     # 자체 '합격자평균 / 합격자최저' 형식으로 공개한다.
