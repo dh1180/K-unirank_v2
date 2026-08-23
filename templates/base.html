@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="{% static 'css/vs.css' %}">
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/admissions-shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/favorites.css' %}">
     <link rel="icon" href="/static/university/K-uniran.png">
 </head>
 <body>
@@ -54,10 +55,7 @@
         <a class="nav-link {% if request.resolver_match.namespace == 'universities' %}active{% endif %}" href="{% url 'universities:list' %}">대학</a>
         <a class="nav-link {% if request.resolver_match.namespace == 'admissions' or request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">입시</a>
         {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="inline-form">
-                {% csrf_token %}
-                <button class="link-button" type="submit">로그아웃</button>
-            </form>
+            <a class="nav-link {% if request.resolver_match.namespace == 'users' and request.resolver_match.url_name == 'mypage' %}active{% endif %}" href="{% url 'users:mypage' %}">마이</a>
         {% else %}
             <a class="nav-link" href="{% url 'login' %}">로그인</a>
         {% endif %}
