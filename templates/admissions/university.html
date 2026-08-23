@@ -15,7 +15,20 @@
         <h1>{{ university.name }} 입시 결과</h1>
         <p class="muted">{{ university.location_label }} · {{ university.display_address }}</p>
     </div>
-    <a class="button ghost admission-back" href="{% url 'universities:detail' university.pk %}" data-ga-event="university_open_from_admission" data-ga-param-university="{{ university.name }}">대학 페이지</a>
+    <div class="admission-head-actions">
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'users:toggle_favorite_university' university.pk %}" class="favorite-inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="favorite-button {% if university.pk in favorite_university_ids %}active{% endif %}" type="submit">
+                    {% if university.pk in favorite_university_ids %}♥ 관심 대학{% else %}♡ 관심 대학{% endif %}
+                </button>
+            </form>
+        {% else %}
+            <a class="favorite-button" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">♡ 관심 대학</a>
+        {% endif %}
+        <a class="button ghost admission-back" href="{% url 'universities:detail' university.pk %}" data-ga-event="university_open_from_admission" data-ga-param-university="{{ university.name }}">대학 페이지</a>
+    </div>
 </div>
 
 <div class="admission-control-card">
@@ -140,7 +153,20 @@
                         {% if result.recruitment_group %}<br><small class="subtle">{{ result.recruitment_group }}</small>{% endif %}
                     </td>
                     <td data-label="모집단위">
-                        <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                        <div class="favorite-unit-line">
+                            <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                            {% if user.is_authenticated %}
+                                <form method="post" action="{% url 'users:toggle_favorite_recruitment_unit' result.recruitment_unit_id %}" class="favorite-inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}#admission-unit-results">
+                                    <button class="favorite-button compact {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}active{% endif %}" type="submit" aria-label="{{ result.recruitment_unit.name }} 관심 {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}해제{% else %}등록{% endif %}" title="관심 학과">
+                                        {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}♥{% else %}♡{% endif %}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a class="favorite-button compact" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="로그인 후 관심 학과 저장" title="관심 학과">♡</a>
+                            {% endif %}
+                        </div>
                         {% if result.recruitment_unit.campus and result.recruitment_unit.campus.campus_name %}
                             <br><small class="subtle">{{ result.recruitment_unit.campus.campus_name }}</small>
                         {% endif %}
