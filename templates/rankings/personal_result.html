@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}나의 대학 TOP10 · K-unirank{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
 {% block content %}
 <section class="result-hero"><span class="eyebrow">{{ result.board.name }}</span><h1>나의 대학 TOP10</h1><p>{{ result.vote_count }}번의 선택을 바탕으로 만든 개인 결과입니다.</p></section>
 <div class="ranking-list result-list">
