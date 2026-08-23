@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static admission_extras %}
 {% block title %}{{ university.name }} 입시 · K-unirank{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admissions-university-summary.css' %}">
+{% endblock %}
 {% block content %}
 <div class="admission-university-head" data-ga-view="admission_view" data-ga-param-university="{{ university.name }}" data-ga-param-year="{% if show_all_years %}all{% else %}{{ selected_year|default:'' }}{% endif %}" data-ga-param-phase="{{ selected_phase|default:'ALL' }}" data-ga-param-result-count="{{ result_count }}">
     <div class="detail-logo small-detail-logo">
@@ -65,28 +68,62 @@
 
 {% include "partials/display_ad.html" %}
 
-{% if aggregates %}
-<section>
+{% if core_summary_cards %}
+<section class="core-admission-summary">
     <div class="section-title">
         <div>
-            <span class="eyebrow">UNIVERSITY SUMMARY</span>
-            <h2>대학 단위 집계</h2>
-            <p class="muted">동일한 산출기준으로 비교 가능한 모집단위별 공개 결과를 K-unirank가 집계한 참고용 파생값입니다.</p>
+            <span class="eyebrow">CORE ADMISSIONS</span>
+            <h2>{{ summary_year }}학년도 핵심 입결 요약</h2>
+            <p class="muted">대학 전체 모집단위에서 비교하기 쉬운 50%·70% 컷만 간단히 정리했습니다.</p>
         </div>
     </div>
-    <div class="admission-summary-grid">
-        {% for item in aggregates %}
-            <div class="admission-summary-card {{ item.admission_phase|lower }}-summary">
-                <div class="admission-summary-top">
-                    <span class="phase-badge {{ item.admission_phase|lower }}">{{ item.get_admission_phase_display }}</span>
-                    <span class="subtle">{{ item.admission_year }} · {{ item.selection_category|default:"전체" }}</span>
-                </div>
-                <strong>{{ item.value|floatformat:2 }}</strong>
-                <span>{{ item.metric_code|admission_metric_label }}</span>
-                <small>{{ item.get_aggregation_method_display }} · 표본 {{ item.sample_count }}</small>
+
+    <div class="core-admission-summary-grid">
+        {% for card in core_summary_cards %}
+        <a class="core-admission-card"
+           href="?year={{ summary_year }}&phase={{ card.phase_code }}&track={{ card.key }}#admission-unit-results"
+           data-ga-event="admission_core_summary_open"
+           data-ga-param-university="{{ university.name }}"
+           data-ga-param-track="{{ card.key }}">
+            <div class="core-admission-card-head">
+                <strong>{{ card.title }}</strong>
+                <span class="phase-badge {{ card.phase_code|lower }}">{{ card.phase }}</span>
             </div>
+
+            <div class="core-admission-values">
+                <div class="core-admission-value-row">
+                    <span>50% 컷</span>
+                    <div class="core-admission-value">
+                        {% if card.value_50 %}
+                            <strong>{{ card.value_50.value|floatformat:2 }}</strong>
+                            <small>{{ card.unit }}</small>
+                        {% else %}
+                            <span class="empty-value">-</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="core-admission-value-row">
+                    <span>70% 컷</span>
+                    <div class="core-admission-value">
+                        {% if card.value_70 %}
+                            <strong>{{ card.value_70.value|floatformat:2 }}</strong>
+                            <small>{{ card.unit }}</small>
+                        {% else %}
+                            <span class="empty-value">-</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="core-admission-card-foot">
+                <span>모집인원 가중평균 우선</span>
+                <b>모집단위 보기 →</b>
+            </div>
+        </a>
         {% endfor %}
     </div>
+
+    <p class="core-summary-note">※ 대학이 공개한 모집단위별 결과를 대학 단위로 집계한 참고값이며, 실제 지원 판단 시에는 아래 모집단위별 상세 결과와 원문 출처를 함께 확인하세요.</p>
 </section>
 {% endif %}
 
