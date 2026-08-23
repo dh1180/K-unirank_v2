@@ -26,7 +26,7 @@ def robots_txt(request):
         "Disallow: /api/",
         "Disallow: /health/",
         "",
-        "Sitemap: https://www.k-unirank.com/sitemap.xml",
+        "Sitemap: https://k-unirank.com/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain; charset=utf-8")
 
