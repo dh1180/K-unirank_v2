@@ -12,16 +12,54 @@
         var form = document.getElementById('admission-async-search');
         var searchInput = document.getElementById('admission-search-input');
         var resetButton = document.getElementById('admission-filter-reset');
+        var filterContainer = document.getElementById('admission-async-filters');
+        var initialParams = new URLSearchParams(window.location.search);
+
+        ensureTrackFilters(initialParams.get('track') || '');
 
         var state = {
             q: searchInput ? searchInput.value.trim() : '',
             kind: activeFilterValue('kind'),
             phase: activeFilterValue('phase'),
+            track: activeFilterValue('track'),
             page: '1'
         };
 
         var controller = null;
         var debounceTimer = null;
+
+        function ensureTrackFilters(initialTrack) {
+            if (!filterContainer || filterContainer.querySelector('[data-filter-group="track"]')) return;
+
+            var group = document.createElement('div');
+            group.className = 'filter-group admission-track-filter';
+            group.dataset.filterGroup = 'track';
+
+            var label = document.createElement('span');
+            label.className = 'filter-label';
+            label.textContent = '전형 유형';
+            group.appendChild(label);
+
+            [
+                ['', '전체'],
+                ['student', '학생부교과'],
+                ['holistic', '학생부종합'],
+                ['csat', '수능'],
+                ['essay', '논술'],
+                ['practical', '실기']
+            ].forEach(function (item) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'explorer-chip js-async-filter';
+                button.dataset.filter = 'track';
+                button.dataset.value = item[0];
+                button.textContent = item[1];
+                button.classList.toggle('active', item[0] === initialTrack);
+                group.appendChild(button);
+            });
+
+            filterContainer.insertBefore(group, resetButton || null);
+        }
 
         function activeFilterValue(name) {
             var active = explorer.querySelector(
@@ -36,6 +74,7 @@
             if (state.q) params.set('q', state.q);
             if (state.kind) params.set('kind', state.kind);
             if (state.phase) params.set('phase', state.phase);
+            if (state.track) params.set('track', state.track);
             if (page && String(page) !== '1') params.set('page', String(page));
             return params;
         }
@@ -51,8 +90,17 @@
             );
         }
 
+        function applyRecommendedPhase(track) {
+            if (track === 'student' || track === 'holistic' || track === 'essay') {
+                state.phase = 'SUSI';
+                setActiveFilter('phase', 'SUSI');
+            } else if (track === 'csat') {
+                state.phase = 'JEONGSI';
+                setActiveFilter('phase', 'JEONGSI');
+            }
+        }
+
         function setLoading(isLoading) {
-            // 요청 중에는 기존 결과 영역만 살짝 흐리게 처리
             explorer.classList.toggle('is-loading', isLoading);
         }
 
@@ -119,6 +167,7 @@
                         search_term: state.q || undefined,
                         university_kind: state.kind || 'all',
                         phase: state.phase || 'all',
+                        admission_track: state.track || 'all',
                         page: Number(page || 1)
                     });
                 }
@@ -141,7 +190,6 @@
             loadResults({ page: '1' });
         });
 
-        // 타이핑을 멈춘 뒤 350ms 후 자동 검색.
         searchInput.addEventListener('input', function () {
             window.clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(function () {
@@ -160,6 +208,11 @@
 
                 state[name] = value;
                 setActiveFilter(name, value);
+
+                if (name === 'track') {
+                    applyRecommendedPhase(value);
+                }
+
                 loadResults({ page: '1' });
                 return;
             }
@@ -181,11 +234,13 @@
             state.q = '';
             state.kind = '';
             state.phase = '';
+            state.track = '';
             state.page = '1';
 
             searchInput.value = '';
             setActiveFilter('kind', '');
             setActiveFilter('phase', '');
+            setActiveFilter('track', '');
 
             loadResults({ page: '1' });
         });
@@ -196,11 +251,13 @@
             state.q = params.get('q') || '';
             state.kind = params.get('kind') || '';
             state.phase = params.get('phase') || '';
+            state.track = params.get('track') || '';
             state.page = params.get('page') || '1';
 
             searchInput.value = state.q;
             setActiveFilter('kind', state.kind);
             setActiveFilter('phase', state.phase);
+            setActiveFilter('track', state.track);
 
             loadResults({ page: state.page });
         });
