@@ -23,10 +23,8 @@ def robots_txt(request):
         "User-agent: *",
         "Allow: /",
         "Disallow: /admin/",
-        "Disallow: /accounts/",
         "Disallow: /api/",
         "Disallow: /health/",
-        "Disallow: /result/",
         "",
         "Sitemap: https://www.k-unirank.com/sitemap.xml",
     ]
