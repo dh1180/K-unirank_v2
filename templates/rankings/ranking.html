@@ -1,11 +1,33 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ board.name }} 랭킹 · K-unirank{% endblock %}
+{% block title %}대한민국 대학 순위 · 대학 선호도 랭킹 | K-unirank{% endblock %}
+{% block meta_description %}실제 사용자 VS 선택을 Glicko-2 방식으로 반영한 대한민국 대학 선호도 순위입니다. 대학별 현재 점수, 비교 횟수와 순위 변화를 확인하고 직접 투표해보세요.{% endblock %}
+{% block canonical_url %}https://www.k-unirank.com{% url 'rankings:ranking_default' %}{% endblock %}
+{% block og_title %}대한민국 대학 순위 · 사용자 선호도 랭킹 | K-unirank{% endblock %}
+{% block og_description %}실제 사용자 대학 VS 선택으로 만들어지는 대학 선호도 순위를 확인하세요.{% endblock %}
+{% block twitter_title %}대한민국 대학 선호도 순위 | K-unirank{% endblock %}
+{% block twitter_description %}실제 사용자 VS 선택 기반 대학 랭킹과 대학별 점수를 확인하세요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "대한민국 대학 선호도 순위",
+  "description": "실제 사용자 VS 선택을 반영한 대학 선호도 랭킹",
+  "url": "https://www.k-unirank.com{% url 'rankings:ranking_default' %}",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "K-unirank",
+    "url": "https://www.k-unirank.com/"
+  }
+}
+</script>
+{% endblock %}
 {% block content %}
 <div class="ranking-hero" data-ga-view="ranking_view" data-ga-param-board="{{ board.slug }}" data-ga-param-min-matches="{{ min_matches }}">
     <div>
         <span class="eyebrow">LIVE RANKING</span>
-        <h1>{{ board.name }} 랭킹</h1>
+        <h1>대한민국 {{ board.name }} 대학 선호도 랭킹</h1>
         <p>실제 사용자 VS 선택만 반영되는 종합 대학 선호도 랭킹입니다. 모든 대학은 동일한 1500점에서 시작합니다.</p>
     </div>
     <a class="button primary" href="{% url 'rankings:vote' board.slug %}">이 기준으로 투표하기</a>
@@ -31,7 +53,7 @@
     <span class="rank">{{ row.rank }}</span>
     <div class="mini-logo">
         {% if row.rating.university.logo_path %}
-            <img src="{% static row.rating.university.logo_path %}" alt="{{ row.rating.university.name }}">
+            <img src="{% static row.rating.university.logo_path %}" alt="{{ row.rating.university.name }} 로고">
         {% else %}
             <span class="logo-placeholder">K</span>
         {% endif %}
