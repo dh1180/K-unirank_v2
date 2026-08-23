@@ -7,30 +7,30 @@
     <meta name="theme-color" content="#3157e5">
     <meta name="robots" content="{% block robots %}{% if request.GET %}noindex,follow{% else %}index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1{% endif %}{% endblock %}">
     <meta name="description" content="{% block meta_description %}대학 입결, 대학 순위, 학과별 수시·정시 입시결과와 사용자 VS 선호도 랭킹을 한곳에서 검색하고 비교하는 K-unirank입니다.{% endblock %}">
-    <link rel="canonical" href="{% block canonical_url %}https://www.k-unirank.com{{ request.path }}{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}https://k-unirank.com{{ request.path }}{% endblock %}">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ko_KR">
     <meta property="og:site_name" content="K-unirank">
     <meta property="og:title" content="{% block og_title %}대학 입결·순위·선호도 비교 | K-unirank{% endblock %}">
     <meta property="og:description" content="{% block og_description %}대학·학과별 입결과 수시·정시 결과, 사용자 VS 기반 대학 선호도 랭킹을 비교해보세요.{% endblock %}">
-    <meta property="og:url" content="https://www.k-unirank.com{{ request.path }}">
-    <meta property="og:image" content="https://www.k-unirank.com{% static 'university/K-uniran.png' %}">
+    <meta property="og:url" content="https://k-unirank.com{{ request.path }}">
+    <meta property="og:image" content="https://k-unirank.com{% static 'university/K-uniran.png' %}">
     <meta property="og:image:alt" content="K-unirank">
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{% block twitter_title %}대학 입결·순위·선호도 비교 | K-unirank{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}대학·학과 입결과 대학 선호도 랭킹을 한곳에서 검색하고 비교해보세요.{% endblock %}">
-    <meta name="twitter:image" content="https://www.k-unirank.com{% static 'university/K-uniran.png' %}">
+    <meta name="twitter:image" content="https://k-unirank.com{% static 'university/K-uniran.png' %}">
 
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "@id": "https://www.k-unirank.com/#organization",
+      "@id": "https://k-unirank.com/#organization",
       "name": "K-unirank",
-      "url": "https://www.k-unirank.com/",
-      "logo": "https://www.k-unirank.com{% static 'university/K-uniran.png' %}",
+      "url": "https://k-unirank.com/",
+      "logo": "https://k-unirank.com{% static 'university/K-uniran.png' %}",
       "description": "대학 입결과 학과별 입시결과, 사용자 VS 기반 대학 선호도 랭킹을 제공하는 대학 정보 서비스"
     }
     </script>
