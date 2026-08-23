@@ -9,6 +9,7 @@
 {% block twitter_description %}4년제·전문대 대학별 학과 입시결과를 한곳에서 검색하고 비교해보세요.{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-top10-logos.css' %}">
 <link rel="stylesheet" href="{% static 'css/home-admissions.css' %}">
 <script defer src="{% static 'js/admissions-overview.js' %}"></script>
 <script type="application/ld+json">
@@ -139,7 +140,16 @@
                 {% for item in susi_rows %}
                 <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
                     <span class="metric-rank">{{ forloop.counter }}</span>
-                    <strong>{{ item.university.name }}</strong>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
                     <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
                 </a>
                 {% empty %}
@@ -163,7 +173,16 @@
                 {% for item in jeongsi_rows %}
                 <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
                     <span class="metric-rank">{{ forloop.counter }}</span>
-                    <strong>{{ item.university.name }}</strong>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
                     <span class="metric-rank-value">{{ item.value|floatformat:2 }}</span>
                 </a>
                 {% empty %}
@@ -187,7 +206,16 @@
                 {% for item in college_susi_rows %}
                 <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
                     <span class="metric-rank">{{ forloop.counter }}</span>
-                    <strong>{{ item.university.name }}</strong>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
                     <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
                 </a>
                 {% empty %}
@@ -211,7 +239,16 @@
                 {% for item in college_jeongsi_rows %}
                 <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
                     <span class="metric-rank">{{ forloop.counter }}</span>
-                    <strong>{{ item.university.name }}</strong>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
                     <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>백분위</small></span>
                 </a>
                 {% empty %}
