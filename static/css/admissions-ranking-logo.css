@@ -1,0 +1,73 @@
+/* Admission ranking university logos. */
+
+.admission-rank-university {
+    min-width: 0;
+}
+
+.admission-rank-university-main {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admission-rank-logo {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 7px rgba(16, 24, 40, .045);
+}
+
+.admission-rank-logo img {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+}
+
+.admission-rank-logo-placeholder {
+    color: #3157e5;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.admission-rank-university-copy {
+    min-width: 0;
+    display: block;
+}
+
+.admission-rank-university-copy strong,
+.admission-rank-university-copy small {
+    display: block;
+}
+
+.admission-rank-university-copy strong {
+    overflow: hidden;
+    margin-bottom: 3px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .admission-rank-university-main {
+        gap: 9px;
+    }
+
+    .admission-rank-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 390px) {
+    .admission-rank-logo {
+        width: 34px;
+        height: 34px;
+    }
+}
