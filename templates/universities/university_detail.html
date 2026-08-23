@@ -20,6 +20,17 @@
         </div>
         <p class="university-address">{{ university.display_address }}</p>
         <div class="hero-actions detail-actions">
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'users:toggle_favorite_university' university.pk %}" class="favorite-inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button class="favorite-button {% if university.pk in favorite_university_ids %}active{% endif %}" type="submit">
+                        {% if university.pk in favorite_university_ids %}♥ 관심 대학{% else %}♡ 관심 대학{% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <a class="favorite-button" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">♡ 관심 대학</a>
+            {% endif %}
             {% if university.homepage_url %}
                 <a class="button" href="{{ university.homepage_url }}" rel="noopener" target="_blank" data-ga-event="official_site_click" data-ga-param-university="{{ university.name }}">공식 홈페이지 ↗</a>
             {% endif %}
