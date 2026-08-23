@@ -1,11 +1,60 @@
 {% extends "base.html" %}
 {% load static admission_extras %}
-{% block title %}{{ university.name }} · K-unirank{% endblock %}
+{% block title %}{{ university.name }} 입결·순위·대학정보{% if latest_admission_year %} | {{ latest_admission_year }} 수시·정시{% endif %} | K-unirank{% endblock %}
+{% block meta_description %}{{ university.name }} 입결과 대학 순위를 확인하세요.{% if latest_admission_year %} {{ latest_admission_year }}학년도 수시 학생부교과·학생부종합, 정시 수능 50%·70% 컷과{% endif %} 캠퍼스 정보, 사용자 VS 선호도 랭킹을 제공합니다.{% endblock %}
+{% block canonical_url %}https://www.k-unirank.com{% url 'universities:detail' university.pk %}{% endblock %}
+{% block og_title %}{{ university.name }} 입결·순위·대학정보 | K-unirank{% endblock %}
+{% block og_description %}{{ university.name }}의 수시·정시 입결, 대학 선호도 순위, 캠퍼스 정보를 한 번에 확인하세요.{% endblock %}
+{% block twitter_title %}{{ university.name }} 입결·순위 | K-unirank{% endblock %}
+{% block twitter_description %}{{ university.name }}의 입시결과와 사용자 VS 기반 대학 선호도 순위를 확인하세요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollegeOrUniversity",
+      "@id": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}#university",
+      "name": "{{ university.name|escapejs }}",
+      "url": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}",
+      "address": "{{ university.display_address|escapejs }}",
+      "description": "{{ university.name|escapejs }}의 대학 정보, 입결 및 사용자 선호도 랭킹",
+      {% if university.logo_path %}"logo": "https://www.k-unirank.com{% static university.logo_path %}",{% endif %}
+      {% if university.homepage_url %}"sameAs": ["{{ university.homepage_url|escapejs }}"],{% endif %}
+      "mainEntityOfPage": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "K-unirank",
+          "item": "https://www.k-unirank.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "대학 찾기",
+          "item": "https://www.k-unirank.com{% url 'universities:list' %}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ university.name|escapejs }}",
+          "item": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}"
+        }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="university-head" data-ga-view="university_view" data-ga-param-university="{{ university.name }}" data-ga-param-region="{{ university.location_label }}">
     <div class="detail-logo">
         {% if university.logo_path %}
-            <img src="{% static university.logo_path %}" alt="{{ university.name }}">
+            <img src="{% static university.logo_path %}" alt="{{ university.name }} 로고">
         {% else %}
             <span class="logo-placeholder">K</span>
         {% endif %}
@@ -65,7 +114,7 @@
     <div class="section-title">
         <div>
             <span class="eyebrow">RATING</span>
-            <h2>현재 랭킹 점수</h2>
+            <h2>{{ university.name }} 현재 선호도 랭킹 점수</h2>
         </div>
     </div>
     <div class="stat-grid">
@@ -89,7 +138,7 @@
     <div class="section-title">
         <div>
             <span class="eyebrow">ADMISSIONS</span>
-            <h2>{% if latest_admission_year %}{{ latest_admission_year }}학년도 핵심 입시 지표{% else %}입시 데이터{% endif %}</h2>
+            <h2>{% if latest_admission_year %}{{ latest_admission_year }}학년도 {{ university.name }} 핵심 입시 지표{% else %}{{ university.name }} 입시 데이터{% endif %}</h2>
             <p class="muted">대학 상세에서는 비교하기 쉬운 수시 학생부교과·학생부종합과 정시 수능 백분위 50/70% 컷만 보여줍니다.</p>
         </div>
         <a class="section-link" href="{% url 'admissions:university' university.pk %}">전체 입시 지표 보기 →</a>
