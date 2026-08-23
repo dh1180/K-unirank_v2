@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}VS 선택 내역 · K-unirank{% endblock %}
+{% block content %}
+<section class="mypage-hero vs-history-hero">
+    <div>
+        <span class="eyebrow">MY VS HISTORY</span>
+        <h1>내 VS 선택 전체 내역</h1>
+        <p>지금까지 로그인 상태에서 참여한 VS 기록을 최근순으로 확인할 수 있습니다.</p>
+    </div>
+    <div class="mypage-actions vs-history-header-actions">
+        <a class="button ghost" href="{% url 'users:mypage' %}">← 마이페이지</a>
+        <a class="button primary" href="{% url 'rankings:vote_default' %}">VS 참여하기</a>
+    </div>
+</section>
+
+<div class="mypage-summary vs-history-summary">
+    <div class="mypage-summary-card">
+        <span>전체 VS</span>
+        <strong>{{ vs_total_count }}</strong>
+    </div>
+    <div class="mypage-summary-card">
+        <span>선택</span>
+        <strong>{{ vs_selected_count }}</strong>
+    </div>
+    <div class="mypage-summary-card">
+        <span>건너뛰기</span>
+        <strong>{{ vs_skipped_count }}</strong>
+    </div>
+</div>
+
+<section id="vs-history-all">
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">ALL HISTORY</span>
+            <h2>전체 기록</h2>
+            <p class="muted">총 {{ vs_total_count }}개의 VS 기록이 있습니다.</p>
+        </div>
+    </div>
+
+    {% if vs_page_obj.object_list %}
+        {% include "users/partials/vs_history_cards.html" with vs_votes=vs_page_obj %}
+
+        {% if vs_page_obj.paginator.num_pages > 1 %}
+        <nav class="vs-history-pager" aria-label="내 VS 전체 내역 페이지">
+            {% if vs_page_obj.has_previous %}
+            <a class="button ghost" href="?page={{ vs_page_obj.previous_page_number }}#vs-history-all">이전</a>
+            {% else %}
+            <span class="button ghost disabled">이전</span>
+            {% endif %}
+
+            <span class="vs-history-page-number">
+                <strong>{{ vs_page_obj.number }}</strong> / {{ vs_page_obj.paginator.num_pages }} 페이지
+            </span>
+
+            {% if vs_page_obj.has_next %}
+            <a class="button ghost" href="?page={{ vs_page_obj.next_page_number }}#vs-history-all">다음</a>
+            {% else %}
+            <span class="button ghost disabled">다음</span>
+            {% endif %}
+        </nav>
+        {% endif %}
+    {% else %}
+    <div class="favorite-empty">
+        <strong>아직 로그인 후 참여한 VS 기록이 없어요.</strong>
+        VS에 참여하면 이곳에서 전체 선택 내역을 확인할 수 있습니다.
+        <div class="vs-history-empty-action">
+            <a class="button primary" href="{% url 'rankings:vote_default' %}">첫 VS 참여하기</a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
