@@ -3,6 +3,7 @@
 {% block title %}입결 순위 · K-unirank{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-ranking-logo.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -132,8 +133,19 @@
             </span>
 
             <span class="admission-rank-university">
-                <strong>{{ row.university.name }}</strong>
-                <small>{{ row.university.location_label }}</small>
+                <span class="admission-rank-university-main">
+                    <span class="admission-rank-logo" aria-hidden="true">
+                        {% if row.university.logo_path %}
+                            <img src="{% static row.university.logo_path %}" alt="" loading="lazy">
+                        {% else %}
+                            <span class="admission-rank-logo-placeholder">K</span>
+                        {% endif %}
+                    </span>
+                    <span class="admission-rank-university-copy">
+                        <strong>{{ row.university.name }}</strong>
+                        <small>{{ row.university.location_label }}</small>
+                    </span>
+                </span>
             </span>
 
             <span class="admission-rank-score">
