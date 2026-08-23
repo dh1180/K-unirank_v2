@@ -37,26 +37,26 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="favoriteuniversity",
-            constraint=models.UniqueConstraint(fields=("user", "university"), name="uq_user_favorite_university"),
+            constraint=models.UniqueConstraint(fields=("user", "university"), name="uq_fav_uni_user"),
         ),
         migrations.AddIndex(
             model_name="favoriteuniversity",
-            index=models.Index(fields=["user", "created_at"], name="favorite_un_user_id_a9d6ca_idx"),
+            index=models.Index(fields=["user", "created_at"], name="fav_uni_user_created_idx"),
         ),
         migrations.AddIndex(
             model_name="favoriteuniversity",
-            index=models.Index(fields=["university"], name="favorite_un_univers_56dcf4_idx"),
+            index=models.Index(fields=["university"], name="fav_uni_university_idx"),
         ),
         migrations.AddConstraint(
             model_name="favoriterecruitmentunit",
-            constraint=models.UniqueConstraint(fields=("user", "recruitment_unit"), name="uq_user_favorite_recruitment_unit"),
+            constraint=models.UniqueConstraint(fields=("user", "recruitment_unit"), name="uq_fav_unit_user"),
         ),
         migrations.AddIndex(
             model_name="favoriterecruitmentunit",
-            index=models.Index(fields=["user", "created_at"], name="favorite_re_user_id_5d9d6e_idx"),
+            index=models.Index(fields=["user", "created_at"], name="fav_unit_user_created_idx"),
         ),
         migrations.AddIndex(
             model_name="favoriterecruitmentunit",
-            index=models.Index(fields=["recruitment_unit"], name="favorite_re_recruitm_f4d4a3_idx"),
+            index=models.Index(fields=["recruitment_unit"], name="fav_unit_recruit_idx"),
         ),
     ]
