@@ -1,0 +1,100 @@
+/* Shared admissions UI refinements. */
+
+.detail-results-search {
+    margin: 4px 0 18px;
+    padding: 14px 16px;
+    border: 1px solid #dfe4ee;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, .045);
+}
+
+.detail-results-search-box {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-results-search-icon {
+    color: #98a2b3;
+    font-size: 22px;
+    line-height: 1;
+    text-align: center;
+}
+
+.detail-results-search-box input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 4px;
+    border: 0;
+    outline: 0;
+    color: #101828;
+    background: transparent;
+    font-size: 14px;
+}
+
+.detail-results-search-box input::placeholder {
+    color: #98a2b3;
+}
+
+.detail-results-search-box .button {
+    min-width: 72px;
+    min-height: 42px;
+    box-shadow: none;
+}
+
+@media (max-width: 720px) {
+    /*
+     * Mobile admissions pagination should prioritize previous/next.
+     * admissions-overview.css used to hide the first button in BOTH groups,
+     * which unintentionally hid the "다음" button on the right side.
+     */
+    .results-pager .pagination-side:last-child .page-button:first-child {
+        display: inline-flex;
+    }
+
+    .results-pager .pagination-side:first-child .page-button:first-child,
+    .results-pager .pagination-side:last-child .page-button:last-child {
+        display: none;
+    }
+
+    .detail-results-search {
+        margin-top: 2px;
+        padding: 11px 12px;
+        border-radius: 16px;
+    }
+
+    .detail-results-search-box {
+        grid-template-columns: 20px minmax(0, 1fr) auto;
+        gap: 5px;
+    }
+
+    .detail-results-search-icon {
+        font-size: 19px;
+    }
+
+    .detail-results-search-box input {
+        min-height: 42px;
+        font-size: 13px;
+    }
+
+    .detail-results-search-box .button {
+        min-width: 64px;
+        min-height: 40px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 390px) {
+    .detail-results-search-box {
+        grid-template-columns: 18px minmax(0, 1fr) 58px;
+    }
+
+    .detail-results-search-box .button {
+        min-width: 58px;
+        padding: 0 9px;
+    }
+}
