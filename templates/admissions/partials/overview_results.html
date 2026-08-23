@@ -55,7 +55,20 @@
                 </td>
 
                 <td data-label="모집단위">
-                    <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                    <div class="favorite-unit-line">
+                        <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'users:toggle_favorite_recruitment_unit' result.recruitment_unit_id %}" class="favorite-inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'admissions:university' result.university_id %}?year={{ selected_year }}&q={{ result.recruitment_unit.name|urlencode }}#admission-unit-results">
+                                <button class="favorite-button compact {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}active{% endif %}" type="submit" aria-label="{{ result.recruitment_unit.name }} 관심 {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}해제{% else %}등록{% endif %}" title="관심 학과">
+                                    {% if result.recruitment_unit_id in favorite_recruitment_unit_ids %}♥{% else %}♡{% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a class="favorite-button compact" href="{% url 'login' %}?next={% url 'admissions:university' result.university_id %}%3Fyear%3D{{ selected_year }}%26q%3D{{ result.recruitment_unit.name|urlencode }}%23admission-unit-results" aria-label="로그인 후 관심 학과 저장" title="관심 학과">♡</a>
+                        {% endif %}
+                    </div>
                 </td>
 
                 <td data-label="모집인원">
