@@ -89,31 +89,32 @@
     <div class="section-title">
         <div>
             <span class="eyebrow">ADMISSIONS</span>
-            <h2>{% if latest_admission_year %}{{ latest_admission_year }}학년도 입시 요약{% else %}입시 데이터{% endif %}</h2>
-            <p class="muted">대학 단위 값은 모집인원 가중평균 등 K-unirank가 계산한 파생 지표입니다.</p>
+            <h2>{% if latest_admission_year %}{{ latest_admission_year }}학년도 핵심 입시 지표{% else %}입시 데이터{% endif %}</h2>
+            <p class="muted">대학 상세에서는 비교하기 쉬운 수시 학생부교과·학생부종합과 정시 수능 백분위 50/70% 컷만 보여줍니다.</p>
         </div>
-        <a class="section-link" href="{% url 'admissions:university' university.pk %}">세부 모집단위 보기 →</a>
+        <a class="section-link" href="{% url 'admissions:university' university.pk %}">전체 입시 지표 보기 →</a>
     </div>
 
-    {% if admission_aggregates %}
+    {% if admission_summary_items %}
     <div class="admission-summary-grid">
-        {% for item in admission_aggregates %}
-        <div class="admission-summary-card {{ item.admission_phase|lower }}-summary">
+        {% for summary in admission_summary_items %}
+        <div class="admission-summary-card {{ summary.phase|lower }}-summary">
             <div class="admission-summary-top">
-                <span class="phase-badge {{ item.admission_phase|lower }}">{{ item.get_admission_phase_display }}</span>
-                <span class="subtle">{{ item.selection_category|default:"전체" }}</span>
+                <span class="phase-badge {{ summary.phase|lower }}">{{ summary.phase_label }}</span>
+                <span class="subtle">{{ summary.category }}</span>
             </div>
-            <strong>{{ item.value|floatformat:2 }}</strong>
-            <span>{{ item.metric_code|admission_metric_label }}</span>
-            <small>{{ item.get_aggregation_method_display }} · {{ item.sample_count }}개 모집단위</small>
+            <strong>{{ summary.aggregate.value|floatformat:2 }}</strong>
+            <span>{{ summary.label }} · {{ summary.unit }}</span>
+            <small>{{ summary.aggregate.get_aggregation_method_display }} · {{ summary.aggregate.sample_count }}개 모집단위</small>
         </div>
         {% endfor %}
     </div>
     {% else %}
     <div class="empty-state card-empty">
         <div class="empty-state-icon">입</div>
-        <strong>아직 가져온 입시 결과가 없습니다.</strong>
-        <p>ADIGA 동기화를 실행하면 수시·정시 결과가 이곳에 표시됩니다.</p>
+        <strong>표시할 핵심 50/70% 컷 데이터가 없습니다.</strong>
+        <p>모집단위별 상세 결과에서는 이 대학이 공개한 다른 입시 지표도 확인할 수 있습니다.</p>
+        <a class="button primary" href="{% url 'admissions:university' university.pk %}">전체 입시 결과 보기</a>
     </div>
     {% endif %}
 </section>
