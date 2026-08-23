@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}마이페이지 · K-unirank{% endblock %}
+{% block content %}
+<section class="mypage-hero">
+    <div>
+        <span class="eyebrow">MY K-UNIRANK</span>
+        <h1>{{ user.username }}님의 관심 목록</h1>
+        <p>관심 대학과 학과·모집단위를 모아두고 입시 결과로 바로 이동할 수 있습니다.</p>
+    </div>
+    <div class="mypage-actions">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="button ghost" type="submit">로그아웃</button>
+        </form>
+    </div>
+</section>
+
+<div class="mypage-summary">
+    <div class="mypage-summary-card">
+        <span>관심 대학</span>
+        <strong>{{ favorite_universities|length }}</strong>
+    </div>
+    <div class="mypage-summary-card">
+        <span>관심 학과·모집단위</span>
+        <strong>{{ favorite_units|length }}</strong>
+    </div>
+</div>
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">FAVORITE UNIVERSITIES</span>
+            <h2>관심 대학</h2>
+            <p class="muted">대학 페이지와 최신 입시 결과를 빠르게 다시 확인할 수 있습니다.</p>
+        </div>
+    </div>
+
+    {% if favorite_universities %}
+    <div class="favorite-grid">
+        {% for favorite in favorite_universities %}
+        <article class="favorite-card">
+            <div class="favorite-card-head">
+                <div class="favorite-card-title">
+                    <strong>{{ favorite.university.name }}</strong>
+                    <small>{{ favorite.university.location_label }}</small>
+                </div>
+                <form method="post" action="{% url 'users:toggle_favorite_university' favorite.university_id %}" class="favorite-inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'users:mypage' %}">
+                    <button class="favorite-button compact active" type="submit" aria-label="{{ favorite.university.name }} 관심 해제" title="관심 해제">♥</button>
+                </form>
+            </div>
+            <div class="favorite-card-links">
+                <a href="{% url 'universities:detail' favorite.university_id %}">대학 정보 →</a>
+                <a href="{% url 'admissions:university' favorite.university_id %}">입시 결과 →</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="favorite-empty">
+        <strong>아직 관심 대학이 없어요.</strong>
+        대학 페이지에서 ♡ 관심 대학을 눌러 저장해보세요.
+    </div>
+    {% endif %}
+</section>
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">FAVORITE DEPARTMENTS</span>
+            <h2>관심 학과·모집단위</h2>
+            <p class="muted">입시 원자료의 모집단위를 기준으로 저장하며, 해당 대학의 결과에서 바로 다시 검색할 수 있습니다.</p>
+        </div>
+    </div>
+
+    {% if favorite_units %}
+    <div class="favorite-grid">
+        {% for favorite in favorite_units %}
+        <article class="favorite-card">
+            <div class="favorite-card-head">
+                <div class="favorite-card-title">
+                    <strong>{{ favorite.recruitment_unit.name }}</strong>
+                    <small>
+                        {{ favorite.recruitment_unit.university.name }}
+                        {% if favorite.recruitment_unit.campus and favorite.recruitment_unit.campus.campus_name %}
+                            · {{ favorite.recruitment_unit.campus.campus_name }}
+                        {% endif %}
+                    </small>
+                </div>
+                <form method="post" action="{% url 'users:toggle_favorite_recruitment_unit' favorite.recruitment_unit_id %}" class="favorite-inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'users:mypage' %}">
+                    <button class="favorite-button compact active" type="submit" aria-label="{{ favorite.recruitment_unit.name }} 관심 해제" title="관심 해제">♥</button>
+                </form>
+            </div>
+            <div class="favorite-card-links">
+                <a href="{% url 'admissions:university' favorite.recruitment_unit.university_id %}?q={{ favorite.recruitment_unit.name|urlencode }}#admission-unit-results">입결 찾아보기 →</a>
+                <a href="{% url 'universities:detail' favorite.recruitment_unit.university_id %}">대학 정보 →</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="favorite-empty">
+        <strong>아직 관심 학과가 없어요.</strong>
+        대학별 입시 결과에서 모집단위 옆 ♡를 눌러 저장해보세요.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
