@@ -37,6 +37,8 @@
     </div>
 </section>
 
+{% include "partials/display_ad.html" %}
+
 {% if years %}
 <div class="region-chips admission-ranking-years">
     {% for y in years %}
@@ -47,8 +49,6 @@
     {% endfor %}
 </div>
 {% endif %}
-
-{% include "partials/display_ad.html" %}
 
 <section class="admission-ranking-controls">
     <div class="ranking-control-block">
