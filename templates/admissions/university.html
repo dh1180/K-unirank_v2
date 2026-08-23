@@ -77,7 +77,7 @@
 </section>
 {% endif %}
 
-<section>
+<section id="admission-unit-results">
     <div class="section-title admissions-results-title">
         <div>
             <span class="eyebrow">DETAIL</span>
@@ -91,6 +91,29 @@
             <span class="result-count-pill">{{ result_count }}건</span>
         </div>
     </div>
+
+    <form method="get"
+          action="{% url 'admissions:university' university.pk %}#admission-unit-results"
+          class="detail-results-search"
+          autocomplete="off"
+          data-ga-submit="admission_detail_search"
+          data-ga-search-field="q">
+        {% if show_all_years %}
+            <input type="hidden" name="year" value="all">
+        {% elif selected_year %}
+            <input type="hidden" name="year" value="{{ selected_year }}">
+        {% endif %}
+        {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
+        <div class="detail-results-search-box">
+            <span class="detail-results-search-icon" aria-hidden="true">⌕</span>
+            <input type="search"
+                   name="q"
+                   value="{{ query }}"
+                   placeholder="학과명, 모집단위, 전형명 검색"
+                   aria-label="학과명, 모집단위, 전형명 검색">
+            <button class="button primary" type="submit">검색</button>
+        </div>
+    </form>
 
     <div class="table-wrap admissions-table-wrap">
         <table>
