@@ -8,6 +8,16 @@ from rankings.models import UniversityRating
 from .models import University, UniversityCampus
 
 
+CORE_ADMISSION_SPECS = [
+    ("JEONGSI", "수능", "CSAT_PERCENTILE_MEAN_50_CUT", "정시 백분위 50% 컷", "백분위"),
+    ("JEONGSI", "수능", "CSAT_PERCENTILE_MEAN_70_CUT", "정시 백분위 70% 컷", "백분위"),
+    ("SUSI", "학생부교과", "STUDENT_GRADE_50_CUT", "학생부교과 50% 컷", "등급"),
+    ("SUSI", "학생부교과", "STUDENT_GRADE_70_CUT", "학생부교과 70% 컷", "등급"),
+    ("SUSI", "학생부종합", "STUDENT_GRADE_50_CUT", "학생부종합 50% 컷", "등급"),
+    ("SUSI", "학생부종합", "STUDENT_GRADE_70_CUT", "학생부종합 70% 컷", "등급"),
+]
+
+
 def university_list(request):
     query = request.GET.get("q", "").strip()
     selected_region = request.GET.get("region", "").strip()
@@ -93,21 +103,46 @@ def university_detail(request, university_id):
         .first()
     )
 
-    admission_aggregates = AdmissionAggregate.objects.none()
+    admission_summary_items = []
     if latest_admission_year:
-        admission_aggregates = (
+        metric_codes = {spec[2] for spec in CORE_ADMISSION_SPECS}
+        candidates = list(
             AdmissionAggregate.objects.filter(
                 university=university,
                 admission_year=latest_admission_year,
+                metric_code__in=metric_codes,
+            ).order_by("aggregate_id")
+        )
+
+        for phase, category, metric_code, label, unit in CORE_ADMISSION_SPECS:
+            matches = [
+                item
+                for item in candidates
+                if item.admission_phase == phase
+                and category in (item.selection_category or "")
+                and item.metric_code == metric_code
+            ]
+            if not matches:
+                continue
+
+            matches.sort(
+                key=lambda item: (
+                    item.aggregation_method != "WEIGHTED_BY_RECRUITMENT",
+                    -item.sample_count,
+                    item.aggregate_id,
+                )
             )
-            .exclude(
-                metric_code__in={
-                    "CSAT_PERCENTILE_REFERENCE_MEAN_50_CUT",
-                    "CSAT_PERCENTILE_REFERENCE_MEAN_70_CUT",
+            item = matches[0]
+            admission_summary_items.append(
+                {
+                    "aggregate": item,
+                    "label": label,
+                    "unit": unit,
+                    "category": category,
+                    "phase": phase,
+                    "phase_label": "정시" if phase == "JEONGSI" else "수시",
                 }
             )
-            .order_by("admission_phase", "selection_category", "metric_code")[:30]
-        )
 
     return render(
         request,
@@ -115,7 +150,7 @@ def university_detail(request, university_id):
         {
             "university": university,
             "ratings": ratings,
-            "admission_aggregates": admission_aggregates,
+            "admission_summary_items": admission_summary_items,
             "latest_admission_year": latest_admission_year,
         },
     )
