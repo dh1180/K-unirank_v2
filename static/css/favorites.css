@@ -1,0 +1,243 @@
+/* Favorites / My page */
+.favorite-inline-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.favorite-button {
+    min-height: 38px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #d9e0f4;
+    border-radius: 11px;
+    color: #475467;
+    background: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+    transition: .15s ease;
+}
+
+.favorite-button:hover {
+    color: #3157e5;
+    border-color: #bfcaf5;
+    background: #f5f7ff;
+}
+
+.favorite-button.active {
+    color: #e54866;
+    border-color: #ffd0da;
+    background: #fff5f7;
+}
+
+.favorite-button.compact {
+    min-width: 34px;
+    min-height: 32px;
+    padding: 0 8px;
+    border-radius: 9px;
+    font-size: 14px;
+}
+
+.favorite-unit-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.favorite-unit-line .unit-name {
+    min-width: 0;
+}
+
+.admission-head-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admission-head-actions .admission-back {
+    margin-left: 0;
+}
+
+.mypage-hero {
+    margin-bottom: 26px;
+    padding: 32px 34px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border: 1px solid #dfe5f5;
+    border-radius: 26px;
+    background: linear-gradient(145deg, #fff 0%, #f5f7ff 100%);
+    box-shadow: 0 14px 38px rgba(16, 24, 40, .06);
+}
+
+.mypage-hero h1 {
+    margin-bottom: 9px;
+}
+
+.mypage-hero p {
+    margin: 0;
+    color: #667085;
+    line-height: 1.65;
+}
+
+.mypage-actions {
+    flex: none;
+}
+
+.mypage-summary {
+    margin-bottom: 34px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.mypage-summary-card {
+    padding: 20px 22px;
+    border: 1px solid #e4e7ec;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(16, 24, 40, .035);
+}
+
+.mypage-summary-card span,
+.mypage-summary-card strong {
+    display: block;
+}
+
+.mypage-summary-card span {
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mypage-summary-card strong {
+    color: #3157e5;
+    font-size: 30px;
+    letter-spacing: -.04em;
+}
+
+.favorite-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.favorite-card {
+    min-width: 0;
+    padding: 19px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid #e4e7ec;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, .03);
+}
+
+.favorite-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.favorite-card-title {
+    min-width: 0;
+}
+
+.favorite-card-title strong {
+    display: block;
+    margin-bottom: 4px;
+    overflow: hidden;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.favorite-card-title small {
+    color: #98a2b3;
+    font-size: 11px;
+}
+
+.favorite-card-links {
+    margin-top: auto;
+    padding-top: 11px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid #eef0f4;
+}
+
+.favorite-card-links a {
+    color: #3157e5;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.favorite-empty {
+    padding: 38px 22px;
+    border: 1px dashed #d0d5dd;
+    border-radius: 18px;
+    color: #667085;
+    background: #fff;
+    text-align: center;
+}
+
+.favorite-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #344054;
+    font-size: 15px;
+}
+
+@media (max-width: 900px) {
+    .favorite-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .admission-head-actions {
+        width: 100%;
+        margin-left: 0;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admission-head-actions .favorite-inline-form,
+    .admission-head-actions .favorite-button,
+    .admission-head-actions .admission-back {
+        width: 100%;
+    }
+
+    .mypage-hero {
+        padding: 25px 22px;
+        align-items: stretch;
+        flex-direction: column;
+        border-radius: 22px;
+    }
+
+    .mypage-actions,
+    .mypage-actions form,
+    .mypage-actions .button {
+        width: 100%;
+    }
+
+    .mypage-summary,
+    .favorite-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .favorite-button.compact {
+        min-width: 38px;
+    }
+}
