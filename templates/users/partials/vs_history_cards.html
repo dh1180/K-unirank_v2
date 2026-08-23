@@ -1,0 +1,51 @@
+{% load static %}
+<div class="vs-history-list">
+    {% for vote in vs_votes %}
+    <article class="vs-history-card">
+        <div class="vs-history-meta">
+            <span>{{ vote.board.name }} VS</span>
+            <time datetime="{{ vote.created_at|date:'c' }}">{{ vote.created_at|date:"Y.m.d H:i" }}</time>
+        </div>
+
+        <div class="vs-history-matchup {% if vote.skipped %}skipped{% endif %}">
+            <div class="vs-history-school {% if not vote.skipped and vote.selected_university_id == vote.university_a_id %}selected{% endif %}">
+                <span class="vs-history-logo">
+                    {% if vote.university_a.logo_path %}
+                    <img src="{% static vote.university_a.logo_path %}" alt="{{ vote.university_a.name }} 로고" loading="lazy">
+                    {% else %}
+                    <span>K</span>
+                    {% endif %}
+                </span>
+                <span class="vs-history-school-copy">
+                    <strong>{{ vote.university_a.name }}</strong>
+                    {% if not vote.skipped and vote.selected_university_id == vote.university_a_id %}
+                    <small>내 선택</small>
+                    {% endif %}
+                </span>
+            </div>
+
+            <span class="vs-history-versus">VS</span>
+
+            <div class="vs-history-school {% if not vote.skipped and vote.selected_university_id == vote.university_b_id %}selected{% endif %}">
+                <span class="vs-history-logo">
+                    {% if vote.university_b.logo_path %}
+                    <img src="{% static vote.university_b.logo_path %}" alt="{{ vote.university_b.name }} 로고" loading="lazy">
+                    {% else %}
+                    <span>K</span>
+                    {% endif %}
+                </span>
+                <span class="vs-history-school-copy">
+                    <strong>{{ vote.university_b.name }}</strong>
+                    {% if not vote.skipped and vote.selected_university_id == vote.university_b_id %}
+                    <small>내 선택</small>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% if vote.skipped %}
+        <div class="vs-history-skip">이 대결은 건너뛰었습니다.</div>
+        {% endif %}
+    </article>
+    {% endfor %}
+</div>
