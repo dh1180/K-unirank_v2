@@ -1,11 +1,13 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from admissions.models import RecruitmentUnit
+from rankings.models import ComparisonVote
 from universities.models import University
 
 from .forms import SignUpForm
@@ -63,12 +65,31 @@ def mypage(request):
         .order_by("-created_at", "recruitment_unit__university__name", "recruitment_unit__name")
     )
 
+    vs_votes = (
+        ComparisonVote.objects.filter(session__user=request.user)
+        .select_related(
+            "board",
+            "university_a",
+            "university_b",
+            "selected_university",
+        )
+        .order_by("-created_at", "-vote_id")
+    )
+    vs_total_count = vs_votes.count()
+    vs_skipped_count = vs_votes.filter(skipped=True).count()
+    vs_selected_count = vs_total_count - vs_skipped_count
+    vs_page_obj = Paginator(vs_votes, 12).get_page(request.GET.get("vs_page"))
+
     return render(
         request,
         "users/mypage.html",
         {
             "favorite_universities": favorite_universities,
             "favorite_units": favorite_units,
+            "vs_page_obj": vs_page_obj,
+            "vs_total_count": vs_total_count,
+            "vs_selected_count": vs_selected_count,
+            "vs_skipped_count": vs_skipped_count,
         },
     )
 
