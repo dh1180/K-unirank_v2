@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}마이페이지 · K-unirank{% endblock %}
 {% block content %}
 <section class="mypage-hero">
     <div>
         <span class="eyebrow">MY K-UNIRANK</span>
-        <h1>{{ user.username }}님의 관심 목록</h1>
-        <p>관심 대학과 학과·모집단위를 모아두고 입시 결과로 바로 이동할 수 있습니다.</p>
+        <h1>{{ user.username }}님의 K-unirank</h1>
+        <p>관심 대학·학과와 내가 참여한 VS 선택 내역을 한곳에서 확인할 수 있습니다.</p>
     </div>
     <div class="mypage-actions">
         <form method="post" action="{% url 'logout' %}">
@@ -24,7 +25,107 @@
         <span>관심 학과·모집단위</span>
         <strong>{{ favorite_units|length }}</strong>
     </div>
+    <div class="mypage-summary-card">
+        <span>VS 선택</span>
+        <strong>{{ vs_selected_count }}</strong>
+    </div>
+    <div class="mypage-summary-card">
+        <span>VS 건너뛰기</span>
+        <strong>{{ vs_skipped_count }}</strong>
+    </div>
 </div>
+
+<section id="vs-history">
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">MY VS HISTORY</span>
+            <h2>내 VS 선택 내역</h2>
+            <p class="muted">로그인 상태에서 참여한 {{ vs_total_count }}개의 VS 기록을 최근순으로 보여줍니다.</p>
+        </div>
+        <a class="section-link" href="{% url 'rankings:vote_default' %}">VS 참여하기 →</a>
+    </div>
+
+    {% if vs_page_obj.object_list %}
+    <div class="vs-history-list">
+        {% for vote in vs_page_obj %}
+        <article class="vs-history-card">
+            <div class="vs-history-meta">
+                <span>{{ vote.board.name }} VS</span>
+                <time datetime="{{ vote.created_at|date:'c' }}">{{ vote.created_at|date:"Y.m.d H:i" }}</time>
+            </div>
+
+            <div class="vs-history-matchup {% if vote.skipped %}skipped{% endif %}">
+                <div class="vs-history-school {% if not vote.skipped and vote.selected_university_id == vote.university_a_id %}selected{% endif %}">
+                    <span class="vs-history-logo">
+                        {% if vote.university_a.logo_path %}
+                        <img src="{% static vote.university_a.logo_path %}" alt="{{ vote.university_a.name }} 로고" loading="lazy">
+                        {% else %}
+                        <span>K</span>
+                        {% endif %}
+                    </span>
+                    <span class="vs-history-school-copy">
+                        <strong>{{ vote.university_a.name }}</strong>
+                        {% if not vote.skipped and vote.selected_university_id == vote.university_a_id %}
+                        <small>내 선택</small>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <span class="vs-history-versus">VS</span>
+
+                <div class="vs-history-school {% if not vote.skipped and vote.selected_university_id == vote.university_b_id %}selected{% endif %}">
+                    <span class="vs-history-logo">
+                        {% if vote.university_b.logo_path %}
+                        <img src="{% static vote.university_b.logo_path %}" alt="{{ vote.university_b.name }} 로고" loading="lazy">
+                        {% else %}
+                        <span>K</span>
+                        {% endif %}
+                    </span>
+                    <span class="vs-history-school-copy">
+                        <strong>{{ vote.university_b.name }}</strong>
+                        {% if not vote.skipped and vote.selected_university_id == vote.university_b_id %}
+                        <small>내 선택</small>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            {% if vote.skipped %}
+            <div class="vs-history-skip">이 대결은 건너뛰었습니다.</div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if vs_page_obj.paginator.num_pages > 1 %}
+    <nav class="vs-history-pager" aria-label="내 VS 내역 페이지">
+        {% if vs_page_obj.has_previous %}
+        <a class="button ghost" href="?vs_page={{ vs_page_obj.previous_page_number }}#vs-history">이전</a>
+        {% else %}
+        <span class="button ghost disabled">이전</span>
+        {% endif %}
+
+        <span class="vs-history-page-number">
+            <strong>{{ vs_page_obj.number }}</strong> / {{ vs_page_obj.paginator.num_pages }} 페이지
+        </span>
+
+        {% if vs_page_obj.has_next %}
+        <a class="button ghost" href="?vs_page={{ vs_page_obj.next_page_number }}#vs-history">다음</a>
+        {% else %}
+        <span class="button ghost disabled">다음</span>
+        {% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="favorite-empty">
+        <strong>아직 로그인 후 참여한 VS 기록이 없어요.</strong>
+        대학 VS에 참여하면 내가 어떤 대학을 선택했는지 이곳에 차곡차곡 기록됩니다.
+        <div class="vs-history-empty-action">
+            <a class="button primary" href="{% url 'rankings:vote_default' %}">첫 VS 참여하기</a>
+        </div>
+    </div>
+    {% endif %}
+</section>
 
 <section>
     <div class="section-title">
