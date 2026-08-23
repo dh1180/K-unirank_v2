@@ -56,7 +56,9 @@
 
                 <td data-label="모집단위">
                     <div class="favorite-unit-line">
-                        <strong class="unit-name">{{ result.recruitment_unit.name }}</strong>
+                        <a class="unit-name" href="{% url 'admissions:unit' result.recruitment_unit_id %}" data-ga-event="admission_unit_open" data-ga-param-university="{{ result.university.name }}" data-ga-param-unit="{{ result.recruitment_unit.name }}">
+                            <strong>{{ result.recruitment_unit.name }}</strong>
+                        </a>
                         {% if user.is_authenticated %}
                             <form method="post" action="{% url 'users:toggle_favorite_recruitment_unit' result.recruitment_unit_id %}" class="favorite-inline-form">
                                 {% csrf_token %}
