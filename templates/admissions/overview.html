@@ -100,6 +100,8 @@
     {% endif %}
 </section>
 
+{% include "partials/display_ad.html" %}
+
 {% if years %}
 <div class="region-chips admission-year-tabs">
     {% for y in years %}
@@ -111,8 +113,6 @@
     {% endfor %}
 </div>
 {% endif %}
-
-{% include "partials/display_ad.html" %}
 
 {% if selected_year %}
 <section class="representative-section">
