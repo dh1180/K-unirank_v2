@@ -25,6 +25,19 @@ def _safe_next(request, fallback="users:mypage"):
     return reverse(fallback)
 
 
+def _user_vs_votes(user):
+    return (
+        ComparisonVote.objects.filter(session__user=user)
+        .select_related(
+            "board",
+            "university_a",
+            "university_b",
+            "selected_university",
+        )
+        .order_by("-created_at", "-vote_id")
+    )
+
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect(_safe_next(request))
@@ -65,20 +78,11 @@ def mypage(request):
         .order_by("-created_at", "recruitment_unit__university__name", "recruitment_unit__name")
     )
 
-    vs_votes = (
-        ComparisonVote.objects.filter(session__user=request.user)
-        .select_related(
-            "board",
-            "university_a",
-            "university_b",
-            "selected_university",
-        )
-        .order_by("-created_at", "-vote_id")
-    )
+    vs_votes = _user_vs_votes(request.user)
     vs_total_count = vs_votes.count()
     vs_skipped_count = vs_votes.filter(skipped=True).count()
     vs_selected_count = vs_total_count - vs_skipped_count
-    vs_page_obj = Paginator(vs_votes, 12).get_page(request.GET.get("vs_page"))
+    vs_recent_votes = list(vs_votes[:4])
 
     return render(
         request,
@@ -86,6 +90,26 @@ def mypage(request):
         {
             "favorite_universities": favorite_universities,
             "favorite_units": favorite_units,
+            "vs_recent_votes": vs_recent_votes,
+            "vs_total_count": vs_total_count,
+            "vs_selected_count": vs_selected_count,
+            "vs_skipped_count": vs_skipped_count,
+        },
+    )
+
+
+@login_required
+def vs_history(request):
+    vs_votes = _user_vs_votes(request.user)
+    vs_total_count = vs_votes.count()
+    vs_skipped_count = vs_votes.filter(skipped=True).count()
+    vs_selected_count = vs_total_count - vs_skipped_count
+    vs_page_obj = Paginator(vs_votes, 20).get_page(request.GET.get("page"))
+
+    return render(
+        request,
+        "users/vs_history.html",
+        {
             "vs_page_obj": vs_page_obj,
             "vs_total_count": vs_total_count,
             "vs_selected_count": vs_selected_count,
