@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views.generic import RedirectView
 
-from . import filter_views, views
+from . import filter_views, track_ui_views, views
 
 
 app_name = "admissions"
@@ -15,5 +15,5 @@ urlpatterns = [
     ),
     path("results/", filter_views.overview_results, name="overview_results"),
     path("ranking/", views.admission_ranking, name="ranking"),
-    path("university/<int:university_id>/", filter_views.university_admissions, name="university"),
+    path("university/<int:university_id>/", track_ui_views.university_admissions, name="university"),
 ]
