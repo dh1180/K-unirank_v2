@@ -1,0 +1,146 @@
+/* 대학별 입시 상세: 핵심 입결 요약 */
+.core-admission-summary {
+    margin-bottom: 48px;
+}
+
+.core-admission-summary .section-title {
+    margin-bottom: 16px;
+}
+
+.core-admission-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.core-admission-card {
+    min-width: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(16, 24, 40, .035);
+    transition: .15s ease;
+}
+
+.core-admission-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5ff;
+    box-shadow: 0 10px 28px rgba(16, 24, 40, .07);
+}
+
+.core-admission-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.core-admission-card-head strong {
+    font-size: 17px;
+    letter-spacing: -.03em;
+}
+
+.core-admission-values {
+    overflow: hidden;
+    border: 1px solid #edf0f5;
+    border-radius: 14px;
+    background: #fafbfc;
+}
+
+.core-admission-value-row {
+    min-height: 56px;
+    padding: 10px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.core-admission-value-row:last-child {
+    border-bottom: 0;
+}
+
+.core-admission-value-row > span {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.core-admission-value {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+
+.core-admission-value strong {
+    color: #101828;
+    font-size: 22px;
+    letter-spacing: -.04em;
+}
+
+.core-admission-value small {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.core-admission-value .empty-value {
+    color: #98a2b3;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.core-admission-card-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #98a2b3;
+    font-size: 10px;
+}
+
+.core-admission-card-foot b {
+    color: #3157e5;
+    font-size: 11px;
+}
+
+.core-summary-note {
+    margin: 12px 2px 0;
+    color: #98a2b3;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .core-admission-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .core-admission-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .core-admission-card {
+        padding: 17px;
+        border-radius: 17px;
+    }
+
+    .core-admission-value-row {
+        min-height: 52px;
+    }
+
+    .core-admission-value strong {
+        font-size: 20px;
+    }
+}
