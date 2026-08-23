@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static admission_extras %}
+{% block title %}{{ university.name }} {{ recruitment_unit.name }} 입결{% if latest_year %} | {{ latest_year }} 수시·정시{% endif %} | K-unirank{% endblock %}
+{% block meta_description %}{{ university.name }} {{ recruitment_unit.name }} 입결을 확인하세요.{% if latest_year %} {{ latest_year }}학년도{% endif %} 수시·정시 전형별 모집인원, 경쟁률, 학생부등급·수능 백분위 등 공개 입시결과와 원문 출처를 제공합니다.{% endblock %}
+{% block canonical_url %}https://www.k-unirank.com{% url 'admissions:unit' recruitment_unit.pk %}{% endblock %}
+{% block og_title %}{{ university.name }} {{ recruitment_unit.name }} 입결 | K-unirank{% endblock %}
+{% block og_description %}{{ university.name }} {{ recruitment_unit.name }}의 수시·정시 전형별 입시결과와 공개 지표를 확인하세요.{% endblock %}
+{% block twitter_title %}{{ university.name }} {{ recruitment_unit.name }} 입결 | K-unirank{% endblock %}
+{% block twitter_description %}학과·모집단위별 수시·정시 입결과 경쟁률, 공개 지표를 확인하세요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://www.k-unirank.com{% url 'admissions:unit' recruitment_unit.pk %}#webpage",
+      "url": "https://www.k-unirank.com{% url 'admissions:unit' recruitment_unit.pk %}",
+      "name": "{{ university.name|escapejs }} {{ recruitment_unit.name|escapejs }} 입결",
+      "description": "{{ university.name|escapejs }} {{ recruitment_unit.name|escapejs }}의 수시·정시 입시결과와 모집단위별 공개 지표",
+      "inLanguage": "ko-KR",
+      "about": {
+        "@type": "CollegeOrUniversity",
+        "name": "{{ university.name|escapejs }}",
+        "url": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "K-unirank",
+          "item": "https://www.k-unirank.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ university.name|escapejs }}",
+          "item": "https://www.k-unirank.com{% url 'universities:detail' university.pk %}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ university.name|escapejs }} 입시 결과",
+          "item": "https://www.k-unirank.com{% url 'admissions:university' university.pk %}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ recruitment_unit.name|escapejs }} 입결",
+          "item": "https://www.k-unirank.com{% url 'admissions:unit' recruitment_unit.pk %}"
+        }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="admission-university-head">
+    <div class="detail-logo small-detail-logo">
+        {% if university.logo_path %}
+            <img src="{% static university.logo_path %}" alt="{{ university.name }} 로고">
+        {% else %}
+            <span class="logo-placeholder">K</span>
+        {% endif %}
+    </div>
+    <div class="admission-head-copy">
+        <span class="eyebrow">DEPARTMENT ADMISSIONS</span>
+        <h1>{{ university.name }} {{ recruitment_unit.name }} 입결</h1>
+        <p class="muted">
+            {{ university.location_label }}
+            {% if recruitment_unit.campus and recruitment_unit.campus.campus_name %} · {{ recruitment_unit.campus.campus_name }}{% endif %}
+            {% if latest_year %} · 최신 {{ latest_year }}학년도{% endif %}
+        </p>
+    </div>
+    <div class="admission-head-actions">
+        <a class="button ghost" href="{% url 'admissions:university' university.pk %}">대학 전체 입결</a>
+        <a class="button ghost" href="{% url 'universities:detail' university.pk %}">대학 정보</a>
+    </div>
+</section>
+
+{% include "partials/display_ad.html" %}
+
+<section>
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">ADMISSION RESULTS</span>
+            <h2>{{ recruitment_unit.name }} 수시·정시 입시결과</h2>
+            <p class="muted">
+                {% if available_years %}{{ available_years|join:", " }}학년도{% endif %}
+                공개 결과를 최신순으로 정리했습니다. 대학·전형에 따라 공개 지표의 종류와 산출 방식은 다를 수 있습니다.
+            </p>
+        </div>
+        <div class="section-title-side">
+            <span class="result-count-pill">{{ result_count }}건</span>
+        </div>
+    </div>
+
+    <div class="table-wrap admissions-table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>학년도</th>
+                    <th>구분</th>
+                    <th>전형</th>
+                    <th>모집인원</th>
+                    <th>경쟁률</th>
+                    <th>공개 지표</th>
+                    <th>출처</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for result in results %}
+                <tr>
+                    <td data-label="학년도">{{ result.admission_year }}</td>
+                    <td data-label="구분">
+                        <span class="phase-badge {{ result.admission_phase|lower }}">{{ result.get_admission_phase_display }}</span>
+                    </td>
+                    <td data-label="전형">
+                        <strong>{{ result.selection_category|default:"-" }}</strong>
+                        {% if result.selection_name %}<br><small class="subtle">{{ result.selection_name }}</small>{% endif %}
+                        {% if result.recruitment_group %}<br><small class="subtle">{{ result.recruitment_group }}</small>{% endif %}
+                    </td>
+                    <td data-label="모집인원">{% if result.recruitment_count != None %}{{ result.recruitment_count }}명{% else %}-{% endif %}</td>
+                    <td data-label="경쟁률">{% if result.competition_rate != None %}{{ result.competition_rate|floatformat:2 }} : 1{% else %}-{% endif %}</td>
+                    <td data-label="공개 지표" class="metrics-cell">
+                        <div class="metric-stack">
+                        {% for metric in result.metrics.all %}
+                            {% if "REFERENCE_MEAN" not in metric.metric_code %}
+                            <span class="metric-item{% if 'GRADE' in metric.metric_code %} metric-grade{% elif 'PERCENTILE' in metric.metric_code %} metric-percentile{% elif 'SCORE' in metric.metric_code %} metric-score{% endif %}">
+                                <span class="metric-label">{{ metric.metric_code|admission_metric_label }}</span>
+                                <strong class="metric-value">{{ metric.value|floatformat:2 }}{% if metric.unit %}<small>{{ metric.unit }}</small>{% endif %}</strong>
+                            </span>
+                            {% endif %}
+                        {% empty %}<span class="subtle">-</span>{% endfor %}
+                        </div>
+                    </td>
+                    <td data-label="출처">
+                        <a class="source-link" href="{{ result.source.source_url }}" target="_blank" rel="noopener">{{ result.source.get_source_type_display }} ↗</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="empty-table-row">
+                    <td colspan="7"><div class="mini-empty">등록된 입시 결과가 없습니다.</div></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="muted" style="margin-top:16px;">
+        ※ K-unirank는 공개된 원문 입시자료를 보기 쉽게 정리하며, 실제 지원 판단 시 대학 입학처의 최신 모집요강과 원문을 함께 확인해야 합니다.
+    </p>
+</section>
+{% endblock %}
