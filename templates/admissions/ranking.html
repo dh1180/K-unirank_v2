@@ -1,6 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}입결 순위 · K-unirank{% endblock %}
+{% block title %}{{ selected_year }} 대학 입결 순위 · 수시·정시 대학 순위 | K-unirank{% endblock %}
+{% block meta_description %}{{ selected_year }}학년도 대학 입결 순위를 확인하세요. 4년제와 전문대 수시·정시 공개 입시결과를 동일 지표끼리 비교해 대학별 대표 입결과 모집단위 표본을 제공합니다.{% endblock %}
+{% block canonical_url %}https://www.k-unirank.com{% url 'admissions:ranking' %}{% endblock %}
+{% block og_title %}{{ selected_year }} 대학 입결 순위 · 수시·정시 | K-unirank{% endblock %}
+{% block og_description %}공개된 대학 입시결과를 같은 지표끼리 비교한 {{ selected_year }}학년도 대학 입결 순위를 확인하세요.{% endblock %}
+{% block twitter_title %}{{ selected_year }} 대학 입결 순위 | K-unirank{% endblock %}
+{% block twitter_description %}4년제·전문대 수시·정시 대표 입결 순위를 확인하세요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ selected_year }}학년도 대학 입결 순위",
+  "description": "4년제와 전문대 수시·정시 공개 입시결과를 동일 지표끼리 비교한 대학 입결 순위",
+  "url": "https://www.k-unirank.com{% url 'admissions:ranking' %}",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "K-unirank",
+    "url": "https://www.k-unirank.com/"
+  }
+}
+</script>
+{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
 <link rel="stylesheet" href="{% static 'css/admissions-ranking-logo.css' %}">
@@ -23,7 +45,7 @@
          data-ga-param-phase="{{ phase }}">
     <div>
         <span class="eyebrow">ADMISSION RANKING</span>
-        <h1>{{ selected_year }}학년도<br>입결 순위</h1>
+        <h1>{{ selected_year }}학년도<br>대학 입결 순위</h1>
         <p>
             공개된 입시 결과 중 같은 지표끼리 비교한 대학 단위 참고 순위입니다.
             4년제와 전문대는 서로 다른 기준을 사용하므로 별도로 제공합니다.
@@ -136,7 +158,7 @@
                 <span class="admission-rank-university-main">
                     <span class="admission-rank-logo" aria-hidden="true">
                         {% if row.university.logo_path %}
-                            <img src="{% static row.university.logo_path %}" alt="" loading="lazy">
+                            <img src="{% static row.university.logo_path %}" alt="{{ row.university.name }} 로고" loading="lazy">
                         {% else %}
                             <span class="admission-rank-logo-placeholder">K</span>
                         {% endif %}
