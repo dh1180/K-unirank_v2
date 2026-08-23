@@ -28,8 +28,14 @@ class FavoriteUniversity(models.Model):
             )
         ]
         indexes = [
-            models.Index(fields=["user", "created_at"]),
-            models.Index(fields=["university"]),
+            models.Index(
+                fields=["user", "created_at"],
+                name="favorite_un_user_id_a9d6ca_idx",
+            ),
+            models.Index(
+                fields=["university"],
+                name="favorite_un_univers_56dcf4_idx",
+            ),
         ]
 
     def __str__(self):
@@ -66,8 +72,14 @@ class FavoriteRecruitmentUnit(models.Model):
             )
         ]
         indexes = [
-            models.Index(fields=["user", "created_at"]),
-            models.Index(fields=["recruitment_unit"]),
+            models.Index(
+                fields=["user", "created_at"],
+                name="favorite_re_user_id_5d9d6e_idx",
+            ),
+            models.Index(
+                fields=["recruitment_unit"],
+                name="favorite_re_recruitm_f4d4a3_idx",
+            ),
         ]
 
     def __str__(self):
