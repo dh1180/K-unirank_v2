@@ -1,4 +1,4 @@
-from .filter_views import university_admissions as filtered_university_admissions
+from .university_detail_views import university_admissions as filtered_university_admissions
 
 
 TRACK_SCRIPT = r'''
