@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}관심 대학 비교 · K-unirank{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/university-compare.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="compare-hero">
+    <div>
+        <span class="eyebrow">FAVORITE UNIVERSITY COMPARE</span>
+        <h1>관심 대학 비교</h1>
+        <p>관심 대학 2~3개를 같은 기준으로 나란히 비교합니다.</p>
+    </div>
+    <a class="button ghost" href="{% url 'users:mypage' %}#favorite-universities">다시 선택하기</a>
+</section>
+
+{% if selection_error %}
+<div class="compare-empty">
+    <div class="compare-empty-icon">↔</div>
+    <strong>{{ selection_error }}</strong>
+    <p>마이페이지의 관심 대학에서 비교할 대학을 2~3개 선택해주세요.</p>
+    <a class="button primary" href="{% url 'users:mypage' %}#favorite-universities">관심 대학 선택하기</a>
+</div>
+{% elif comparison_items %}
+<section class="compare-summary-head">
+    <div>
+        <span class="eyebrow">COMPARE AT A GLANCE</span>
+        <h2>한눈에 비교</h2>
+        {% if comparison_year %}
+        <p class="muted">입결은 세 대학이 모두 보유한 최신 공통 학년도인 <strong>{{ comparison_year }}학년도</strong> 기준입니다.</p>
+        {% elif mixed_years %}
+        <p class="muted">공통 학년 데이터가 없어 각 대학의 최신 공개 학년도 기준으로 표시합니다.</p>
+        {% endif %}
+    </div>
+</section>
+
+<div class="compare-school-grid compare-count-{{ comparison_items|length }}">
+    {% for item in comparison_items %}
+    <article class="compare-school-card">
+        <div class="compare-school-logo">
+            {% if item.university.logo_path %}
+            <img src="{% static item.university.logo_path %}" alt="{{ item.university.name }} 로고">
+            {% else %}
+            <span>K</span>
+            {% endif %}
+        </div>
+        <div class="compare-school-copy">
+            <strong>{{ item.university.name }}</strong>
+            <span>{{ item.university.location_label }}</span>
+            {% if item.admission_year %}<small>{{ item.admission_year }}학년도 입결 기준</small>{% endif %}
+        </div>
+        <div class="compare-school-links">
+            <a href="{% url 'universities:detail' item.university.pk %}">대학 정보 →</a>
+            <a href="{% url 'admissions:university' item.university.pk %}{% if item.admission_year %}?year={{ item.admission_year }}{% endif %}">입시 결과 →</a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<section class="compare-table-section">
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">RANKING & INFO</span>
+            <h2>대학 정보 · 선호도</h2>
+        </div>
+    </div>
+    <div class="compare-table-wrap">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>비교 항목</th>
+                    {% for item in comparison_items %}<th>{{ item.university.name }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>종합 선호도 순위</th>
+                    {% for item in comparison_items %}
+                    <td>{% if item.rating %}<strong class="compare-rank">{{ item.rating.rank }}위</strong>{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Glicko-2 점수</th>
+                    {% for item in comparison_items %}
+                    <td>{% if item.rating %}<strong>{{ item.rating.rating|floatformat:0 }}</strong>점{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>실제 비교 횟수</th>
+                    {% for item in comparison_items %}
+                    <td>{% if item.rating %}{{ item.rating.match_count }}전{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>지역</th>
+                    {% for item in comparison_items %}<td>{{ item.university.location_label }}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th>설립 유형</th>
+                    {% for item in comparison_items %}<td>{{ item.university.establishment_type|default:"-" }}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th>대학 유형</th>
+                    {% for item in comparison_items %}<td>{{ item.university.university_type|default:"-" }}</td>{% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="compare-table-section">
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">ADMISSIONS</span>
+            <h2>핵심 입결 비교</h2>
+            <p class="muted">학생부 등급은 낮을수록, 수능 평균 백분위는 높을수록 높은 입결입니다.</p>
+        </div>
+    </div>
+    <div class="compare-table-wrap">
+        <table class="compare-table admissions-compare-table">
+            <thead>
+                <tr>
+                    <th>입결 지표</th>
+                    {% for item in comparison_items %}<th>{{ item.university.name }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th><span class="compare-phase susi">수시</span> 학생부교과 50% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.student_50 != None %}<strong>{{ item.student_50|floatformat:2 }}</strong> 등급{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th><span class="compare-phase susi">수시</span> 학생부교과 70% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.student_70 != None %}<strong>{{ item.student_70|floatformat:2 }}</strong> 등급{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th><span class="compare-phase susi">수시</span> 학생부종합 50% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.holistic_50 != None %}<strong>{{ item.holistic_50|floatformat:2 }}</strong> 등급{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th><span class="compare-phase susi">수시</span> 학생부종합 70% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.holistic_70 != None %}<strong>{{ item.holistic_70|floatformat:2 }}</strong> 등급{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th><span class="compare-phase jeongsi">정시</span> 수능 평균 백분위 50% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.csat_50 != None %}<strong>{{ item.csat_50|floatformat:2 }}</strong>{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+                <tr>
+                    <th><span class="compare-phase jeongsi">정시</span> 수능 평균 백분위 70% 컷</th>
+                    {% for item in comparison_items %}<td>{% if item.csat_70 != None %}<strong>{{ item.csat_70|floatformat:2 }}</strong>{% else %}<span class="compare-empty-value">-</span>{% endif %}</td>{% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="compare-note">※ 대학이 공개한 모집단위별 결과를 대학 단위로 집계한 참고값입니다. 실제 지원 판단에서는 대학별 모집단위 상세 결과와 공식 원문을 함께 확인하세요.</p>
+</section>
+{% endif %}
+{% endblock %}
