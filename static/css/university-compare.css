@@ -1,0 +1,301 @@
+.compare-hero {
+    margin-bottom: 28px;
+    padding: 30px 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border: 1px solid #dfe5f5;
+    border-radius: 26px;
+    background: linear-gradient(145deg, #fff 0%, #f5f7ff 100%);
+    box-shadow: 0 14px 38px rgba(16, 24, 40, .06);
+}
+
+.compare-hero h1 {
+    margin: 4px 0 8px;
+}
+
+.compare-hero p {
+    margin: 0;
+    color: #667085;
+}
+
+.compare-summary-head {
+    margin-bottom: 14px;
+}
+
+.compare-summary-head h2 {
+    margin-bottom: 6px;
+}
+
+.compare-school-grid {
+    margin-bottom: 34px;
+    display: grid;
+    gap: 14px;
+}
+
+.compare-school-grid.compare-count-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compare-school-grid.compare-count-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.compare-school-card {
+    min-width: 0;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #e0e5f2;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .045);
+    text-align: center;
+}
+
+.compare-school-logo {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 14px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #e5e9f2;
+    border-radius: 20px;
+    color: #3157e5;
+    background: #fff;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.compare-school-logo img {
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    object-fit: contain;
+}
+
+.compare-school-copy strong,
+.compare-school-copy span,
+.compare-school-copy small {
+    display: block;
+}
+
+.compare-school-copy strong {
+    margin-bottom: 5px;
+    font-size: 18px;
+    letter-spacing: -.02em;
+}
+
+.compare-school-copy span {
+    color: #667085;
+    font-size: 12px;
+}
+
+.compare-school-copy small {
+    margin-top: 5px;
+    color: #3157e5;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.compare-school-links {
+    width: 100%;
+    margin-top: 17px;
+    padding-top: 14px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-top: 1px solid #edf0f5;
+}
+
+.compare-school-links a {
+    color: #3157e5;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.compare-table-section {
+    margin-top: 34px;
+}
+
+.compare-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e3e7ef;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 3px 14px rgba(16, 24, 40, .035);
+}
+
+.compare-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.compare-table th,
+.compare-table td {
+    padding: 17px 18px;
+    border-bottom: 1px solid #edf0f5;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.compare-table thead th {
+    color: #475467;
+    background: #f8f9fc;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.compare-table thead th:first-child,
+.compare-table tbody th {
+    width: 210px;
+    text-align: left;
+}
+
+.compare-table tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    color: #475467;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.compare-table tbody td {
+    color: #344054;
+    font-size: 13px;
+}
+
+.compare-table tbody tr:last-child th,
+.compare-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.compare-table td strong {
+    color: #101828;
+    font-size: 15px;
+}
+
+.compare-table .compare-rank {
+    color: #3157e5;
+    font-size: 19px;
+}
+
+.compare-empty-value {
+    color: #b0b7c3;
+}
+
+.compare-phase {
+    margin-right: 7px;
+    padding: 4px 7px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.compare-phase.susi {
+    color: #3157e5;
+    background: #eef2ff;
+}
+
+.compare-phase.jeongsi {
+    color: #8a3ffc;
+    background: #f5efff;
+}
+
+.compare-note {
+    margin: 12px 2px 0;
+    color: #98a2b3;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.compare-empty {
+    padding: 64px 24px;
+    border: 1px dashed #cfd6e5;
+    border-radius: 24px;
+    background: #fff;
+    text-align: center;
+}
+
+.compare-empty-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    color: #3157e5;
+    background: #eef2ff;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.compare-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #344054;
+    font-size: 17px;
+}
+
+.compare-empty p {
+    margin: 0 0 18px;
+    color: #667085;
+}
+
+@media (max-width: 760px) {
+    .compare-hero {
+        padding: 24px 21px;
+        align-items: stretch;
+        flex-direction: column;
+        border-radius: 22px;
+    }
+
+    .compare-hero .button {
+        width: 100%;
+    }
+
+    .compare-school-grid.compare-count-2,
+    .compare-school-grid.compare-count-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .compare-school-card {
+        padding: 18px;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .compare-school-logo {
+        width: 62px;
+        height: 62px;
+        border-radius: 17px;
+    }
+
+    .compare-school-links {
+        justify-content: flex-start;
+    }
+
+    .compare-table {
+        min-width: 660px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+        padding: 14px 13px;
+    }
+
+    .compare-table thead th:first-child,
+    .compare-table tbody th {
+        width: 185px;
+    }
+}
