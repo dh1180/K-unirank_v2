@@ -252,6 +252,78 @@
     color: #667085;
 }
 
+/* Favorite compare selector on my page */
+.favorite-compare-actions {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.favorite-compare-actions > span {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.favorite-compare-actions .button {
+    min-height: 40px;
+    padding: 0 15px;
+    font-size: 12px;
+}
+
+.favorite-compare-actions .button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.favorite-card-controls {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.favorite-compare-check {
+    min-height: 32px;
+    padding: 0 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #d9e0f4;
+    border-radius: 9px;
+    color: #667085;
+    background: #fff;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 850;
+    transition: .15s ease;
+}
+
+.favorite-compare-check input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: #3157e5;
+}
+
+.favorite-compare-check:has(input:checked) {
+    color: #3157e5;
+    border-color: #b9c5ff;
+    background: #f2f5ff;
+}
+
+.favorite-compare-check:has(input:disabled) {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.favorite-card.compare-selected {
+    border-color: #b9c5ff;
+    background: #fafbff;
+    box-shadow: 0 0 0 2px rgba(49, 87, 229, .055);
+}
+
 @media (max-width: 760px) {
     .compare-hero {
         padding: 24px 21px;
@@ -297,5 +369,20 @@
     .compare-table thead th:first-child,
     .compare-table tbody th {
         width: 185px;
+    }
+
+    .favorite-compare-actions {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .favorite-compare-actions .button,
+    .favorite-compare-actions form {
+        width: 100%;
+    }
+
+    .favorite-card-controls {
+        align-items: flex-end;
+        flex-direction: column;
     }
 }
