@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}마이페이지 · K-unirank{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
 {% block content %}
 <section class="mypage-hero">
     <div>
@@ -62,13 +64,23 @@
     {% endif %}
 </section>
 
-<section>
+<section id="favorite-universities">
     <div class="section-title">
         <div>
             <span class="eyebrow">FAVORITE UNIVERSITIES</span>
             <h2>관심 대학</h2>
             <p class="muted">대학 페이지와 최신 입시 결과를 빠르게 다시 확인할 수 있습니다.</p>
         </div>
+        {% if favorite_universities|length >= 2 %}
+        <div class="favorite-compare-actions">
+            <span id="favorite-compare-guide">2~3개 대학을 선택해주세요.</span>
+            <form id="favorite-compare-form" method="get" action="{% url 'users:university_compare' %}">
+                <button id="favorite-compare-submit" class="button primary" type="submit" disabled>
+                    선택한 대학 비교하기
+                </button>
+            </form>
+        </div>
+        {% endif %}
     </div>
 
     {% if favorite_universities %}
@@ -80,11 +92,19 @@
                     <strong>{{ favorite.university.name }}</strong>
                     <small>{{ favorite.university.location_label }}</small>
                 </div>
-                <form method="post" action="{% url 'users:toggle_favorite_university' favorite.university_id %}" class="favorite-inline-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{% url 'users:mypage' %}">
-                    <button class="favorite-button compact active" type="submit" aria-label="{{ favorite.university.name }} 관심 해제" title="관심 해제">♥</button>
-                </form>
+                <div class="favorite-card-controls">
+                    {% if favorite_universities|length >= 2 %}
+                    <label class="favorite-compare-check" title="비교할 대학 선택">
+                        <input class="js-favorite-compare" type="checkbox" name="university" value="{{ favorite.university_id }}" form="favorite-compare-form">
+                        <span>비교</span>
+                    </label>
+                    {% endif %}
+                    <form method="post" action="{% url 'users:toggle_favorite_university' favorite.university_id %}" class="favorite-inline-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'users:mypage' %}#favorite-universities">
+                        <button class="favorite-button compact active" type="submit" aria-label="{{ favorite.university.name }} 관심 해제" title="관심 해제">♥</button>
+                    </form>
+                </div>
             </div>
             <div class="favorite-card-links">
                 <a href="{% url 'universities:detail' favorite.university_id %}">대학 정보 →</a>
@@ -144,4 +164,8 @@
     </div>
     {% endif %}
 </section>
+
+{% if favorite_universities|length >= 2 %}
+<script src="{% static 'js/favorite-compare.js' %}" defer></script>
+{% endif %}
 {% endblock %}
