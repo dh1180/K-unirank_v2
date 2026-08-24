@@ -111,9 +111,11 @@
 
 ### Data Collection & Processing
 
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="48" /> | <img src="https://cdn.simpleicons.org/selenium/43B02A" width="48" /> | <img src="https://cdn.simpleicons.org/beautifulsoup/000000" width="48" /> |
-| :---: | :---: | :---: |
-| Requests | Selenium | BeautifulSoup |
+<p>
+  <img src="https://img.shields.io/badge/Requests-2.32+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Requests" />
+  <img src="https://img.shields.io/badge/Selenium-4.20+-43B02A?style=flat-square&logo=selenium&logoColor=white" alt="Selenium" />
+  <img src="https://img.shields.io/badge/BeautifulSoup-4.12+-59666C?style=flat-square" alt="BeautifulSoup" />
+</p>
 
 ### Frontend
 
@@ -305,7 +307,7 @@ pip install -r requirements.txt
 
 ### 3. 환경변수 설정
 
-`.env.example`을 참고해 프로젝트 루트에 `.env` 파일을 생성합니다.
+프로젝트 루트에 `.env` 파일을 생성합니다.
 
 ```env
 DJANGO_SECRET_KEY=local-secret-key
