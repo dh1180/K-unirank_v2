@@ -52,8 +52,7 @@
 /*
  * Desktop university-admissions table:
  * keep every column inside the content width instead of forcing horizontal drag.
- * The department column still receives enough room to avoid breaking Korean names
- * one or two characters at a time.
+ * Reserve enough space for department and source labels without clipping.
  */
 @media (min-width: 721px) {
     .admissions-table-wrap:not(.overview-results-table) {
@@ -68,8 +67,9 @@
 
     .admissions-table-wrap:not(.overview-results-table) th,
     .admissions-table-wrap:not(.overview-results-table) td {
-        padding-left: 10px;
-        padding-right: 10px;
+        min-width: 0 !important;
+        padding-left: 9px;
+        padding-right: 9px;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(1),
@@ -79,41 +79,41 @@
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(2),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(2) {
-        width: 7%;
+        width: 6%;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(3),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(3) {
-        width: 17%;
+        width: 16%;
         word-break: keep-all;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(4),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(4) {
-        width: 20%;
+        width: 21%;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(5),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(5) {
-        width: 6%;
+        width: 5%;
         text-align: center;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(6),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(6) {
-        width: 9%;
+        width: 8%;
         text-align: center;
         white-space: nowrap;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(7),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(7) {
-        width: 24%;
+        width: 23%;
     }
 
     .admissions-table-wrap:not(.overview-results-table) th:nth-child(8),
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(8) {
-        width: 11%;
+        width: 15%;
     }
 
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(4) .favorite-unit-line {
@@ -127,7 +127,7 @@
         min-width: 0;
         line-height: 1.45;
         word-break: keep-all;
-        overflow-wrap: anywhere;
+        overflow-wrap: normal;
     }
 
     .admissions-table-wrap:not(.overview-results-table) td:nth-child(4) .favorite-inline-form,
@@ -145,9 +145,22 @@
         word-break: keep-all;
     }
 
+    .admissions-table-wrap:not(.overview-results-table) td:last-child {
+        overflow: visible;
+    }
+
     .admissions-table-wrap:not(.overview-results-table) .source-link {
+        width: fit-content;
+        max-width: 100%;
+        min-height: 34px;
+        padding: 0 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
         white-space: nowrap;
-        font-size: 11px;
+        font-size: 10px;
+        line-height: 1.2;
     }
 }
 
