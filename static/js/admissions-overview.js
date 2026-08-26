@@ -1,8 +1,17 @@
 (function () {
     'use strict';
 
+    var mobileAdmissionMedia = window.matchMedia('(max-width: 720px)');
+
     function compactAdmissionRows(root) {
         var scope = root || document;
+
+        if (!mobileAdmissionMedia.matches) {
+            scope.querySelectorAll('.mobile-admission-compact').forEach(function (compact) {
+                compact.remove();
+            });
+            return;
+        }
 
         scope.querySelectorAll('.admissions-table-wrap tbody tr:not(.empty-table-row)').forEach(function (row) {
             if (row.querySelector('.mobile-admission-compact')) return;
@@ -158,7 +167,7 @@
             }
             compact.appendChild(bottom);
 
-            row.insertBefore(compact, row.firstChild);
+            row.appendChild(compact);
         });
     }
 
@@ -178,6 +187,16 @@
 
         ensureTrackFilters(initialParams.get('track') || '');
         compactAdmissionRows(resultsRegion || document);
+
+        if (typeof mobileAdmissionMedia.addEventListener === 'function') {
+            mobileAdmissionMedia.addEventListener('change', function () {
+                compactAdmissionRows(resultsRegion || document);
+            });
+        } else if (typeof mobileAdmissionMedia.addListener === 'function') {
+            mobileAdmissionMedia.addListener(function () {
+                compactAdmissionRows(resultsRegion || document);
+            });
+        }
 
         var state = {
             q: searchInput ? searchInput.value.trim() : '',
