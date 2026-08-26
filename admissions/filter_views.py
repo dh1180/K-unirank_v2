@@ -2,7 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
-from admissions.services.metrics import metric_label, metric_unit
+from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
 from universities.models import University
 
 from .models import AdmissionAggregate, AdmissionResult
@@ -163,6 +163,8 @@ def _overview_result_context(request, selected_year):
 
     filtered_result_count = results.count()
     page_obj = Paginator(results, RESULTS_PER_PAGE).get_page(request.GET.get("page", 1))
+    page_results = list(page_obj.object_list)
+    attach_mobile_cut_metrics(page_results)
 
     pagination_params = request.GET.copy()
     pagination_params.pop("page", None)
@@ -172,7 +174,7 @@ def _overview_result_context(request, selected_year):
         pagination_params["track"] = selected_track
 
     return {
-        "recent_results": page_obj.object_list,
+        "recent_results": page_results,
         "page_obj": page_obj,
         "filtered_result_count": filtered_result_count,
         "query": query,
@@ -384,6 +386,8 @@ def university_admissions(request, university_id):
     page_obj = Paginator(results, UNIVERSITY_RESULTS_PER_PAGE).get_page(
         request.GET.get("page", 1)
     )
+    page_results = list(page_obj.object_list)
+    attach_mobile_cut_metrics(page_results)
 
     aggregates = AdmissionAggregate.objects.filter(university=university).exclude(
         metric_code__in={
@@ -408,7 +412,7 @@ def university_admissions(request, university_id):
         "admissions/university.html",
         {
             "university": university,
-            "results": page_obj.object_list,
+            "results": page_results,
             "page_obj": page_obj,
             "result_count": result_count,
             "query": query,
