@@ -51,3 +51,61 @@ def metric_unit(code):
     if "SCORE" in code:
         return "점"
     return ""
+
+
+# 모바일 결과 목록은 한 화면에 여러 모집단위를 빠르게 훑는 것이 목적이다.
+# 상세 지표 전체를 반복하지 않고 전형 특성에 맞는 50/70% 컷 한 쌍만 우선한다.
+_MOBILE_SUSI_PAIRS = [
+    ("STUDENT_GRADE_50_CUT", "STUDENT_GRADE_70_CUT"),
+    ("CONVERTED_SCORE_50_CUT", "CONVERTED_SCORE_70_CUT"),
+]
+
+_MOBILE_JEONGSI_PAIRS = [
+    ("CSAT_PERCENTILE_MEAN_50_CUT", "CSAT_PERCENTILE_MEAN_70_CUT"),
+    ("CSAT_CONVERTED_SCORE_50_CUT", "CSAT_CONVERTED_SCORE_70_CUT"),
+    ("CSAT_GRADE_50_CUT", "CSAT_GRADE_70_CUT"),
+]
+
+
+def attach_mobile_cut_metrics(results):
+    """각 AdmissionResult에 모바일 목록용 대표 컷 최대 2개를 붙인다.
+
+    prefetch_related('metrics')가 적용된 결과를 넘기는 것을 전제로 하며 DB를 수정하지 않는다.
+    수시는 학생부등급, 정시는 공식 평균 백분위를 가장 먼저 사용한다.
+    """
+    for result in results:
+        metrics = list(result.metrics.all())
+        metric_by_code = {metric.metric_code: metric for metric in metrics}
+        pairs = (
+            _MOBILE_JEONGSI_PAIRS
+            if result.admission_phase == "JEONGSI"
+            else _MOBILE_SUSI_PAIRS
+        )
+
+        selected = []
+        for code_50, code_70 in pairs:
+            pair = [
+                metric_by_code[code]
+                for code in (code_50, code_70)
+                if code in metric_by_code
+            ]
+            if pair:
+                selected = pair
+                break
+
+        # 논술처럼 50% 컷은 없고 70% 컷만 공개되는 경우에는 70% 값 하나라도 보여준다.
+        if not selected and "ESSAY_SCORE_70_CUT" in metric_by_code:
+            selected = [metric_by_code["ESSAY_SCORE_70_CUT"]]
+
+        for metric in selected:
+            if "50_CUT" in metric.metric_code:
+                metric.mobile_cut_label = "50%"
+            elif "70_CUT" in metric.metric_code:
+                metric.mobile_cut_label = "70%"
+            else:
+                metric.mobile_cut_label = "컷"
+            metric.mobile_unit = metric.unit or metric_unit(metric.metric_code)
+
+        result.mobile_cut_metrics = selected[:2]
+
+    return results
