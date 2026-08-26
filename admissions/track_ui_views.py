@@ -13,6 +13,8 @@ from .university_detail_views import university_admissions as filtered_universit
 TRACK_SCRIPT = r'''
 <script>
 (function () {
+    var mobileAdmissionMedia = window.matchMedia('(max-width: 720px)');
+
     function text(element) {
         return element ? String(element.textContent || '').replace(/\s+/g, ' ').trim() : '';
     }
@@ -26,6 +28,13 @@ TRACK_SCRIPT = r'''
 
     function compactAdmissionRows(root) {
         var scope = root || document;
+
+        if (!mobileAdmissionMedia.matches) {
+            scope.querySelectorAll('.mobile-admission-compact').forEach(function (compact) {
+                compact.remove();
+            });
+            return;
+        }
 
         scope.querySelectorAll('.admissions-table-wrap tbody tr:not(.empty-table-row)').forEach(function (row) {
             if (row.querySelector('.mobile-admission-compact')) return;
@@ -223,6 +232,15 @@ TRACK_SCRIPT = r'''
     }
 
     compactAdmissionRows(document);
+    if (typeof mobileAdmissionMedia.addEventListener === 'function') {
+        mobileAdmissionMedia.addEventListener('change', function () {
+            compactAdmissionRows(document);
+        });
+    } else if (typeof mobileAdmissionMedia.addListener === 'function') {
+        mobileAdmissionMedia.addListener(function () {
+            compactAdmissionRows(document);
+        });
+    }
 })();
 </script>
 '''
