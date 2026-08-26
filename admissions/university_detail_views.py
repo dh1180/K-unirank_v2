@@ -2,7 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
-from admissions.services.metrics import metric_label, metric_unit
+from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
 from universities.models import University
 
 from .filter_views import (
@@ -178,6 +178,8 @@ def university_admissions(request, university_id):
     page_obj = Paginator(results, UNIVERSITY_RESULTS_PER_PAGE).get_page(
         request.GET.get("page", 1)
     )
+    page_results = list(page_obj.object_list)
+    attach_mobile_cut_metrics(page_results)
 
     # 전체 연도를 보고 있을 때도 서로 다른 학년의 집계값을 섞지 않는다.
     # 핵심 요약은 항상 선택 학년도, 또는 가장 최신 학년도 하나만 사용한다.
@@ -189,7 +191,7 @@ def university_admissions(request, university_id):
         "admissions/university.html",
         {
             "university": university,
-            "results": page_obj.object_list,
+            "results": page_results,
             "page_obj": page_obj,
             "result_count": result_count,
             "query": query,
