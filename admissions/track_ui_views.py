@@ -158,7 +158,7 @@ TRACK_SCRIPT = r'''
             }
             compact.appendChild(bottom);
 
-            row.insertBefore(compact, row.firstChild);
+            row.appendChild(compact);
         });
     }
 
