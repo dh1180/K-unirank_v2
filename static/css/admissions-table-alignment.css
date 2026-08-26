@@ -1,0 +1,33 @@
+/* Desktop admissions table alignment overrides. */
+@media (min-width: 721px) {
+    .admissions-table-wrap:not(.overview-results-table) th,
+    .admissions-table-wrap:not(.overview-results-table) td,
+    .overview-results-table th,
+    .overview-results-table td {
+        text-align: left;
+    }
+
+    .admissions-table-wrap:not(.overview-results-table) .unit-name,
+    .overview-results-table .unit-name,
+    .overview-results-table .table-school-link,
+    .overview-results-table .table-school-type {
+        text-align: left;
+    }
+
+    .admissions-table-wrap:not(.overview-results-table) td:nth-child(4) .favorite-unit-line,
+    .overview-results-table td:nth-child(4) .favorite-unit-line {
+        text-align: left;
+    }
+
+    /* Numeric comparison columns stay centered for scanability. */
+    .admissions-table-wrap:not(.overview-results-table) th:nth-child(5),
+    .admissions-table-wrap:not(.overview-results-table) td:nth-child(5),
+    .admissions-table-wrap:not(.overview-results-table) th:nth-child(6),
+    .admissions-table-wrap:not(.overview-results-table) td:nth-child(6),
+    .overview-results-table th:nth-child(5),
+    .overview-results-table td:nth-child(5),
+    .overview-results-table th:nth-child(6),
+    .overview-results-table td:nth-child(6) {
+        text-align: center;
+    }
+}
