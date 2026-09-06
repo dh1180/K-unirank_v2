@@ -120,9 +120,109 @@
     line-height: 1.6;
 }
 
+/* 모집단위별 상세 결과: 연도/구분/전형유형/검색을 한 카드에 통합 */
+#admission-unit-results .admission-control-card {
+    margin-bottom: 20px;
+    padding: 18px;
+}
+
+#admission-unit-results .admission-filter-row {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eef0f4;
+}
+
+.admission-track-row {
+    margin-bottom: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+#admission-unit-results .admission-search-form {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+}
+
+#admission-unit-results .admission-search-input-wrap {
+    min-width: 0;
+}
+
+#admission-unit-results .admission-search-input-wrap .search-input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 18px;
+    border: 1px solid #d0d5dd;
+    border-radius: 13px;
+    color: #101828;
+    background: #fff;
+    font-size: 15px;
+    box-shadow: none;
+}
+
+#admission-unit-results .admission-search-input-wrap .search-input::placeholder {
+    color: #98a2b3;
+}
+
+#admission-unit-results .admission-search-input-wrap .search-input:focus {
+    border-color: #91a7ff;
+    box-shadow: 0 0 0 4px rgba(49, 87, 229, .08);
+}
+
+#admission-unit-results .admission-search-form .button {
+    min-width: 88px;
+    min-height: 52px;
+    padding: 0 20px;
+    border-radius: 13px;
+    font-size: 15px;
+    box-shadow: none;
+}
+
 @media (max-width: 900px) {
     .core-admission-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    #admission-unit-results .admission-control-card {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .admission-track-row {
+        margin-bottom: 12px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .admission-track-row::-webkit-scrollbar {
+        display: none;
+    }
+
+    #admission-unit-results .admission-search-form {
+        grid-template-columns: minmax(0, 1fr) 72px;
+        gap: 8px;
+    }
+
+    #admission-unit-results .admission-search-input-wrap .search-input {
+        min-height: 48px;
+        padding: 0 14px;
+        border-radius: 12px;
+        font-size: 13px;
+    }
+
+    #admission-unit-results .admission-search-form .button {
+        min-width: 72px;
+        width: 72px;
+        min-height: 48px;
+        padding: 0 10px;
+        border-radius: 12px;
+        font-size: 13px;
     }
 }
 
