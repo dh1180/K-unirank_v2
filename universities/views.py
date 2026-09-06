@@ -1,12 +1,18 @@
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 
 from admissions.models import AdmissionAggregate, AdmissionResult
 from rankings.models import UniversityRating
 
 from .models import University, UniversityCampus, UniversityIndicator
-from .services.indicators import CORE_INDICATOR_CODES, build_core_indicator_cards
+from .services.indicators import (
+    CORE_INDICATOR_CODES,
+    CORE_INDICATOR_SLUG_MAP,
+    build_core_indicator_cards,
+    format_indicator_value,
+)
 
 
 CORE_ADMISSION_SPECS = [
@@ -69,6 +75,106 @@ def university_list(request):
             "regions": regions,
             "selected_region": selected_region,
             "total_count": paginator.count,
+        },
+    )
+
+
+def indicator_ranking(request, indicator_slug):
+    spec = CORE_INDICATOR_SLUG_MAP.get(indicator_slug)
+    if spec is None:
+        raise Http404("지원하지 않는 공식 지표입니다.")
+
+    base = UniversityIndicator.objects.filter(
+        indicator_code=spec["code"],
+        source="ACADEMYINFO",
+        university__is_active=True,
+        value__gt=0,
+    ).select_related("university")
+
+    years = list(
+        base.order_by("-year")
+        .values_list("year", flat=True)
+        .distinct()
+    )
+
+    selected_year = None
+    requested_year = request.GET.get("year", "").strip()
+    if requested_year:
+        try:
+            requested_year_value = int(requested_year)
+        except ValueError:
+            requested_year_value = None
+        if requested_year_value in years:
+            selected_year = requested_year_value
+    if selected_year is None and years:
+        selected_year = years[0]
+
+    rows = base
+    if selected_year is not None:
+        rows = rows.filter(year=selected_year)
+
+    query = request.GET.get("q", "").strip()
+    selected_region = request.GET.get("region", "").strip()
+
+    indicator_universities = list(
+        University.objects.filter(
+            is_active=True,
+            official_indicators__indicator_code=spec["code"],
+            official_indicators__source="ACADEMYINFO",
+        )
+        .distinct()
+        .only("university_id", "region", "address")
+    )
+    regions = sorted(
+        {
+            university.location_label
+            for university in indicator_universities
+            if university.location_label != "지역 미상"
+        }
+    )
+
+    if selected_region:
+        region_ids = [
+            university.pk
+            for university in indicator_universities
+            if university.location_label == selected_region
+        ]
+        rows = rows.filter(university_id__in=region_ids)
+
+    if query:
+        rows = rows.filter(
+            Q(university__name__icontains=query)
+            | Q(university__short_name__icontains=query)
+            | Q(university__address__icontains=query)
+        )
+
+    value_order = "value" if spec["ranking_order"] == "asc" else "-value"
+    rows = rows.order_by(value_order, "university__name")
+
+    paginator = Paginator(rows, 60)
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+    ranking_rows = list(page_obj.object_list)
+    start_rank = page_obj.start_index() if paginator.count else 0
+
+    for offset, row in enumerate(ranking_rows):
+        display_value, display_unit = format_indicator_value(row, spec)
+        row.display_value = display_value
+        row.display_unit = display_unit
+        row.rank_number = start_rank + offset
+
+    return render(
+        request,
+        "universities/indicator_ranking.html",
+        {
+            "indicator": spec,
+            "ranking_rows": ranking_rows,
+            "page_obj": page_obj,
+            "total_count": paginator.count,
+            "years": years,
+            "selected_year": selected_year,
+            "regions": regions,
+            "selected_region": selected_region,
+            "query": query,
         },
     )
 
