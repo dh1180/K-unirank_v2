@@ -8,8 +8,9 @@
 {% block twitter_title %}대한민국 대학 선호도 순위 | K-unirank{% endblock %}
 {% block twitter_description %}실제 사용자 VS 선택 기반 대학 랭킹과 대학별 점수를 확인하세요.{% endblock %}
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
 <link rel="stylesheet" href="{% static 'css/admissions-ranking-logo.css' %}">
-<link rel="stylesheet" href="{% static 'css/ranking-logo.css' %}">
+<link rel="stylesheet" href="{% static 'css/ranking-unified.css' %}">
 {% endblock %}
 {% block structured_data %}
 <script type="application/ld+json">
@@ -28,62 +29,142 @@
 </script>
 {% endblock %}
 {% block content %}
-<div class="ranking-hero" data-ga-view="ranking_view" data-ga-param-board="{{ board.slug }}" data-ga-param-min-matches="{{ min_matches }}">
+<section class="admission-ranking-hero unified-ranking-hero"
+         data-ga-view="ranking_view"
+         data-ga-param-board="{{ board.slug }}"
+         data-ga-param-min-matches="{{ min_matches }}">
     <div>
         <span class="eyebrow">LIVE RANKING</span>
-        <h1>대한민국 {{ board.name }} 대학 선호도 랭킹</h1>
-        <p>실제 사용자 VS 선택만 반영되는 종합 대학 선호도 랭킹입니다. 모든 대학은 동일한 1500점에서 시작합니다.</p>
+        <h1>대학 선호도<br>순위</h1>
+        <p>실제 사용자 VS 선택을 반영한 대학 선호도 순위입니다. 모든 대학은 동일한 1500점에서 시작합니다.</p>
     </div>
-    <a class="button primary" href="{% url 'rankings:vote' board.slug %}">이 기준으로 투표하기</a>
-</div>
 
-<form method="get" class="filter-form ranking-filter" data-ga-submit="ranking_filter" data-ga-param-board="{{ board.slug }}">
-    <label>
-        최소 실제 비교 횟수
-        <input type="number" min="0" name="min_matches" value="{{ min_matches }}">
-    </label>
-    <button class="button" type="submit">적용</button>
-</form>
+    <div class="ranking-method-card unified-method-card">
+        <span>현재 기준</span>
+        <strong>{{ board.name }}</strong>
+        <small>Glicko-2 · 사용자 VS 선택 반영</small>
+        <a class="unified-method-action" href="{% url 'rankings:vote' board.slug %}">이 기준으로 투표하기 →</a>
+    </div>
+</section>
 
 {% include "partials/display_ad.html" %}
 
-<div class="ranking-list full-ranking">
-{% for row in rows %}
-<a class="rank-row" href="{% url 'universities:detail' row.rating.university_id %}"
-   data-ga-event="ranking_university_open"
-   data-ga-param-board="{{ board.slug }}"
-   data-ga-param-rank="{{ row.rank }}"
-   data-ga-param-university="{{ row.rating.university.name }}">
-    <span class="rank">{{ row.rank }}</span>
-    <span class="ranking-logo-slot" aria-hidden="true">
-        <span class="admission-rank-logo">
-            {% if row.rating.university.logo_path %}
-                <img src="{% static row.rating.university.logo_path %}" alt="" loading="lazy">
+<form method="get"
+      class="admission-ranking-controls unified-ranking-controls preference-ranking-controls"
+      data-ga-submit="ranking_filter"
+      data-ga-param-board="{{ board.slug }}">
+    <div class="ranking-control-block unified-min-match-control">
+        <span class="ranking-control-label">최소 비교 횟수</span>
+        <input class="unified-ranking-number" type="number" min="0" name="min_matches" value="{{ min_matches }}">
+    </div>
+
+    <div class="admission-ranking-search unified-ranking-search">
+        <input type="search"
+               name="q"
+               value="{{ query }}"
+               placeholder="대학명 검색"
+               aria-label="선호도 순위 대학명 검색">
+        <button type="submit" class="button primary">검색</button>
+        {% if query or min_matches %}
+        <a class="button ghost" href="{% url 'rankings:ranking' board.slug %}">초기화</a>
+        {% endif %}
+    </div>
+</form>
+
+<section class="admission-ranking-section unified-ranking-section">
+    <div class="section-title admission-ranking-title">
+        <div>
+            <span class="eyebrow">PREFERENCE</span>
+            <h2>{{ board.name }} 대학 선호도</h2>
+            <p class="muted">검색해도 전체 선호도 순위에서의 원래 순위 번호를 유지합니다.</p>
+        </div>
+        <div class="ranking-count-box">
+            <strong>{{ result_count }}</strong>
+            <span>개 대학</span>
+        </div>
+    </div>
+
+    <div class="admission-ranking-list unified-ranking-list preference-ranking-list">
+        <div class="admission-ranking-head">
+            <span>순위</span>
+            <span>대학</span>
+            <span>선호도 점수</span>
+            <span>비교 횟수</span>
+        </div>
+
+        {% for row in rows %}
+        <a class="admission-ranking-row"
+           href="{% url 'universities:detail' row.rating.university_id %}"
+           data-ga-event="ranking_university_open"
+           data-ga-param-board="{{ board.slug }}"
+           data-ga-param-rank="{{ row.rank }}"
+           data-ga-param-university="{{ row.rating.university.name }}">
+            <span class="admission-rank-number {% if row.rank <= 3 %}top{% endif %}">{{ row.rank }}</span>
+
+            <span class="admission-rank-university">
+                <span class="admission-rank-university-main">
+                    <span class="admission-rank-logo" aria-hidden="true">
+                        {% if row.rating.university.logo_path %}
+                        <img src="{% static row.rating.university.logo_path %}" alt="{{ row.rating.university.name }} 로고" loading="lazy">
+                        {% else %}
+                        <span class="admission-rank-logo-placeholder">K</span>
+                        {% endif %}
+                    </span>
+                    <span class="admission-rank-university-copy">
+                        <strong>{{ row.rating.university.name }}</strong>
+                        <small>{{ row.rating.university.location_label }}</small>
+                    </span>
+                </span>
+            </span>
+
+            <span class="admission-rank-score preference-rank-score">
+                <strong>{{ row.rating.rating|floatformat:0 }}</strong>
+                <small>
+                    {% if row.change > 0 %}▲ {{ row.change }}
+                    {% elif row.change < 0 %}▼ {{ row.change|stringformat:"d"|slice:"1:" }}
+                    {% elif row.change == 0 %}-
+                    {% else %}NEW{% endif %}
+                </small>
+            </span>
+
+            <span class="admission-rank-sample">{{ row.rating.match_count }}회 비교</span>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">VS</div>
+            <strong>조건에 맞는 대학이 없습니다.</strong>
+            <p>대학명이나 최소 비교 횟수를 다시 확인해주세요.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="results-pager admission-ranking-pager unified-ranking-pager" aria-label="대학 선호도 순위 페이지 이동">
+        <div class="pagination-side">
+            {% if page_obj.has_previous %}
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a>
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
             {% else %}
-                <span class="admission-rank-logo-placeholder">K</span>
+            <span class="page-button disabled">처음</span>
+            <span class="page-button disabled">이전</span>
             {% endif %}
-        </span>
-    </span>
-    <span class="school-name-wrap">
-        <strong class="school-name">{{ row.rating.university.name }}</strong>
-        <small>{{ row.rating.university.location_label }}</small>
-    </span>
-    <span class="change">
-        {% if row.change > 0 %}<b class="rank-up">▲ {{ row.change }}</b>
-        {% elif row.change < 0 %}<b class="rank-down">▼ {{ row.change|stringformat:"d"|slice:"1:" }}</b>
-        {% elif row.change == 0 %}<span>-</span>
-        {% else %}<span class="subtle">NEW</span>{% endif %}
-    </span>
-    <span class="score">{{ row.rating.rating|floatformat:0 }}</span>
-    <span class="matches">{{ row.rating.match_count }}전</span>
-</a>
-{% empty %}
-<div class="empty-state">
-    <div class="empty-state-icon">VS</div>
-    <strong>아직 랭킹이 비어 있습니다.</strong>
-    <p>실제 사용자 투표가 들어오면 대학이 순위에 나타납니다.</p>
-    <a class="button primary" href="{% url 'rankings:vote' board.slug %}">첫 투표 시작하기</a>
-</div>
-{% endfor %}
-</div>
+        </div>
+
+        <div class="pagination-center">
+            <strong>{{ page_obj.number }}</strong>
+            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
+        </div>
+
+        <div class="pagination-side">
+            {% if page_obj.has_next %}
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>
+            {% else %}
+            <span class="page-button disabled">다음</span>
+            <span class="page-button disabled">마지막</span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+</section>
 {% endblock %}
