@@ -129,3 +129,49 @@ class UniversityExternalMapping(models.Model):
 
     def __str__(self):
         return f"{self.source}: {self.external_name or self.external_code}"
+
+
+class UniversityIndicator(models.Model):
+    """대학알리미 등 공식 공시 출처의 대학 단위 연도별 지표."""
+
+    indicator_id = models.BigAutoField(primary_key=True)
+
+    university = models.ForeignKey(
+        University,
+        on_delete=models.CASCADE,
+        related_name="official_indicators",
+    )
+
+    year = models.PositiveIntegerField()
+    indicator_code = models.CharField(max_length=80)
+    value = models.DecimalField(max_digits=18, decimal_places=4)
+    unit = models.CharField(max_length=30, blank=True)
+
+    source = models.CharField(max_length=50, default="ACADEMYINFO")
+    source_url = models.URLField(max_length=1000, blank=True)
+    source_label = models.CharField(max_length=200, blank=True)
+
+    collected_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "university_indicators"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["university", "year", "indicator_code", "source"],
+                name="uq_uni_indicator_year_source",
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=["university", "year"],
+                name="uni_indicator_year_idx",
+            ),
+            models.Index(
+                fields=["indicator_code", "year"],
+                name="indicator_code_year_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.university.name} {self.year} {self.indicator_code}: {self.value}"
