@@ -7,6 +7,9 @@
 {% block og_description %}{{ university.name }}의 수시·정시 입결, 대학 선호도 순위, 캠퍼스 정보를 한 번에 확인하세요.{% endblock %}
 {% block twitter_title %}{{ university.name }} 입결·순위 | K-unirank{% endblock %}
 {% block twitter_description %}{{ university.name }}의 입시결과와 사용자 VS 기반 대학 선호도 순위를 확인하세요.{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/university-indicators.css' %}">
+{% endblock %}
 {% block structured_data %}
 <script type="application/ld+json">
 {
@@ -89,6 +92,38 @@
 </section>
 
 {% include "partials/display_ad.html" %}
+
+{% if official_indicator_cards %}
+<section class="official-indicator-section">
+    <div class="official-indicator-heading">
+        <div>
+            <span class="eyebrow">OFFICIAL DATA</span>
+            <h2>{{ university.name }} 대학알리미 공식 지표</h2>
+            <p class="muted">대학정보공시 원문을 바탕으로 비교할 때 많이 보는 지표만 간단히 정리했습니다.</p>
+        </div>
+        <a class="official-indicator-source" href="https://www.academyinfo.go.kr/index.do" target="_blank" rel="noopener">대학알리미 ↗</a>
+    </div>
+
+    <div class="official-indicator-grid">
+        {% for card in official_indicator_cards %}
+        <div class="official-indicator-card">
+            <div>
+                <div class="official-indicator-card-top">
+                    <span class="official-indicator-category">{{ card.category }}</span>
+                    <span class="official-indicator-year">{{ card.year }} 공시</span>
+                </div>
+                <span class="official-indicator-label">{{ card.label }}</span>
+                <div class="official-indicator-value">
+                    <strong>{{ card.display_value }}</strong>
+                    <span>{{ card.display_unit }}</span>
+                </div>
+            </div>
+            <span class="official-indicator-description">{{ card.description }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 {% if university.display_campuses %}
 <section>
