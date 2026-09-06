@@ -98,10 +98,9 @@
     <div class="official-indicator-heading">
         <div>
             <span class="eyebrow">OFFICIAL DATA</span>
-            <h2>{{ university.name }} 대학알리미 공식 지표</h2>
-            <p class="muted">대학정보공시 원문을 바탕으로 비교할 때 많이 보는 지표만 간단히 정리했습니다.</p>
+            <h2>{{ university.name }} 공식 지표</h2>
         </div>
-        <a class="official-indicator-source" href="https://www.academyinfo.go.kr/index.do" target="_blank" rel="noopener">대학알리미 ↗</a>
+        <a class="official-indicator-source" href="https://www.academyinfo.go.kr/index.do" target="_blank" rel="noopener">원문 출처 ↗</a>
     </div>
 
     <div class="official-indicator-grid">
@@ -118,7 +117,10 @@
                     <span>{{ card.display_unit }}</span>
                 </div>
             </div>
-            <span class="official-indicator-description">{{ card.description }}</span>
+            <div class="official-indicator-card-footer">
+                <span class="official-indicator-description">{{ card.description }}</span>
+                <a class="official-indicator-rank-link" href="{% url 'universities:indicator_ranking' card.slug %}?year={{ card.year }}">순위 보기 →</a>
+            </div>
         </div>
         {% endfor %}
     </div>
