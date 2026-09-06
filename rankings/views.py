@@ -1,7 +1,8 @@
 import json
 
 from django.contrib import messages
-from django.db.models import Count, Sum
+from django.core.paginator import Paginator
+from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -147,10 +148,15 @@ def submit_vote(request, slug):
 
 def ranking_page(request, slug="overall"):
     board = _active_board(slug)
-    min_matches = max(0, int(request.GET.get("min_matches", 0)))
+    try:
+        min_matches = max(0, int(request.GET.get("min_matches", 0)))
+    except (TypeError, ValueError):
+        min_matches = 0
 
+    query = request.GET.get("q", "").strip()
     eligible_ids = ranking_university_queryset().values_list("university_id", flat=True)
-    ratings = list(
+
+    base_ratings = (
         UniversityRating.objects.filter(
             board=board,
             university_id__in=eligible_ids,
@@ -159,6 +165,27 @@ def ranking_page(request, slug="overall"):
         .select_related("university", "board")
         .order_by("-rating", "university__name")
     )
+
+    # 검색하더라도 전체 선호도 순위에서의 원래 순위 번호를 유지한다.
+    rank_by_university_id = {
+        university_id: rank
+        for rank, university_id in enumerate(
+            base_ratings.values_list("university_id", flat=True),
+            start=1,
+        )
+    }
+
+    filtered_ratings = base_ratings
+    if query:
+        filtered_ratings = filtered_ratings.filter(
+            Q(university__name__icontains=query)
+            | Q(university__short_name__icontains=query)
+            | Q(university__address__icontains=query)
+        )
+
+    paginator = Paginator(filtered_ratings, 60)
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+    ratings = list(page_obj.object_list)
 
     previous_rank = {}
     snapshots = list(RankingSnapshot.objects.filter(board=board).order_by("-snapshot_date")[:2])
@@ -169,19 +196,27 @@ def ranking_page(request, slug="overall"):
         }
 
     rows = []
-    for rank, rating in enumerate(ratings, start=1):
+    for rating in ratings:
+        rank = rank_by_university_id.get(rating.university_id)
         old_rank = previous_rank.get(rating.university_id)
-        change = old_rank - rank if old_rank else None
+        change = old_rank - rank if old_rank and rank else None
         rows.append({
             "rank": rank,
             "rating": rating,
             "change": change,
         })
 
+    pagination_params = request.GET.copy()
+    pagination_params.pop("page", None)
+
     return render(request, "rankings/ranking.html", {
         "board": board,
         "rows": rows,
         "min_matches": min_matches,
+        "query": query,
+        "page_obj": page_obj,
+        "result_count": paginator.count,
+        "pagination_query": pagination_params.urlencode(),
     })
 
 
