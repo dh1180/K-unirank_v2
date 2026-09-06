@@ -7,6 +7,102 @@
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
 </div>
+{% if request.resolver_match.namespace == 'admissions' and request.resolver_match.url_name == 'university' %}
+<script>
+(function () {
+    var script = document.currentScript;
+    var ad = script ? script.previousElementSibling : null;
+    var controls = document.querySelector('.admission-control-card');
+
+    if (controls) controls.style.display = 'none';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var results = document.getElementById('admission-unit-results');
+        var search = results ? results.querySelector('.detail-results-search') : null;
+
+        if (controls) {
+            var trackLabels = ['학생부교과', '학생부종합', '수능', '논술', '실기'];
+            var hasTrackFilters = Array.prototype.some.call(
+                controls.querySelectorAll('a'),
+                function (link) {
+                    return trackLabels.indexOf((link.textContent || '').trim()) !== -1;
+                }
+            );
+
+            if (!hasTrackFilters) {
+                var trackRow = document.createElement('div');
+                trackRow.className = 'region-chips admission-track-tabs';
+                trackRow.setAttribute('aria-label', '전형 유형');
+                trackRow.style.margin = '0';
+                trackRow.style.paddingBottom = '0';
+
+                var tracks = [
+                    ['', '전체'],
+                    ['student', '학생부교과'],
+                    ['holistic', '학생부종합'],
+                    ['csat', '수능'],
+                    ['essay', '논술'],
+                    ['practical', '실기']
+                ];
+                var currentTrack = new URL(window.location.href).searchParams.get('track') || '';
+
+                tracks.forEach(function (item) {
+                    var key = item[0];
+                    var label = item[1];
+                    var url = new URL(window.location.href);
+                    url.searchParams.delete('page');
+
+                    if (key) {
+                        url.searchParams.set('track', key);
+                        if (key === 'student' || key === 'holistic' || key === 'essay') {
+                            url.searchParams.set('phase', 'SUSI');
+                        } else if (key === 'csat') {
+                            url.searchParams.set('phase', 'JEONGSI');
+                        }
+                    } else {
+                        url.searchParams.delete('track');
+                    }
+                    url.hash = 'admission-unit-results';
+
+                    var link = document.createElement('a');
+                    link.className = 'region-chip' + (currentTrack === key ? ' active' : '');
+                    link.href = url.pathname + (url.search ? url.search : '') + url.hash;
+                    link.textContent = label;
+                    trackRow.appendChild(link);
+                });
+
+                controls.appendChild(trackRow);
+            }
+
+            if (results) {
+                if (search) {
+                    results.insertBefore(controls, search);
+                } else {
+                    results.appendChild(controls);
+                }
+            }
+            controls.style.display = '';
+        }
+
+        var summary = document.querySelector('.core-admission-summary');
+        if (ad) {
+            if (summary) {
+                summary.insertAdjacentElement('afterend', ad);
+            } else if (results) {
+                results.insertAdjacentElement('beforebegin', ad);
+            }
+        }
+
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (error) {
+            // AdSense may be blocked by the browser; layout should still work normally.
+        }
+    });
+})();
+</script>
+{% else %}
 <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+{% endif %}
