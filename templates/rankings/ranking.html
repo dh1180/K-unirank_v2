@@ -8,7 +8,7 @@
 {% block twitter_title %}대한민국 대학 선호도 순위 | K-unirank{% endblock %}
 {% block twitter_description %}실제 사용자 VS 선택 기반 대학 랭킹과 대학별 점수를 확인하세요.{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/admissions-top10-logos.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-ranking-logo.css' %}">
 <link rel="stylesheet" href="{% static 'css/ranking-logo.css' %}">
 {% endblock %}
 {% block structured_data %}
@@ -56,11 +56,11 @@
    data-ga-param-university="{{ row.rating.university.name }}">
     <span class="rank">{{ row.rank }}</span>
     <span class="ranking-logo-slot" aria-hidden="true">
-        <span class="representative-logo">
+        <span class="admission-rank-logo">
             {% if row.rating.university.logo_path %}
                 <img src="{% static row.rating.university.logo_path %}" alt="" loading="lazy">
             {% else %}
-                <span class="representative-logo-fallback">K</span>
+                <span class="admission-rank-logo-placeholder">K</span>
             {% endif %}
         </span>
     </span>
