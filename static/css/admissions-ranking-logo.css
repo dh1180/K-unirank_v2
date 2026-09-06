@@ -8,31 +8,31 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .admission-rank-logo {
     flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
+    width: 54px;
+    height: 54px;
     display: grid;
     place-items: center;
     overflow: hidden;
     border: 1px solid #e4e7ec;
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fff;
     box-shadow: 0 2px 7px rgba(16, 24, 40, .045);
 }
 
 .admission-rank-logo img {
-    width: 78%;
-    height: 78%;
+    width: 82%;
+    height: 82%;
     object-fit: contain;
 }
 
 .admission-rank-logo-placeholder {
     color: #3157e5;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 900;
 }
 
@@ -55,19 +55,19 @@
 
 @media (max-width: 720px) {
     .admission-rank-university-main {
-        gap: 9px;
+        gap: 10px;
     }
 
     .admission-rank-logo {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
     }
 }
 
 @media (max-width: 390px) {
     .admission-rank-logo {
-        width: 34px;
-        height: 34px;
+        width: 40px;
+        height: 40px;
     }
 }
