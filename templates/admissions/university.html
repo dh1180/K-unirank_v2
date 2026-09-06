@@ -34,24 +34,6 @@
     </div>
 </div>
 
-<div class="admission-control-card">
-    <div class="admission-filter-row">
-        <div class="region-chips">
-            <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체 연도</a>
-            {% for y in years %}
-                <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ y }}</a>
-            {% endfor %}
-        </div>
-        <div class="phase-tabs" aria-label="전형 구분">
-            <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체</a>
-            <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">수시</a>
-            <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">정시</a>
-        </div>
-    </div>
-</div>
-
-{% include "partials/display_ad.html" %}
-
 {% if core_summary_cards %}
 <section class="core-admission-summary">
     <div class="section-title">
@@ -111,6 +93,8 @@
 </section>
 {% endif %}
 
+{% include "partials/display_ad.html" %}
+
 <section id="admission-unit-results">
     <div class="section-title admissions-results-title">
         <div>
@@ -126,29 +110,52 @@
         </div>
     </div>
 
-    <form method="get"
-          action="{% url 'admissions:university' university.pk %}#admission-unit-results"
-          class="detail-results-search"
-          autocomplete="off"
-          data-ga-submit="admission_detail_search"
-          data-ga-search-field="q">
-        {% if show_all_years %}
-            <input type="hidden" name="year" value="all">
-        {% elif selected_year %}
-            <input type="hidden" name="year" value="{{ selected_year }}">
-        {% endif %}
-        {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
-        {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
-        <div class="detail-results-search-box">
-            <span class="detail-results-search-icon" aria-hidden="true">⌕</span>
-            <input type="search"
-                   name="q"
-                   value="{{ query }}"
-                   placeholder="학과명, 모집단위, 전형명 검색"
-                   aria-label="학과명, 모집단위, 전형명 검색">
-            <button class="button primary" type="submit">검색</button>
+    <div class="admission-control-card">
+        <div class="admission-filter-row">
+            <div class="region-chips">
+                <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체 연도</a>
+                {% for y in years %}
+                    <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">{{ y }}</a>
+                {% endfor %}
+            </div>
+            <div class="phase-tabs" aria-label="전형 구분">
+                <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체</a>
+                <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">수시</a>
+                <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">정시</a>
+            </div>
         </div>
-    </form>
+
+        <div class="admission-track-row" aria-label="전형 유형">
+            <a class="region-chip {% if not selected_track %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체</a>
+            {% for track_key, track_label in track_choices.items %}
+                <a class="region-chip {% if selected_track == track_key %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}&track={{ track_key }}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">{{ track_label }}</a>
+            {% endfor %}
+        </div>
+
+        <form method="get"
+              action="{% url 'admissions:university' university.pk %}#admission-unit-results"
+              class="admission-search-form"
+              autocomplete="off"
+              data-ga-submit="admission_detail_search"
+              data-ga-search-field="q">
+            {% if show_all_years %}
+                <input type="hidden" name="year" value="all">
+            {% elif selected_year %}
+                <input type="hidden" name="year" value="{{ selected_year }}">
+            {% endif %}
+            {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
+            {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
+            <div class="admission-search-input-wrap">
+                <input class="search-input"
+                       type="search"
+                       name="q"
+                       value="{{ query }}"
+                       placeholder="모집단위 또는 전형명 검색"
+                       aria-label="모집단위 또는 전형명 검색">
+            </div>
+            <button class="button primary" type="submit">검색</button>
+        </form>
+    </div>
 
     <div class="table-wrap admissions-table-wrap">
         <table>
