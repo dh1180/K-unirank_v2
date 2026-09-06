@@ -72,9 +72,9 @@
     </a>
     <nav>
         <a class="nav-link {% if request.resolver_match.url_name == 'vote_default' or request.resolver_match.url_name == 'vote' %}active{% endif %}" href="{% url 'rankings:vote_default' %}">VS</a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'ranking_default' or request.resolver_match.url_name == 'ranking' %}active{% endif %}" href="{% url 'rankings:ranking_default' %}">랭킹</a>
-        <a class="nav-link {% if request.resolver_match.namespace == 'universities' %}active{% endif %}" href="{% url 'universities:list' %}">대학</a>
-        <a class="nav-link {% if request.resolver_match.namespace == 'admissions' or request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">입시</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'ranking_hub' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking_default' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking' or request.resolver_match.namespace == 'universities' and request.resolver_match.url_name == 'indicator_ranking' or request.resolver_match.namespace == 'admissions' and request.resolver_match.url_name == 'ranking' %}active{% endif %}" href="{% url 'rankings:ranking_hub' %}">순위</a>
+        <a class="nav-link {% if request.resolver_match.namespace == 'universities' and request.resolver_match.url_name != 'indicator_ranking' %}active{% endif %}" href="{% url 'universities:list' %}">대학</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'home' or request.resolver_match.namespace == 'admissions' and request.resolver_match.url_name != 'ranking' %}active{% endif %}" href="{% url 'home' %}">입시</a>
         {% if user.is_authenticated %}
             <a class="nav-link {% if request.resolver_match.namespace == 'users' and request.resolver_match.url_name == 'mypage' %}active{% endif %}" href="{% url 'users:mypage' %}">마이</a>
         {% else %}
@@ -96,9 +96,7 @@
     <nav aria-label="하단 주요 메뉴">
         <a href="{% url 'home' %}">대학 입결 찾기</a>
         <span>·</span>
-        <a href="{% url 'admissions:ranking' %}">입결 순위</a>
-        <span>·</span>
-        <a href="{% url 'rankings:ranking_default' %}">대학 선호도 순위</a>
+        <a href="{% url 'rankings:ranking_hub' %}">대학 순위</a>
         <span>·</span>
         <a href="{% url 'universities:list' %}">대학 찾기</a>
     </nav>
