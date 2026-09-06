@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404, render
 from admissions.models import AdmissionAggregate, AdmissionResult
 from rankings.models import UniversityRating
 
-from .models import University, UniversityCampus
+from .models import University, UniversityCampus, UniversityIndicator
+from .services.indicators import CORE_INDICATOR_CODES, build_core_indicator_cards
 
 
 CORE_ADMISSION_SPECS = [
@@ -96,6 +97,14 @@ def university_detail(request, university_id):
         .order_by("board__display_order")
     )
 
+    official_indicator_rows = list(
+        UniversityIndicator.objects.filter(
+            university=university,
+            indicator_code__in=CORE_INDICATOR_CODES,
+        ).order_by("indicator_code", "-year", "-updated_at")
+    )
+    official_indicator_cards = build_core_indicator_cards(official_indicator_rows)
+
     latest_admission_year = (
         AdmissionResult.objects.filter(university=university)
         .order_by("-admission_year")
@@ -150,6 +159,7 @@ def university_detail(request, university_id):
         {
             "university": university,
             "ratings": ratings,
+            "official_indicator_cards": official_indicator_cards,
             "admission_summary_items": admission_summary_items,
             "latest_admission_year": latest_admission_year,
         },
