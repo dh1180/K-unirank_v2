@@ -7,3 +7,4 @@ whitenoise>=6.8
 dj-database-url>=2.2
 beautifulsoup4>=4.12
 selenium>=4.20
+openpyxl>=3.1
