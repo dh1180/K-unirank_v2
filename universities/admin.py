@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import University, UniversityCampus, UniversityExternalMapping
+from .models import (
+    University,
+    UniversityCampus,
+    UniversityExternalMapping,
+    UniversityIndicator,
+)
 
 
 class UniversityCampusInline(admin.TabularInline):
@@ -80,3 +85,28 @@ class UniversityExternalMappingAdmin(admin.ModelAdmin):
     )
 
     list_filter = ("source",)
+
+
+@admin.register(UniversityIndicator)
+class UniversityIndicatorAdmin(admin.ModelAdmin):
+    list_display = (
+        "indicator_id",
+        "university",
+        "year",
+        "indicator_code",
+        "value",
+        "unit",
+        "source",
+        "updated_at",
+    )
+    search_fields = (
+        "university__name",
+        "indicator_code",
+        "source_label",
+    )
+    list_filter = (
+        "year",
+        "indicator_code",
+        "source",
+    )
+    ordering = ("-year", "university__name", "indicator_code")
