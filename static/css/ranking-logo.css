@@ -1,0 +1,7 @@
+/* 랭킹 대학 로고: 입시 대표지표 로고 디자인과 동일한 스타일을 사용 */
+.ranking-logo-slot {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
