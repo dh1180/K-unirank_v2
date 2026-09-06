@@ -1,0 +1,276 @@
+/*
+ * 순위 페이지 공통 스타일
+ * 입결 순위의 카드/리스트 문법을 선호도·공시 지표 순위에도 동일하게 적용한다.
+ */
+
+.unified-ranking-hero {
+    margin-bottom: 30px;
+}
+
+.unified-method-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.unified-source-link,
+.unified-method-action {
+    margin-top: 13px;
+    color: #3157e5;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.unified-source-link:hover,
+.unified-method-action:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* 입결 순위와 같은 흰색 필터 카드 */
+.unified-ranking-controls {
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    align-items: end;
+    gap: 18px;
+}
+
+.unified-ranking-controls .ranking-control-block {
+    min-width: 0;
+}
+
+.unified-ranking-select,
+.unified-ranking-number {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    outline: none;
+    color: #101828;
+    background: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+    transition: border-color .14s ease, box-shadow .14s ease;
+}
+
+.unified-ranking-select:focus,
+.unified-ranking-number:focus {
+    border-color: #91a7ff;
+    box-shadow: 0 0 0 4px rgba(49, 87, 229, .09);
+}
+
+.unified-ranking-search {
+    min-width: 0;
+    margin-left: 0;
+}
+
+.unified-ranking-search input[type="search"] {
+    min-width: 0;
+}
+
+.unified-ranking-regions {
+    margin: 0 0 30px;
+}
+
+.unified-ranking-section {
+    margin-top: 0;
+}
+
+/* 세 순위 페이지가 같은 리스트 폭과 간격을 사용한다. */
+.unified-ranking-list .admission-ranking-head,
+.unified-ranking-list .admission-ranking-row {
+    grid-template-columns: 78px minmax(0, 1fr) 170px 150px;
+}
+
+.unified-ranking-list .admission-rank-score {
+    text-align: right;
+}
+
+.unified-ranking-list .admission-rank-score strong {
+    font-variant-numeric: tabular-nums;
+}
+
+.preference-rank-score small {
+    min-height: 14px;
+}
+
+/* 입결 순위와 동일한 페이지네이션 */
+.results-pager.unified-ranking-pager,
+.admission-ranking-pager {
+    margin-top: 22px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #e4e7ec;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(16, 24, 40, .035);
+}
+
+.results-pager .pagination-side,
+.admission-ranking-pager .pagination-side {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.results-pager .pagination-side:last-child,
+.admission-ranking-pager .pagination-side:last-child {
+    justify-content: flex-end;
+}
+
+.results-pager .page-button,
+.admission-ranking-pager .page-button {
+    min-height: 40px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e1e6ef;
+    border-radius: 11px;
+    color: #344054;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    transition: .14s ease;
+}
+
+.results-pager a.page-button:hover,
+.admission-ranking-pager a.page-button:hover {
+    color: #3157e5;
+    border-color: #c7d2fe;
+    background: #f8faff;
+}
+
+.results-pager .page-button.disabled,
+.admission-ranking-pager .page-button.disabled {
+    color: #b6bfcc;
+    background: #f8f9fb;
+    cursor: default;
+}
+
+.results-pager .pagination-center,
+.admission-ranking-pager .pagination-center {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    color: #667085;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.results-pager .pagination-center strong,
+.admission-ranking-pager .pagination-center strong {
+    color: #3157e5;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+@media (max-width: 800px) {
+    .unified-ranking-controls {
+        grid-template-columns: 1fr;
+        gap: 13px;
+    }
+
+    .unified-year-control,
+    .unified-min-match-control {
+        width: min(220px, 100%);
+    }
+
+    .unified-ranking-regions {
+        margin-bottom: 22px;
+    }
+}
+
+@media (max-width: 720px) {
+    .unified-ranking-hero {
+        margin-bottom: 22px;
+    }
+
+    .unified-ranking-list .admission-ranking-row {
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+    }
+
+    .unified-ranking-list .admission-rank-score {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+    }
+
+    .unified-ranking-list .admission-rank-sample {
+        grid-column: 2;
+        margin-top: -4px;
+    }
+
+    .results-pager.unified-ranking-pager,
+    .admission-ranking-pager {
+        padding: 11px;
+        gap: 9px;
+        border-radius: 15px;
+    }
+
+    .results-pager .pagination-side,
+    .admission-ranking-pager .pagination-side {
+        gap: 5px;
+    }
+
+    .results-pager .page-button,
+    .admission-ranking-pager .page-button {
+        min-height: 36px;
+        padding: 0 10px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 500px) {
+    .unified-ranking-search {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 68px;
+        gap: 7px;
+    }
+
+    .unified-ranking-search .button {
+        min-width: 0;
+        padding: 0 10px;
+    }
+
+    .unified-ranking-search .button.ghost {
+        grid-column: 1 / -1;
+    }
+
+    .results-pager.unified-ranking-pager,
+    .admission-ranking-pager {
+        grid-template-columns: 1fr auto 1fr;
+        padding: 9px;
+    }
+
+    .results-pager .pagination-side,
+    .admission-ranking-pager .pagination-side {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .results-pager .pagination-side:last-child,
+    .admission-ranking-pager .pagination-side:last-child {
+        align-items: stretch;
+    }
+
+    .results-pager .page-button,
+    .admission-ranking-pager .page-button {
+        min-width: 54px;
+        min-height: 34px;
+        padding: 0 8px;
+    }
+
+    .results-pager .pagination-center,
+    .admission-ranking-pager .pagination-center {
+        font-size: 11px;
+    }
+}
