@@ -37,33 +37,17 @@
 <div class="admission-control-card">
     <div class="admission-filter-row">
         <div class="region-chips">
-            <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체 연도</a>
+            <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체 연도</a>
             {% for y in years %}
-                <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ y }}</a>
+                <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ y }}</a>
             {% endfor %}
         </div>
         <div class="phase-tabs" aria-label="전형 구분">
-            <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체</a>
-            <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">수시</a>
-            <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">정시</a>
+            <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">전체</a>
+            <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">수시</a>
+            <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}">정시</a>
         </div>
     </div>
-
-    <form method="get" class="admission-search-form">
-        {% if show_all_years %}
-            <input type="hidden" name="year" value="all">
-        {% elif selected_year %}
-            <input type="hidden" name="year" value="{{ selected_year }}">
-        {% endif %}
-        {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
-        <div class="admission-search-input-wrap">
-            <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="모집단위 또는 전형명 검색" aria-label="모집단위 또는 전형명 검색">
-        </div>
-        <button class="button primary" type="submit">검색</button>
-        {% if query %}
-            <a class="button ghost" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}">초기화</a>
-        {% endif %}
-    </form>
 </div>
 
 {% include "partials/display_ad.html" %}
@@ -154,6 +138,7 @@
             <input type="hidden" name="year" value="{{ selected_year }}">
         {% endif %}
         {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
+        {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
         <div class="detail-results-search-box">
             <span class="detail-results-search-icon" aria-hidden="true">⌕</span>
             <input type="search"
@@ -239,8 +224,8 @@
     <nav class="results-pager" aria-label="입시 결과 페이지">
         <div class="pagination-side">
             {% if page_obj.has_previous %}
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page=1">처음</a>
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}">이전</a>
+                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page=1">처음</a>
+                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}">이전</a>
             {% else %}
                 <span class="page-button disabled">처음</span>
                 <span class="page-button disabled">이전</span>
@@ -252,8 +237,8 @@
         </div>
         <div class="pagination-side">
             {% if page_obj.has_next %}
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}">다음</a>
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.paginator.num_pages }}">마지막</a>
+                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}">다음</a>
+                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.paginator.num_pages }}">마지막</a>
             {% else %}
                 <span class="page-button disabled">다음</span>
                 <span class="page-button disabled">마지막</span>
