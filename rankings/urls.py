@@ -7,6 +7,7 @@ app_name = "rankings"
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("rankings/", views.ranking_hub, name="ranking_hub"),
     path("vs/", views.vote_page, {"slug": "overall"}, name="vote_default"),
     path("vs/<slug:slug>/", views.vote_page, name="vote"),
     path("vs/<slug:slug>/submit/", views.submit_vote, name="submit_vote"),
