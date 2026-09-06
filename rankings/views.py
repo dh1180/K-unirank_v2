@@ -1,23 +1,62 @@
 import json
 
 from django.contrib import messages
+from django.db.models import Count, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
 
 from admissions.models import AdmissionResult
-from universities.models import University
+from universities.models import University, UniversityIndicator
+from universities.services.indicators import CORE_UNIVERSITY_INDICATORS
 
+from .admission_hover import attach_admission_hover, build_admission_hover
+from .baseline import ranking_university_queryset
 from .models import ComparisonVote, PersonalResult, RankingBoard, RankingSnapshot, UniversityRating
 from .services import build_personal_result, ensure_default_boards, get_vote_session, record_vote, select_pair
-from .baseline import ranking_university_queryset
-from .admission_hover import attach_admission_hover, build_admission_hover
-from django.db.models import Sum
 
 
 def _active_board(slug):
     ensure_default_boards()
     return get_object_or_404(RankingBoard, slug=slug, is_active=True)
+
+
+def ranking_hub(request):
+    indicator_codes = [item["code"] for item in CORE_UNIVERSITY_INDICATORS]
+    summaries = (
+        UniversityIndicator.objects.filter(
+            indicator_code__in=indicator_codes,
+            source="ACADEMYINFO",
+            university__is_active=True,
+            value__gt=0,
+        )
+        .values("indicator_code", "year")
+        .annotate(university_count=Count("university_id", distinct=True))
+        .order_by("indicator_code", "-year")
+    )
+
+    latest_by_code = {}
+    for row in summaries:
+        latest_by_code.setdefault(row["indicator_code"], row)
+
+    indicator_cards = []
+    for spec in CORE_UNIVERSITY_INDICATORS:
+        summary = latest_by_code.get(spec["code"])
+        indicator_cards.append(
+            {
+                **spec,
+                "year": summary["year"] if summary else None,
+                "university_count": summary["university_count"] if summary else 0,
+            }
+        )
+
+    return render(
+        request,
+        "rankings/ranking_hub.html",
+        {
+            "indicator_cards": indicator_cards,
+        },
+    )
 
 
 def home(request):
@@ -36,10 +75,10 @@ def home(request):
     )
 
     total_match_count = (
-            UniversityRating.objects
-            .filter(board=overall)
-            .aggregate(total=Sum("match_count"))["total"]
-            or 0
+        UniversityRating.objects
+        .filter(board=overall)
+        .aggregate(total=Sum("match_count"))["total"]
+        or 0
     )
 
     total_votes = total_match_count // 2
