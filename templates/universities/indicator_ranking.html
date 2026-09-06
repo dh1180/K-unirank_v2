@@ -8,116 +8,151 @@
 {% block twitter_title %}{{ indicator.label }} 대학 순위 | K-unirank{% endblock %}
 {% block twitter_description %}전국 대학의 {{ indicator.label }} 공시 수치를 비교해보세요.{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/university-indicators.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-ranking-logo.css' %}">
+<link rel="stylesheet" href="{% static 'css/ranking-unified.css' %}">
 {% endblock %}
 {% block content %}
-<section class="indicator-ranking-head" data-ga-view="official_indicator_ranking_view" data-ga-param-indicator="{{ indicator.code }}">
-    <div class="indicator-ranking-title-row">
-        <div>
-            <span class="eyebrow">OFFICIAL RANKING</span>
-            <h1>{{ indicator.label }} 대학 순위</h1>
-            <p class="muted">
-                {% if selected_year %}{{ selected_year }} 공시 · {% endif %}{{ indicator.ranking_order_label }} · {{ total_count }}개 대학
-            </p>
-        </div>
-        <a class="official-indicator-source" href="https://www.academyinfo.go.kr/index.do" target="_blank" rel="noopener">원문 출처 ↗</a>
+<section class="admission-ranking-hero unified-ranking-hero"
+         data-ga-view="official_indicator_ranking_view"
+         data-ga-param-indicator="{{ indicator.code }}">
+    <div>
+        <span class="eyebrow">OFFICIAL RANKING</span>
+        <h1>{{ indicator.label }}<br>대학 순위</h1>
+        <p>공개된 대학별 {{ indicator.label }} 수치를 같은 공시연도 기준으로 비교합니다.</p>
+    </div>
+
+    <div class="ranking-method-card unified-method-card">
+        <span>현재 기준</span>
+        <strong>{{ indicator.ranking_order_label }}</strong>
+        <small>{% if selected_year %}{{ selected_year }} 공시 · {% endif %}{{ total_count }}개 대학</small>
+        <a class="unified-source-link" href="https://www.academyinfo.go.kr/index.do" target="_blank" rel="noopener">원문 출처 ↗</a>
     </div>
 </section>
 
-<div class="indicator-ranking-toolbar">
-    <form method="get" class="indicator-ranking-search">
-        <label class="indicator-ranking-year">
-            <span>공시연도</span>
-            <select class="select-input" name="year" onchange="this.form.submit()">
-                {% for year in years %}
-                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
-                {% endfor %}
-            </select>
-        </label>
-        {% if selected_region %}<input type="hidden" name="region" value="{{ selected_region }}">{% endif %}
-        <div class="indicator-ranking-query">
-            <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="대학명 검색">
-            <button class="button primary" type="submit">검색</button>
-        </div>
-    </form>
-</div>
+{% include "partials/display_ad.html" %}
 
-<div class="region-chips indicator-ranking-regions">
-    <a class="region-chip {% if not selected_region %}active{% endif %}" href="?year={{ selected_year }}&q={{ query|urlencode }}">전체</a>
-    {% for region in regions %}
-        <a class="region-chip {% if selected_region == region %}active{% endif %}" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ region|urlencode }}">{{ region }}</a>
-    {% endfor %}
-</div>
-
-<div class="indicator-ranking-list">
-    <div class="indicator-ranking-row indicator-ranking-header" aria-hidden="true">
-        <span>순위</span>
-        <span></span>
-        <span>대학</span>
-        <span>{{ indicator.label }}</span>
-    </div>
-    {% for row in ranking_rows %}
-    <a class="indicator-ranking-row" href="{% url 'universities:detail' row.university.pk %}">
-        <span class="indicator-rank-number">{{ row.rank_number }}</span>
-        <span class="indicator-rank-logo">
-            {% if row.university.logo_path %}
-                <img src="{% static row.university.logo_path %}" alt="{{ row.university.name }} 로고">
-            {% else %}
-                <span class="logo-placeholder">K</span>
-            {% endif %}
-        </span>
-        <span class="indicator-rank-university">
-            <strong>{{ row.university.name }}</strong>
-            <small>{{ row.university.location_label }}</small>
-        </span>
-        <span class="indicator-rank-value">
-            <strong>{{ row.display_value }}</strong>
-            <small>{{ row.display_unit }}</small>
-        </span>
-    </a>
-    {% empty %}
-    <div class="empty-state">
-        <div class="empty-state-icon">?</div>
-        <strong>조건에 맞는 대학이 없습니다.</strong>
-        <p>연도, 지역 또는 대학명을 다시 확인해주세요.</p>
-    </div>
-    {% endfor %}
-</div>
-
-{% if page_obj.paginator.num_pages > 1 %}
-<nav class="list-pagination" aria-label="공식 지표 순위 페이지 이동">
-    <div class="list-pagination-side">
-        {% if page_obj.has_previous %}
-            <a class="list-page-link" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page=1">처음</a>
-            <a class="list-page-link" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.previous_page_number }}">이전</a>
-        {% else %}
-            <span class="list-page-link disabled">처음</span>
-            <span class="list-page-link disabled">이전</span>
-        {% endif %}
-    </div>
-
-    <div class="list-pagination-center">
-        <div class="list-pagination-numbers">
-            {% for number in page_obj.paginator.page_range %}
-                {% if number == page_obj.number %}
-                    <span class="list-page-link current">{{ number }}</span>
-                {% elif number >= page_obj.number|add:'-2' and number <= page_obj.number|add:'2' %}
-                    <a class="list-page-link" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ number }}">{{ number }}</a>
-                {% endif %}
+<form method="get" class="admission-ranking-controls unified-ranking-controls">
+    <div class="ranking-control-block unified-year-control">
+        <span class="ranking-control-label">공시연도</span>
+        <select class="unified-ranking-select" name="year">
+            {% for year in years %}
+            <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
             {% endfor %}
-        </div>
-        <div class="list-pagination-summary">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 페이지</div>
+        </select>
     </div>
 
-    <div class="list-pagination-side end">
-        {% if page_obj.has_next %}
-            <a class="list-page-link" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.next_page_number }}">다음</a>
-            <a class="list-page-link" href="?year={{ selected_year }}&q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.paginator.num_pages }}">마지막</a>
-        {% else %}
-            <span class="list-page-link disabled">다음</span>
-            <span class="list-page-link disabled">마지막</span>
+    {% if selected_region %}<input type="hidden" name="region" value="{{ selected_region }}">{% endif %}
+
+    <div class="admission-ranking-search unified-ranking-search">
+        <input type="search"
+               name="q"
+               value="{{ query }}"
+               placeholder="대학명 검색"
+               aria-label="{{ indicator.label }} 순위 대학명 검색">
+        <button type="submit" class="button primary">검색</button>
+        {% if query %}
+        <a class="button ghost" href="?year={{ selected_year }}{% if selected_region %}&region={{ selected_region|urlencode }}{% endif %}">초기화</a>
         {% endif %}
     </div>
-</nav>
-{% endif %}
+</form>
+
+<div class="region-chips unified-ranking-regions">
+    <a class="region-chip {% if not selected_region %}active{% endif %}"
+       href="?year={{ selected_year }}{% if query %}&q={{ query|urlencode }}{% endif %}">전체</a>
+    {% for region in regions %}
+    <a class="region-chip {% if selected_region == region %}active{% endif %}"
+       href="?year={{ selected_year }}&region={{ region|urlencode }}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ region }}</a>
+    {% endfor %}
+</div>
+
+<section class="admission-ranking-section unified-ranking-section">
+    <div class="section-title admission-ranking-title">
+        <div>
+            <span class="eyebrow">{{ indicator.category|upper }}</span>
+            <h2>{{ indicator.label }} · {{ indicator.ranking_order_label }}</h2>
+            <p class="muted">검색하거나 지역을 선택해도 전체 대학 기준 순위 번호는 그대로 유지됩니다.</p>
+        </div>
+        <div class="ranking-count-box">
+            <strong>{{ total_count }}</strong>
+            <span>개 대학</span>
+        </div>
+    </div>
+
+    <div class="admission-ranking-list unified-ranking-list official-ranking-list">
+        <div class="admission-ranking-head">
+            <span>순위</span>
+            <span>대학</span>
+            <span>{{ indicator.label }}</span>
+            <span>공시연도</span>
+        </div>
+
+        {% for row in ranking_rows %}
+        <a class="admission-ranking-row"
+           href="{% url 'universities:detail' row.university.pk %}">
+            <span class="admission-rank-number {% if row.rank_number <= 3 %}top{% endif %}">
+                {{ row.rank_number }}
+            </span>
+
+            <span class="admission-rank-university">
+                <span class="admission-rank-university-main">
+                    <span class="admission-rank-logo" aria-hidden="true">
+                        {% if row.university.logo_path %}
+                        <img src="{% static row.university.logo_path %}" alt="{{ row.university.name }} 로고" loading="lazy">
+                        {% else %}
+                        <span class="admission-rank-logo-placeholder">K</span>
+                        {% endif %}
+                    </span>
+                    <span class="admission-rank-university-copy">
+                        <strong>{{ row.university.name }}</strong>
+                        <small>{{ row.university.location_label }}</small>
+                    </span>
+                </span>
+            </span>
+
+            <span class="admission-rank-score">
+                <strong>{{ row.display_value }}</strong>
+                <small>{{ row.display_unit }}</small>
+            </span>
+
+            <span class="admission-rank-sample">{{ row.year }} 공시</span>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">?</div>
+            <strong>조건에 맞는 대학이 없습니다.</strong>
+            <p>연도, 지역 또는 대학명을 다시 확인해주세요.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="results-pager admission-ranking-pager unified-ranking-pager" aria-label="공시 지표 순위 페이지 이동">
+        <div class="pagination-side">
+            {% if page_obj.has_previous %}
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a>
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
+            {% else %}
+            <span class="page-button disabled">처음</span>
+            <span class="page-button disabled">이전</span>
+            {% endif %}
+        </div>
+
+        <div class="pagination-center">
+            <strong>{{ page_obj.number }}</strong>
+            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
+        </div>
+
+        <div class="pagination-side">
+            {% if page_obj.has_next %}
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>
+            {% else %}
+            <span class="page-button disabled">다음</span>
+            <span class="page-button disabled">마지막</span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+</section>
 {% endblock %}
