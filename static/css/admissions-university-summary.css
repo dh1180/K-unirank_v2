@@ -177,6 +177,18 @@
     gap: 7px;
 }
 
+/* 대학 상세에서는 서버 템플릿의 전형유형 필터 한 줄만 사용한다.
+   예전 비동기 필터 로직이 추가 track 그룹을 만들더라도 숨긴다. */
+#admission-unit-results .admission-control-card > .admission-track-filter,
+#admission-unit-results .admission-control-card > .filter-group[data-filter-group="track"],
+#admission-unit-results .admission-control-card > *:has([data-filter="track"]) {
+    display: none !important;
+}
+
+#admission-unit-results .admission-track-row ~ .admission-track-row {
+    display: none !important;
+}
+
 #admission-unit-results .region-chip {
     flex: 0 0 auto;
 }
