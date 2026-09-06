@@ -4,57 +4,79 @@ from decimal import Decimal
 CORE_UNIVERSITY_INDICATORS = [
     {
         "code": "EMPLOYMENT_RATE",
+        "slug": "employment-rate",
         "label": "취업률",
         "category": "취업",
         "kind": "percent",
         "description": "졸업생 취업 현황",
+        "ranking_order": "desc",
+        "ranking_order_label": "높은 순",
     },
     {
         "code": "AVG_TUITION",
+        "slug": "average-tuition",
         "label": "평균 등록금",
         "category": "비용",
         "kind": "money",
         "description": "연간 평균 등록금",
+        "ranking_order": "asc",
+        "ranking_order_label": "낮은 순",
     },
     {
         "code": "SCHOLARSHIP_PER_STUDENT",
+        "slug": "scholarship-per-student",
         "label": "학생 1인당 장학금",
         "category": "장학",
         "kind": "money",
         "description": "재학생 1인당 장학금",
+        "ranking_order": "desc",
+        "ranking_order_label": "높은 순",
     },
     {
         "code": "DORMITORY_CAPACITY_RATE",
+        "slug": "dormitory-capacity-rate",
         "label": "기숙사 수용률",
         "category": "생활",
         "kind": "percent",
         "description": "재학생 대비 기숙사 수용 가능 비율",
+        "ranking_order": "desc",
+        "ranking_order_label": "높은 순",
     },
     {
         "code": "EDUCATION_COST_PER_STUDENT",
+        "slug": "education-cost-per-student",
         "label": "학생 1인당 교육비",
         "category": "교육",
         "kind": "money",
         "description": "학생 1인당 교육 투자 규모",
+        "ranking_order": "desc",
+        "ranking_order_label": "높은 순",
     },
     {
         "code": "STUDENTS_PER_FULLTIME_FACULTY",
+        "slug": "students-per-faculty",
         "label": "전임교원 1인당 학생 수",
         "category": "교육",
         "kind": "person",
         "description": "전임교원 1명이 담당하는 학생 수",
+        "ranking_order": "asc",
+        "ranking_order_label": "적은 순",
     },
     {
         "code": "FULLTIME_FACULTY_SECURING_RATE",
+        "slug": "faculty-securing-rate",
         "label": "전임교원 확보율",
         "category": "교육",
         "kind": "percent",
         "description": "법정 정원 대비 전임교원 확보 수준",
+        "ranking_order": "desc",
+        "ranking_order_label": "높은 순",
     },
 ]
 
 CORE_INDICATOR_CODES = [item["code"] for item in CORE_UNIVERSITY_INDICATORS]
 CORE_INDICATOR_MAP = {item["code"]: item for item in CORE_UNIVERSITY_INDICATORS}
+CORE_INDICATOR_SLUG_MAP = {item["slug"]: item for item in CORE_UNIVERSITY_INDICATORS}
 
 
 def _format_decimal(value, digits=1):
