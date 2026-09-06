@@ -20,12 +20,6 @@
     margin-bottom: 0;
 }
 
-.official-indicator-heading .muted {
-    max-width: 720px;
-    margin: 7px 0 0;
-    line-height: 1.55;
-}
-
 .official-indicator-source {
     min-height: 38px;
     padding: 0 13px;
@@ -74,13 +68,11 @@
     box-shadow: 0 7px 22px rgba(16, 24, 40, .04);
 }
 
-/* 핵심 4개 지표는 첫 줄에서 동일한 무게로 보여준다. */
 .official-indicator-card:nth-child(-n + 4) {
     border-color: #dbe3f5;
     background: linear-gradient(145deg, #ffffff 0%, #fbfcff 100%);
 }
 
-/* 교육환경 3개는 두 번째 줄을 정확히 3등분한다. */
 .official-indicator-card:nth-child(n + 5) {
     grid-column: span 4;
     min-height: 132px;
@@ -154,13 +146,13 @@
     color: #101828;
 }
 
+/* 아래 핵심 입시 지표의 숫자 타이포그래피와 동일한 톤으로 맞춘다. */
 .official-indicator-value strong {
     min-width: 0;
-    font-size: clamp(24px, 2.25vw, 31px);
-    font-weight: 950;
-    line-height: 1.05;
-    letter-spacing: -.045em;
-    font-variant-numeric: tabular-nums;
+    font-size: 29px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.05em;
 }
 
 .official-indicator-value span {
@@ -170,15 +162,216 @@
     font-weight: 800;
 }
 
+.official-indicator-card-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+}
+
 .official-indicator-description {
+    min-width: 0;
     color: #98a2b3;
     font-size: 10px;
     font-weight: 650;
     line-height: 1.45;
 }
 
-.official-indicator-card a {
-    color: inherit;
+.official-indicator-rank-link {
+    flex: 0 0 auto;
+    color: #3157e5 !important;
+    font-size: 10px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.official-indicator-rank-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------------
+   공식 지표별 대학 순위
+   --------------------------------------------------------- */
+.indicator-ranking-head {
+    margin-bottom: 22px;
+}
+
+.indicator-ranking-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.indicator-ranking-title-row h1 {
+    margin-bottom: 8px;
+}
+
+.indicator-ranking-title-row .muted {
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+.indicator-ranking-note {
+    margin-top: 16px;
+    padding: 11px 14px;
+    border: 1px solid #e6eaf1;
+    border-radius: 12px;
+    color: #667085;
+    background: rgba(255, 255, 255, .72);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.indicator-ranking-toolbar {
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.indicator-ranking-search {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.indicator-ranking-year {
+    flex: 0 0 auto;
+    display: grid;
+    gap: 6px;
+}
+
+.indicator-ranking-year > span {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.indicator-ranking-query {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    gap: 8px;
+}
+
+.indicator-ranking-regions {
+    margin-top: 0;
+    margin-bottom: 18px;
+}
+
+.indicator-ranking-list {
+    overflow: hidden;
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.indicator-ranking-row {
+    min-height: 76px;
+    padding: 10px 18px;
+    display: grid;
+    grid-template-columns: 48px 50px minmax(0, 1fr) 150px;
+    align-items: center;
+    gap: 13px;
+    border-bottom: 1px solid #eef0f3;
+    transition: background .14s ease;
+}
+
+.indicator-ranking-row:last-child {
+    border-bottom: 0;
+}
+
+.indicator-ranking-row:not(.indicator-ranking-header):hover {
+    background: #fafbff;
+}
+
+.indicator-ranking-header {
+    min-height: 44px;
+    color: #667085;
+    background: #f9fafb;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.indicator-ranking-header span:last-child {
+    text-align: right;
+}
+
+.indicator-rank-number {
+    color: #344054;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.indicator-ranking-row:nth-child(2) .indicator-rank-number,
+.indicator-ranking-row:nth-child(3) .indicator-rank-number,
+.indicator-ranking-row:nth-child(4) .indicator-rank-number {
+    color: #3157e5;
+}
+
+.indicator-rank-logo {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #e4e7ec;
+    border-radius: 13px;
+    background: #fff;
+}
+
+.indicator-rank-logo img {
+    width: 82%;
+    height: 82%;
+    object-fit: contain;
+}
+
+.indicator-rank-university {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.indicator-rank-university strong {
+    overflow: hidden;
+    color: #101828;
+    font-size: 14px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.indicator-rank-university small {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.indicator-rank-value {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 5px;
+    text-align: right;
+}
+
+.indicator-rank-value strong {
+    color: #101828;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.05em;
+}
+
+.indicator-rank-value small {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 800;
 }
 
 @media (max-width: 1050px) {
@@ -198,14 +391,7 @@
     .official-indicator-heading {
         padding-bottom: 14px;
         align-items: flex-start;
-        flex-direction: column;
         gap: 10px;
-    }
-
-    .official-indicator-heading .muted {
-        margin-top: 5px;
-        font-size: 12px;
-        line-height: 1.45;
     }
 
     .official-indicator-source {
@@ -224,7 +410,7 @@
     .official-indicator-card,
     .official-indicator-card:nth-child(n + 5) {
         grid-column: span 1;
-        min-height: 116px;
+        min-height: 120px;
         padding: 13px;
         gap: 8px;
         border-radius: 15px;
@@ -264,16 +450,72 @@
     }
 
     .official-indicator-value strong {
-        font-size: 21px;
+        font-size: 24px;
     }
 
     .official-indicator-value span {
         font-size: 9px;
     }
 
-    .official-indicator-description {
+    .official-indicator-description,
+    .official-indicator-rank-link {
         font-size: 9px;
-        line-height: 1.35;
+    }
+
+    .indicator-ranking-title-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .indicator-ranking-search {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .indicator-ranking-year {
+        width: 100%;
+    }
+
+    .indicator-ranking-year .select-input {
+        width: 100%;
+    }
+
+    .indicator-ranking-row {
+        min-height: 68px;
+        padding: 9px 11px;
+        grid-template-columns: 34px 40px minmax(0, 1fr) auto;
+        gap: 8px;
+    }
+
+    .indicator-ranking-header {
+        display: none;
+    }
+
+    .indicator-rank-number {
+        font-size: 14px;
+    }
+
+    .indicator-rank-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+    }
+
+    .indicator-rank-university strong {
+        font-size: 12px;
+    }
+
+    .indicator-rank-university small {
+        font-size: 9px;
+    }
+
+    .indicator-rank-value strong {
+        font-size: 17px;
+    }
+
+    .indicator-rank-value small {
+        font-size: 9px;
     }
 }
 
@@ -290,17 +532,13 @@
         line-height: 1.25;
     }
 
-    .official-indicator-heading .muted {
-        font-size: 11px;
-    }
-
     .official-indicator-grid {
         gap: 7px;
     }
 
     .official-indicator-card,
     .official-indicator-card:nth-child(n + 5) {
-        min-height: 104px;
+        min-height: 108px;
         padding: 11px;
         border-radius: 14px;
     }
@@ -328,10 +566,40 @@
     }
 
     .official-indicator-value strong {
-        font-size: 19px;
+        font-size: 21px;
     }
 
     .official-indicator-description {
         display: none;
+    }
+
+    .official-indicator-card-footer {
+        justify-content: flex-end;
+    }
+
+    .indicator-ranking-query .button {
+        min-width: 68px;
+        padding: 0 11px;
+    }
+
+    .indicator-ranking-row {
+        grid-template-columns: 28px 36px minmax(0, 1fr) auto;
+        padding-left: 8px;
+        padding-right: 8px;
+        gap: 6px;
+    }
+
+    .indicator-rank-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .indicator-rank-university strong {
+        font-size: 11px;
+    }
+
+    .indicator-rank-value strong {
+        font-size: 15px;
     }
 }
