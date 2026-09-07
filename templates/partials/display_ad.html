@@ -144,6 +144,45 @@
 </script>
 {% else %}
 <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
+(function () {
+    function requestAd() {
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (error) {
+            // AdSense may be blocked by the browser; layout should still work normally.
+        }
+    }
+
+    // 페이지 상단의 기존 광고를 먼저 요청한다.
+    requestAd();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var rows = document.querySelectorAll(
+            '.admission-ranking-list .admission-ranking-row'
+        );
+
+        if (rows.length < 12 || document.querySelector('.ranking-inline-display-ad')) {
+            return;
+        }
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'manual-display-ad ranking-inline-display-ad';
+        wrapper.style.margin = '18px 0';
+        wrapper.style.padding = '10px 0';
+        wrapper.style.width = '100%';
+
+        var ad = document.createElement('ins');
+        ad.className = 'adsbygoogle';
+        ad.style.display = 'block';
+        ad.setAttribute('data-ad-client', 'ca-pub-3862816878614020');
+        ad.setAttribute('data-ad-slot', '8829169633');
+        ad.setAttribute('data-ad-format', 'auto');
+        ad.setAttribute('data-full-width-responsive', 'true');
+
+        wrapper.appendChild(ad);
+        rows[11].insertAdjacentElement('afterend', wrapper);
+        requestAd();
+    });
+})();
 </script>
 {% endif %}
