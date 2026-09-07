@@ -157,18 +157,21 @@
     requestAd();
 
     document.addEventListener('DOMContentLoaded', function () {
-        var rows = document.querySelectorAll(
-            '.admission-ranking-list .admission-ranking-row'
-        );
+        var list = document.querySelector('.admission-ranking-list');
+        var rows = list ? list.querySelectorAll('.admission-ranking-row') : [];
 
-        if (rows.length < 12 || document.querySelector('.ranking-inline-display-ad')) {
+        // 짧은 순위에는 추가 광고를 넣지 않는다.
+        if (!list || rows.length < 12 || document.querySelector('.ranking-secondary-display-ad')) {
             return;
         }
 
+        var section = list.closest('.admission-ranking-section');
+        var pager = section ? section.querySelector('.admission-ranking-pager') : null;
+        var disclaimer = section ? section.querySelector('.admission-ranking-disclaimer') : null;
+
         var wrapper = document.createElement('div');
-        wrapper.className = 'manual-display-ad ranking-inline-display-ad';
-        wrapper.style.margin = '18px 0';
-        wrapper.style.padding = '10px 0';
+        wrapper.className = 'manual-display-ad ranking-secondary-display-ad';
+        wrapper.style.margin = '28px 0 18px';
         wrapper.style.width = '100%';
 
         var ad = document.createElement('ins');
@@ -180,7 +183,16 @@
         ad.setAttribute('data-full-width-responsive', 'true');
 
         wrapper.appendChild(ad);
-        rows[11].insertAdjacentElement('afterend', wrapper);
+
+        // 순위 행 사이를 끊지 않고, 목록과 페이지네이션이 끝난 뒤 독립 영역으로 배치한다.
+        if (pager) {
+            pager.insertAdjacentElement('afterend', wrapper);
+        } else if (disclaimer) {
+            disclaimer.insertAdjacentElement('beforebegin', wrapper);
+        } else {
+            list.insertAdjacentElement('afterend', wrapper);
+        }
+
         requestAd();
     });
 })();
