@@ -101,6 +101,47 @@
     });
 })();
 </script>
+{% elif request.resolver_match.url_name == 'home' %}
+<script>
+(function () {
+    function requestAd() {
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (error) {
+            // AdSense may be blocked by the browser; layout should still work normally.
+        }
+    }
+
+    // Hero 아래의 기존 광고를 먼저 요청한다.
+    requestAd();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var representative = document.querySelector('.representative-section');
+        var explorer = document.getElementById('admission-explorer');
+
+        if (!representative || !explorer || document.querySelector('.home-secondary-display-ad')) {
+            return;
+        }
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'manual-display-ad home-secondary-display-ad';
+        wrapper.style.margin = '28px 0';
+        wrapper.style.width = '100%';
+
+        var ad = document.createElement('ins');
+        ad.className = 'adsbygoogle';
+        ad.style.display = 'block';
+        ad.setAttribute('data-ad-client', 'ca-pub-3862816878614020');
+        ad.setAttribute('data-ad-slot', '8829169633');
+        ad.setAttribute('data-ad-format', 'auto');
+        ad.setAttribute('data-full-width-responsive', 'true');
+
+        wrapper.appendChild(ad);
+        representative.insertAdjacentElement('afterend', wrapper);
+        requestAd();
+    });
+})();
+</script>
 {% else %}
 <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
