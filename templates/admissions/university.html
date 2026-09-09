@@ -93,6 +93,39 @@
 </section>
 {% endif %}
 
+{% if future_csat_minimum %}
+<section class="future-csat-minimum" data-ga-view="future_csat_minimum_view" data-ga-param-university="{{ university.name }}" data-ga-param-year="{{ future_csat_minimum.year }}">
+    <div class="section-title">
+        <div>
+            <span class="eyebrow">CURRENT ADMISSIONS</span>
+            <h2>{{ future_csat_minimum.year }}학년도 수시 수능최저</h2>
+            <p class="muted">입시결과보다 먼저 공개된 대입정보포털 어디가의 해당 학년도 전형별 주요사항입니다. 아래 {{ summary_year|default:"이전" }}학년도 입결과 학년이 다를 수 있습니다.</p>
+        </div>
+        <div class="section-title-side">
+            <span class="result-count-pill">{{ future_csat_minimum.count }}건</span>
+        </div>
+    </div>
+
+    <div class="future-csat-list">
+        {% for item in future_csat_minimum.items %}
+        <article class="future-csat-row">
+            <div class="future-csat-target">
+                <div class="future-csat-title-line">
+                    <strong>{{ item.selection_name|default:"전형 공통" }}</strong>
+                    <span class="future-csat-status">{{ item.status }}</span>
+                </div>
+                {% if item.recruitment_unit_name %}<small>{{ item.recruitment_unit_name }}</small>{% endif %}
+                {% if item.campus_label %}<small>{{ item.campus_label }}</small>{% endif %}
+            </div>
+            <p>{{ item.display }}</p>
+            <a class="source-link" href="{{ item.source_url }}" target="_blank" rel="noopener">원문 ↗</a>
+        </article>
+        {% endfor %}
+    </div>
+    <p class="core-summary-note">※ 어디가에서 확인 가능한 규칙만 표시합니다. 표시되지 않았다고 해서 수능최저가 없다는 뜻은 아니며, 최종 지원 전 대학 모집요강 원문을 반드시 확인하세요.</p>
+</section>
+{% endif %}
+
 {% include "partials/display_ad.html" %}
 
 <section id="admission-unit-results">
