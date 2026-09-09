@@ -119,13 +119,13 @@ def _inject_admission_seo(html, university, latest_year):
 
 
 def _inject_detail_assets(html):
-    css_url = escape(static("css/admissions-metric-refine.css"), quote=True)
+    css_url = escape(static("css/admissions-metric-refine.css") + "?v=20260909-4", quote=True)
     css_tag = f'<link rel="stylesheet" href="{css_url}">'
     if "</head>" in html:
         html = html.replace("</head>", css_tag + "\n</head>", 1)
 
     if "</body>" in html:
-        script_url = escape(static("js/admissions-detail-mobile.js"), quote=True)
+        script_url = escape(static("js/admissions-detail-mobile.js") + "?v=20260909-4", quote=True)
         script_tag = f'<script defer src="{script_url}"></script>'
         html = html.replace("</body>", script_tag + "\n</body>", 1)
 
