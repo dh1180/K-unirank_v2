@@ -9,7 +9,7 @@ from admissions.services.csat_minimum import (
     match_csat_minimum_rule,
 )
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
-from universities.models import University
+from universities.models import University, UniversityExternalMapping
 
 from .filter_views import (
     TRACK_CHOICES,
@@ -185,6 +185,95 @@ def _attach_csat_minimum_requirements(university, page_results):
         result.selection_name = mark_safe("<br>".join(parts))
 
 
+def _build_future_csat_minimum(university, latest_result_year):
+    """입시결과보다 먼저 공개된 가장 최신 학년의 수능최저를 별도로 보여준다."""
+    requirements = AdmissionRequirement.objects.filter(
+        university=university,
+        admission_phase="SUSI",
+        requirement_type="CSAT_MINIMUM",
+        source_type="ADIGA",
+    )
+    if latest_result_year:
+        requirements = requirements.filter(admission_year__gt=latest_result_year)
+
+    latest_requirement_year = (
+        requirements.order_by("-admission_year")
+        .values_list("admission_year", flat=True)
+        .first()
+    )
+    if latest_requirement_year is None:
+        return None
+
+    requirements = list(
+        requirements.filter(admission_year=latest_requirement_year).order_by(
+            "source_code",
+            "selection_name",
+            "recruitment_unit_name",
+            "requirement_id",
+        )
+    )
+    if not requirements:
+        return None
+
+    mappings = {
+        mapping.external_code: mapping
+        for mapping in UniversityExternalMapping.objects.filter(
+            source="ADIGA",
+            university=university,
+            external_code__in={requirement.source_code for requirement in requirements},
+        ).select_related("campus")
+    }
+
+    items = []
+    seen = set()
+    for requirement in requirements:
+        display = format_csat_minimum_display(requirement, max_length=500)
+        if not display:
+            continue
+
+        mapping = mappings.get(requirement.source_code)
+        campus_label = ""
+        if mapping and mapping.campus and mapping.campus.campus_name:
+            campus_label = mapping.campus.campus_name
+
+        key = (
+            campus_label,
+            requirement.selection_name,
+            requirement.recruitment_unit_name,
+            display,
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+
+        if requirement.applied is False:
+            status = "없음"
+        elif requirement.applied is True:
+            status = "적용"
+        else:
+            status = "조건별"
+
+        items.append(
+            {
+                "selection_name": requirement.selection_name,
+                "recruitment_unit_name": requirement.recruitment_unit_name,
+                "campus_label": campus_label,
+                "display": display,
+                "status": status,
+                "source_url": requirement.source_url,
+            }
+        )
+
+    if not items:
+        return None
+
+    return {
+        "year": latest_requirement_year,
+        "items": items,
+        "count": len(items),
+    }
+
+
 def university_admissions(request, university_id):
     university = get_object_or_404(University, pk=university_id, is_active=True)
 
@@ -257,8 +346,13 @@ def university_admissions(request, university_id):
 
     # 전체 연도를 보고 있을 때도 서로 다른 학년의 집계값을 섞지 않는다.
     # 핵심 요약은 항상 선택 학년도, 또는 가장 최신 학년도 하나만 사용한다.
-    summary_year = year or (available_years[0] if available_years else None)
+    latest_result_year = available_years[0] if available_years else None
+    summary_year = year or latest_result_year
     core_summary_cards = _build_core_summary(university, summary_year)
+    future_csat_minimum = _build_future_csat_minimum(
+        university,
+        latest_result_year,
+    )
 
     return render(
         request,
@@ -276,6 +370,7 @@ def university_admissions(request, university_id):
             "show_all_years": show_all_years,
             "summary_year": summary_year,
             "core_summary_cards": core_summary_cards,
+            "future_csat_minimum": future_csat_minimum,
             "track_choices": TRACK_CHOICES,
             "metric_label": metric_label,
             "metric_unit": metric_unit,
