@@ -14,6 +14,7 @@ class StaticViewSitemap(Sitemap):
             ("home", "daily", 1.0),
             ("universities:list", "weekly", 0.9),
             ("rankings:ranking_default", "daily", 0.9),
+            ("admissions:compare", "daily", 0.95),
             ("admissions:ranking", "daily", 0.9),
         ]
 
