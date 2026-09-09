@@ -23,11 +23,11 @@ def _inject_admission_seo(html, university, latest_year):
     description = (
         f"{university.name} 입결을 확인하세요. "
         f"{latest_year or '최신'}학년도 수시 학생부교과·학생부종합, 정시 수능, 논술·실기와 "
-        "학과·모집단위별 50%·70% 컷, 경쟁률, 공식 원문 출처를 제공합니다."
+        "학과·모집단위별 50%·70% 컷, 경쟁률, 수능최저학력기준, 공식 원문 출처를 제공합니다."
     )
     short_description = (
-        f"{university.name}의 {latest_year or '최신'}학년도 수시·정시 입결과 "
-        "학과별 모집단위 결과를 확인하세요."
+        f"{university.name}의 {latest_year or '최신'}학년도 수시·정시 입결, "
+        "학과별 모집단위 결과와 수능최저학력기준을 확인하세요."
     )
 
     html = re.sub(
