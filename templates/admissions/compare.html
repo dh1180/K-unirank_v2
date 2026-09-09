@@ -68,6 +68,7 @@
 .chart-value { text-align: right; font-size: 13px; }
 .chart-value strong { display: block; }
 .chart-value small { color: #7a8394; }
+.compare-chart-toggle { display: none; }
 .compare-table-wrap { overflow-x: auto; border: 1px solid #e5e9f2; border-radius: 18px; background: #fff; }
 .compare-table { width: 100%; border-collapse: collapse; min-width: 1030px; }
 .compare-table th { background: #f8f9fc; color: #6a7385; font-size: 12px; text-align: left; padding: 12px 13px; border-bottom: 1px solid #e7eaf0; white-space: nowrap; }
@@ -230,7 +231,7 @@
 
     .compare-section {
         margin-top: 18px;
-        margin-bottom: 28px;
+        margin-bottom: 22px;
     }
 
     .compare-section-head {
@@ -255,7 +256,6 @@
         white-space: nowrap;
     }
 
-    /* 모바일 그래프: 620px 가로 스크롤을 없애고 한 카드 안에서 2줄로 표현 */
     .compare-chart {
         overflow: hidden;
         border-radius: 15px;
@@ -274,8 +274,12 @@
         grid-template-areas:
             "school value"
             "track track";
-        gap: 5px 10px;
-        padding: 12px;
+        gap: 4px 10px;
+        padding: 9px 11px;
+    }
+
+    .compare-chart:not(.expanded) .compare-chart-row:nth-of-type(n+10) {
+        display: none;
     }
 
     .compare-chart-school {
@@ -292,12 +296,12 @@
 
     .grade-track {
         grid-area: track;
-        height: 24px;
-        margin: 5px 5px 0;
+        height: 22px;
+        margin: 4px 5px 0;
     }
 
     .grade-track .my-marker::after {
-        top: -11px;
+        top: -10px;
         font-size: 8px;
     }
 
@@ -310,7 +314,26 @@
         font-size: 9px;
     }
 
-    /* 모바일 표: 데스크톱 1030px 표를 행별 카드로 변환 */
+    .compare-chart-toggle {
+        width: 100%;
+        min-height: 38px;
+        margin-top: 8px;
+        border: 1px solid #dfe4ee;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #3157e5;
+        background: #fff;
+        font-size: 11px;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .compare-chart-toggle[hidden] {
+        display: none;
+    }
+
     .compare-table-wrap {
         overflow: visible;
         border: 0;
@@ -332,10 +355,10 @@
     .compare-table tbody tr {
         width: 100%;
         margin-bottom: 8px;
-        padding: 12px;
+        padding: 11px;
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto auto;
-        gap: 6px 10px;
+        gap: 5px 9px;
         border: 1px solid #e6e9f0;
         border-radius: 14px;
         background: #fff;
@@ -581,7 +604,7 @@
                 <h2>내 점수와 가까운 대학</h2>
                 <p>검색된 모집단위의 50/70% 컷 중 70% 컷을 우선 사용해 대학별 평균을 표시합니다.</p>
             </div>
-            <span class="compare-count">최대 16개 대학</span>
+            <span class="compare-count">{{ chart_rows|length }}개 대학</span>
         </div>
         <div class="compare-chart">
             <div class="compare-chart-inner">
@@ -604,6 +627,7 @@
                 {% endfor %}
             </div>
         </div>
+        <button type="button" class="compare-chart-toggle" aria-expanded="false">나머지 대학 더 보기</button>
     </section>
     {% endif %}
 
@@ -669,4 +693,23 @@
     </div>
     {% endif %}
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var chart = document.querySelector('.compare-chart');
+    var toggle = document.querySelector('.compare-chart-toggle');
+    if (!chart || !toggle) return;
+
+    var rows = chart.querySelectorAll('.compare-chart-row');
+    if (rows.length <= 8) {
+        toggle.hidden = true;
+        return;
+    }
+
+    toggle.addEventListener('click', function () {
+        var expanded = chart.classList.toggle('expanded');
+        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        toggle.textContent = expanded ? '접기' : '나머지 대학 더 보기';
+    });
+});
+</script>
 {% endblock %}
