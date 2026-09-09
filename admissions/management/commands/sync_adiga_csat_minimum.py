@@ -15,7 +15,10 @@ from admissions.services.csat_minimum import (
     match_csat_minimum_rule,
     parse_csat_minimum_rules,
 )
-from admissions.services.csat_minimum_quality import normalize_safe_csat_minimum_rule
+from admissions.services.csat_minimum_quality import (
+    normalize_safe_csat_minimum_rule,
+    rule_matches_university_scope,
+)
 from universities.models import University, UniversityExternalMapping
 
 
@@ -48,6 +51,15 @@ class Command(BaseCommand):
             help="특정 대학명만 처리합니다.",
         )
         parser.add_argument(
+            "--offset",
+            type=int,
+            default=0,
+            help=(
+                "정렬된 ADIGA 대학 코드 목록에서 앞쪽 N개를 건너뜁니다. "
+                "Railway SSH 미리보기를 여러 구간으로 나눌 때 사용합니다."
+            ),
+        )
+        parser.add_argument(
             "--limit",
             type=int,
             default=0,
@@ -73,12 +85,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         year = max(0, options["year"])
         target_name = options["university"].strip()
+        offset = max(0, options["offset"])
         limit = max(0, options["limit"])
         delay = max(0.0, options["delay"])
         show_rules = options["show_rules"]
         apply_changes = options["apply"]
 
         scopes = self.build_scopes(year=year, target_name=target_name)
+        total_scope_count = len(scopes)
+        if offset:
+            scopes = scopes[offset:]
         if limit:
             scopes = scopes[:limit]
 
@@ -96,6 +112,11 @@ class Command(BaseCommand):
 
         if not apply_changes:
             self.stdout.write(self.style.WARNING("미리보기 모드입니다. DB는 변경하지 않습니다."))
+        if offset or limit:
+            end_offset = offset + len(scopes)
+            self.stdout.write(
+                f"처리 구간: {offset}~{end_offset - 1} / 전체 {total_scope_count}개 코드"
+            )
 
         stats = {
             "scopes": 0,
@@ -106,6 +127,7 @@ class Command(BaseCommand):
             "failed": 0,
             "future_without_results": 0,
             "fallback": 0,
+            "campus_filtered": 0,
         }
 
         for scope in scopes:
@@ -130,6 +152,8 @@ class Command(BaseCommand):
                     preferred_year=preferred_year,
                     allow_fallback=allow_fallback,
                     delay=delay,
+                    university=university,
+                    stats=stats,
                 )
             except CommandError as exc:
                 stats["failed"] += 1
@@ -244,6 +268,10 @@ class Command(BaseCommand):
         self.stdout.write(f"확인한 대학/코드: {stats['scopes']}개")
         self.stdout.write(f"파싱한 수능최저 규칙: {stats['rules']}건")
         self.stdout.write(f"현재 수시 결과와 안전 매칭: {stats['matched_results']}건")
+        if stats["campus_filtered"]:
+            self.stdout.write(
+                f"명시적 타 캠퍼스 규칙 제외: {stats['campus_filtered']}건"
+            )
         if stats["fallback"]:
             self.stdout.write(
                 f"직전 학년도 fallback: {stats['fallback']}개 대학/코드"
@@ -266,6 +294,8 @@ class Command(BaseCommand):
         preferred_year,
         allow_fallback,
         delay,
+        university,
+        stats,
     ):
         """요청 학년을 우선하고 없으면 직전 학년의 안전한 규칙을 반환한다.
 
@@ -284,8 +314,12 @@ class Command(BaseCommand):
             parsed_rules = []
             for rule in parse_csat_minimum_rules(html, admission_year):
                 safe_rule = normalize_safe_csat_minimum_rule(rule)
-                if safe_rule is not None:
-                    parsed_rules.append(safe_rule)
+                if safe_rule is None:
+                    continue
+                if not rule_matches_university_scope(safe_rule, university.name):
+                    stats["campus_filtered"] += 1
+                    continue
+                parsed_rules.append(safe_rule)
 
             if parsed_rules:
                 return admission_year, parsed_rules
