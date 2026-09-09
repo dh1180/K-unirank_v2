@@ -14,6 +14,50 @@
         return element;
     }
 
+    function highlightDesktopMetrics(root) {
+        var scope = root || document;
+        var featuredLabels = {
+            '학생부등급 50% 컷': 'grade',
+            '학생부등급 70% 컷': 'grade',
+            '공식 평균 백분위 50% 컷': 'percentile',
+            '공식 평균 백분위 70% 컷': 'percentile'
+        };
+
+        scope.querySelectorAll('.admissions-table-wrap .metrics-cell .metric-stack').forEach(function (stack) {
+            if (stack.classList.contains('metric-stack-highlighted')) return;
+
+            var featured = [];
+            Array.from(stack.querySelectorAll('.metric-item')).forEach(function (item) {
+                var label = text(item.querySelector('.metric-label'));
+                var kind = featuredLabels[label];
+                if (!kind) return;
+
+                item.classList.add('metric-item-featured');
+                item.classList.add('metric-item-featured-' + kind);
+                if (label.indexOf('50%') !== -1) item.classList.add('metric-item-featured-50');
+                if (label.indexOf('70%') !== -1) item.classList.add('metric-item-featured-70');
+                featured.push(item);
+            });
+
+            if (!featured.length) return;
+
+            // 원문 지표 순서와 관계없이 대표 50%/70% 컷을 항상 맨 위에 둔다.
+            featured.sort(function (a, b) {
+                var aLabel = text(a.querySelector('.metric-label'));
+                var bLabel = text(b.querySelector('.metric-label'));
+                var aOrder = aLabel.indexOf('50%') !== -1 ? 0 : 1;
+                var bOrder = bLabel.indexOf('50%') !== -1 ? 0 : 1;
+                return aOrder - bOrder;
+            });
+            featured.slice().reverse().forEach(function (item) {
+                stack.insertBefore(item, stack.firstChild);
+            });
+
+            stack.classList.add('metric-stack-highlighted');
+            stack.classList.add(featured.length === 1 ? 'metric-stack-featured-one' : 'metric-stack-featured-pair');
+        });
+    }
+
     function compactAdmissionRows(root) {
         var scope = root || document;
 
@@ -160,6 +204,7 @@
     }
 
     function boot() {
+        highlightDesktopMetrics(document);
         compactAdmissionRows(document);
 
         if (typeof mobileAdmissionMedia.addEventListener === 'function') {
