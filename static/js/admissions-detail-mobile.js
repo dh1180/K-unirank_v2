@@ -3,6 +3,82 @@
 
     var mobileAdmissionMedia = window.matchMedia('(max-width: 720px)');
 
+    function injectDesktopMetricRefinement() {
+        if (document.getElementById('admissions-metric-refinement')) return;
+
+        var style = document.createElement('style');
+        style.id = 'admissions-metric-refinement';
+        style.textContent = [
+            '@media (min-width: 721px) {',
+            '  .admissions-table-wrap .metric-stack-highlighted {',
+            '    display: flex !important;',
+            '    flex-direction: column !important;',
+            '    align-items: flex-start !important;',
+            '    gap: 6px !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-item-featured {',
+            '    width: auto !important;',
+            '    max-width: 100% !important;',
+            '    min-width: 0 !important;',
+            '    min-height: 0 !important;',
+            '    padding: 6px 10px !important;',
+            '    display: inline-flex !important;',
+            '    flex-direction: row !important;',
+            '    align-items: baseline !important;',
+            '    justify-content: flex-start !important;',
+            '    gap: 6px !important;',
+            '    border: 0 !important;',
+            '    border-radius: 9px !important;',
+            '    background: #f3f6fd !important;',
+            '    box-shadow: none !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-item-featured .metric-label,',
+            '  .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-label {',
+            '    color: #667085 !important;',
+            '    font-size: 13px !important;',
+            '    font-weight: 500 !important;',
+            '    line-height: 1.55 !important;',
+            '    letter-spacing: 0 !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-item-featured .metric-value {',
+            '    display: inline-flex !important;',
+            '    align-items: baseline !important;',
+            '    gap: 3px !important;',
+            '    color: #3157e5 !important;',
+            '    font-size: 13px !important;',
+            '    font-weight: 700 !important;',
+            '    line-height: 1.55 !important;',
+            '    letter-spacing: 0 !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-item-featured .metric-value small {',
+            '    color: #667085 !important;',
+            '    font-size: 13px !important;',
+            '    font-weight: 600 !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) {',
+            '    width: auto !important;',
+            '    display: inline-flex !important;',
+            '    align-items: baseline !important;',
+            '    gap: 6px !important;',
+            '    opacity: 1 !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-value {',
+            '    color: #344054 !important;',
+            '    font-size: 13px !important;',
+            '    font-weight: 700 !important;',
+            '    line-height: 1.55 !important;',
+            '    letter-spacing: 0 !important;',
+            '  }',
+            '  .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-value small {',
+            '    color: #667085 !important;',
+            '    font-size: 13px !important;',
+            '    font-weight: 600 !important;',
+            '  }',
+            '}',
+        ].join('\n');
+        document.head.appendChild(style);
+    }
+
     function text(element) {
         return element ? String(element.textContent || '').replace(/\s+/g, ' ').trim() : '';
     }
@@ -41,7 +117,6 @@
 
             if (!featured.length) return;
 
-            // 원문 지표 순서와 관계없이 대표 50%/70% 컷을 항상 맨 위에 둔다.
             featured.sort(function (a, b) {
                 var aLabel = text(a.querySelector('.metric-label'));
                 var bLabel = text(b.querySelector('.metric-label'));
@@ -204,6 +279,7 @@
     }
 
     function boot() {
+        injectDesktopMetricRefinement();
         highlightDesktopMetrics(document);
         compactAdmissionRows(document);
 
