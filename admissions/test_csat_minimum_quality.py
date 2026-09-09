@@ -36,6 +36,29 @@ class CsatMinimumQualityTests(SimpleTestCase):
         )
         self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
 
+    def test_rejects_snu_jeongsi_art_residual_without_jeongsi_label(self):
+        rule = self.make_rule(
+            "기회균형특별전형 ( 농어촌 · 저소득 ) 미술대학",
+            "수능최저학력기준 4개 영역 중 3개 영역 등급 합이 7등급 이내",
+        )
+        self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
+
+    def test_rejects_snu_jeongsi_music_residual_without_jeongsi_label(self):
+        rule = self.make_rule(
+            "기회균형특별전형 ( 농어촌 · 저소득 ) 음악대학 성악과",
+            "수능최저학력기준 4개 영역 중 3개 영역 등급 합이 7등급 이내",
+        )
+        self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
+
+    def test_preserves_snu_susi_social_integration(self):
+        rule = self.make_rule(
+            "수시 기회균형특별전형 ( 사회통합 )",
+            "수능최저학력기준 없음",
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertFalse(normalized.applied)
+
     def test_rejects_description_misread_as_selection_name(self):
         rule = self.make_rule(
             "- 고등학교 졸업자 또는 법령에 의하여 졸업 이상의 학력이 있다고 인정되는 자 누구나 지원가능한 전형",
