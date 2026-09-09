@@ -96,6 +96,8 @@
     <nav aria-label="하단 주요 메뉴">
         <a href="{% url 'home' %}">대학 입결 찾기</a>
         <span>·</span>
+        <a href="{% url 'admissions:compare' %}">내 점수 학과 찾기</a>
+        <span>·</span>
         <a href="{% url 'rankings:ranking_hub' %}">대학 순위</a>
         <span>·</span>
         <a href="{% url 'universities:list' %}">대학 찾기</a>
@@ -146,6 +148,30 @@
                 }
                 window.kuniTrack(form.dataset.gaSubmit, params);
             });
+        });
+    });
+})();
+</script>
+
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var compareUrl = '{% url "admissions:compare" %}';
+        document.querySelectorAll('.admission-mode-tabs').forEach(function (tabs) {
+            var existing = Array.prototype.some.call(tabs.querySelectorAll('a'), function (link) {
+                return link.getAttribute('href') === compareUrl;
+            });
+            if (existing) return;
+
+            var firstLink = tabs.querySelector('a');
+            if (!firstLink) return;
+
+            var compareLink = document.createElement('a');
+            compareLink.className = 'admission-mode-tab';
+            compareLink.href = compareUrl;
+            compareLink.textContent = '내 점수 학과 찾기';
+            compareLink.setAttribute('data-ga-event', 'admission_compare_tab');
+            firstLink.insertAdjacentElement('afterend', compareLink);
         });
     });
 })();
