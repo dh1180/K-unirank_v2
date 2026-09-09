@@ -133,6 +133,28 @@ def _nearest_section(table):
     return None
 
 
+def _nearest_adiga_tab_code(table):
+    """표가 속한 ADIGA 전형 탭 코드를 찾는다.
+
+    현재 어디가 상세 화면의 tab_20/30은 수시 학생부종합/교과,
+    tab_40은 수능위주(정시) 영역이다. DOM 구조가 없는 구형 페이지는
+    None을 반환해 기존 보수적 텍스트 필터로 처리한다.
+    """
+    for node in [table, *table.parents]:
+        if not getattr(node, "attrs", None):
+            continue
+        node_id = compact(node.get("id", ""))
+        if not node_id:
+            continue
+        match = re.search(r"(?:^|[^0-9])tab[_-]?(\d+)(?:[^0-9]|$)", node_id, re.I)
+        if match:
+            try:
+                return int(match.group(1))
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
 def _looks_like_selection_name(value):
     text = compact(value)
     if not text or len(text) > 120:
@@ -284,13 +306,19 @@ def parse_csat_minimum_rules(html, admission_year):
 
     같은 ADIGA 화면에는 Q1(해당 학년도 전형별 주요사항)과 Q2(전년도 결과)가
     함께 있으므로, Q1이 정확히 admission_year와 일치하는 table만 사용한다.
-    전형이나 모집단위를 확실히 식별하지 못한 전역 문장은 저장하지 않는다.
+    또한 현재 DOM에서 tab_40으로 식별되는 수능위주(정시) 표는 구조적으로
+    제외한다. 전형이나 모집단위를 확실히 식별하지 못한 전역 문장은 저장하지 않는다.
     """
     soup = BeautifulSoup(html or "", "html.parser")
     parsed = []
 
     for table in soup.find_all("table"):
         if _nearest_section(table) != ("main", admission_year):
+            continue
+
+        # 수능최저 수집 대상은 수시다. 전형명 텍스트가 잘려도 정시 탭 자체는
+        # 확실히 식별할 수 있으므로 tab_40 전체를 먼저 제외한다.
+        if _nearest_adiga_tab_code(table) == 40:
             continue
 
         matrix = _expand_table(table)
