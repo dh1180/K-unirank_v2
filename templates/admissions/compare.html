@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}내 점수로 학과 찾기 · 수시 입결 비교 | K-unirank{% endblock %}
+{% block meta_description %}내신 평균등급과 학과명을 입력하면 4년제 대학의 공식 수시 50%·70% 입결 컷을 같은 기준에서 비교해 가까운 대학·학과를 찾아볼 수 있습니다.{% endblock %}
+{% block canonical_url %}https://k-unirank.com{% url 'admissions:compare' %}{% endblock %}
+{% block og_title %}내 점수로 학과 찾기 | K-unirank{% endblock %}
+{% block og_description %}내신 등급과 학과를 입력하고 대학별 공식 수시 등급컷과 내 위치를 빠르게 비교해보세요.{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<style>
+.compare-page { padding-bottom: 28px; }
+.compare-hero {
+    margin: 18px 0 18px;
+    padding: 32px;
+    border: 1px solid #e5e9f2;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #f7f9ff 0%, #ffffff 58%, #f4f7ff 100%);
+}
+.compare-hero .eyebrow { color: #3157e5; font-weight: 800; letter-spacing: .08em; font-size: 12px; }
+.compare-hero h1 { margin: 8px 0 10px; font-size: clamp(30px, 5vw, 50px); line-height: 1.08; letter-spacing: -.04em; }
+.compare-hero p { margin: 0; color: #596276; line-height: 1.7; max-width: 760px; }
+.compare-form {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 150px minmax(150px, .8fr) minmax(240px, 1.5fr) minmax(140px, .8fr) auto;
+    gap: 10px;
+    align-items: end;
+}
+.compare-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.compare-field label, .compare-label { font-size: 12px; font-weight: 800; color: #596276; }
+.compare-field input, .compare-field select {
+    width: 100%; min-height: 46px; box-sizing: border-box; border: 1px solid #d8deea; border-radius: 12px;
+    background: #fff; padding: 0 13px; font: inherit; color: #182033; outline: none;
+}
+.compare-field input:focus, .compare-field select:focus { border-color: #3157e5; box-shadow: 0 0 0 3px rgba(49,87,229,.1); }
+.compare-submit { min-height: 46px; border: 0; border-radius: 12px; background: #3157e5; color: #fff; font-weight: 800; padding: 0 22px; cursor: pointer; }
+.compare-options { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.compare-option-group { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.compare-option-group > span { font-size: 12px; font-weight: 800; color: #596276; margin-right: 2px; }
+.compare-radio input { position: absolute; opacity: 0; pointer-events: none; }
+.compare-radio span { display: inline-flex; align-items: center; min-height: 34px; padding: 0 13px; border: 1px solid #dce1eb; border-radius: 999px; background: #fff; font-size: 13px; font-weight: 700; color: #566078; cursor: pointer; }
+.compare-radio input:checked + span { background: #eef2ff; border-color: #3157e5; color: #2448c7; }
+.compare-error { margin-top: 12px; padding: 11px 13px; border-radius: 10px; background: #fff1f2; color: #b42334; font-size: 14px; font-weight: 700; }
+.compare-summary { margin: 18px 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.compare-summary-card { border: 1px solid #e7eaf1; border-radius: 16px; background: #fff; padding: 17px; }
+.compare-summary-card span { display: block; color: #697386; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.compare-summary-card strong { font-size: 22px; letter-spacing: -.02em; }
+.compare-summary-card small { display: block; margin-top: 5px; color: #8991a1; line-height: 1.45; }
+.compare-section { margin-top: 22px; }
+.compare-section-head { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 12px; }
+.compare-section-head h2 { margin: 0; font-size: 22px; }
+.compare-section-head p { margin: 5px 0 0; color: #7a8394; font-size: 13px; }
+.compare-count { flex: 0 0 auto; border-radius: 999px; background: #f1f4f9; padding: 7px 11px; font-size: 12px; font-weight: 800; color: #596276; }
+.compare-chart { border: 1px solid #e5e9f2; border-radius: 18px; background: #fff; overflow: hidden; }
+.compare-axis { margin: 16px 18px 4px 190px; display: flex; justify-content: space-between; font-size: 11px; color: #8a92a2; }
+.compare-chart-row { display: grid; grid-template-columns: 180px minmax(300px, 1fr) 90px; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid #f0f2f6; }
+.compare-chart-row:first-of-type { border-top: 0; }
+.compare-chart-school { min-width: 0; }
+.compare-chart-school a { display: block; color: #1d2638; font-weight: 800; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compare-chart-school small { color: #8a92a2; }
+.grade-track { position: relative; height: 22px; }
+.grade-track::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 3px; border-radius: 999px; background: #edf0f5; }
+.grade-track .my-marker { position: absolute; top: 2px; width: 2px; height: 18px; background: #ef5b5b; transform: translateX(-50%); }
+.grade-track .my-marker::after { content: "내 점수"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 9px; color: #d94949; font-weight: 800; }
+.grade-track .cut-marker { position: absolute; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: #3157e5; border: 2px solid #fff; box-shadow: 0 0 0 1px #3157e5; transform: translateX(-50%); }
+.chart-value { text-align: right; font-size: 13px; }
+.chart-value strong { display: block; }
+.chart-value small { color: #7a8394; }
+.compare-table-wrap { overflow-x: auto; border: 1px solid #e5e9f2; border-radius: 18px; background: #fff; }
+.compare-table { width: 100%; border-collapse: collapse; min-width: 1030px; }
+.compare-table th { background: #f8f9fc; color: #6a7385; font-size: 12px; text-align: left; padding: 12px 13px; border-bottom: 1px solid #e7eaf0; white-space: nowrap; }
+.compare-table td { padding: 13px; border-bottom: 1px solid #eef0f4; vertical-align: middle; font-size: 13px; }
+.compare-table tbody tr:last-child td { border-bottom: 0; }
+.compare-table tbody tr:hover { background: #fbfcff; }
+.compare-school-link { color: #202a3c; font-weight: 800; text-decoration: none; }
+.compare-unit { font-weight: 800; color: #273149; }
+.compare-source { display: block; margin-top: 4px; font-size: 11px; color: #8b93a2; }
+.compare-source a { color: inherit; }
+.cut-value { font-variant-numeric: tabular-nums; font-weight: 800; }
+.position-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 8px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.position-badge.ahead { color: #16734a; background: #e9f8f0; }
+.position-badge.near { color: #8a5a00; background: #fff5d9; }
+.position-badge.behind { color: #b33b45; background: #fff0f1; }
+.compare-empty { padding: 34px 20px; text-align: center; border: 1px dashed #d8dde8; border-radius: 18px; background: #fafbfc; color: #6f788a; }
+.compare-empty strong { display: block; color: #2d3649; margin-bottom: 6px; }
+.compare-note { margin-top: 14px; border-radius: 14px; background: #f7f8fb; padding: 14px 16px; color: #6d7688; font-size: 12px; line-height: 1.65; }
+.compare-pagination { margin-top: 16px; display: flex; justify-content: center; gap: 8px; align-items: center; }
+.compare-pagination a, .compare-pagination span { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0 11px; border: 1px solid #dfe3eb; border-radius: 9px; color: #4f596d; text-decoration: none; font-size: 12px; font-weight: 700; background: #fff; }
+.compare-pagination .current { background: #3157e5; color: #fff; border-color: #3157e5; }
+@media (max-width: 920px) {
+    .compare-form { grid-template-columns: 1fr 1fr; }
+    .compare-submit { width: 100%; }
+    .compare-summary { grid-template-columns: 1fr 1fr; }
+    .compare-chart-row { grid-template-columns: 150px minmax(260px, 1fr) 80px; }
+    .compare-axis { margin-left: 160px; }
+}
+@media (max-width: 640px) {
+    .compare-hero { padding: 22px 16px; border-radius: 18px; }
+    .compare-form { grid-template-columns: 1fr; }
+    .compare-options { gap: 10px; }
+    .compare-summary { grid-template-columns: 1fr 1fr; }
+    .compare-summary-card { padding: 13px; }
+    .compare-summary-card strong { font-size: 18px; }
+    .compare-chart { overflow-x: auto; }
+    .compare-chart-inner { min-width: 620px; }
+    .compare-section-head { align-items: start; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compare-page" data-ga-view="admission_compare_view" data-ga-param-year="{{ selected_year|default:'' }}">
+    <div class="admission-mode-tabs" aria-label="입시 메뉴">
+        <a class="admission-mode-tab" href="{% url 'home' %}">입결 찾기</a>
+        <a class="admission-mode-tab active" href="{% url 'admissions:compare' %}">내 점수 학과 찾기</a>
+        <a class="admission-mode-tab" href="{% url 'admissions:ranking' %}">입결 순위</a>
+    </div>
+
+    <section class="compare-hero">
+        <span class="eyebrow">GRADE MATCH</span>
+        <h1>내 점수로<br>갈 만한 학과 찾기</h1>
+        <p>내신 평균등급과 관심 학과를 입력하면 {{ selected_year|default:"최신" }}학년도 4년제 수시 공식 50%·70% 컷을 같은 축에서 비교합니다. 학과명은 쉼표로 여러 개 입력할 수 있습니다.</p>
+
+        <form method="get" class="compare-form" autocomplete="off" data-ga-submit="admission_compare_search" data-ga-search-field="q">
+            <div class="compare-field">
+                <label for="compare-grade">내 평균등급</label>
+                <input id="compare-grade" type="number" name="grade" min="1" max="9" step="0.01" inputmode="decimal" value="{{ grade_raw }}" placeholder="예: 3.50" required>
+            </div>
+            <div class="compare-field">
+                <label for="compare-year">학년도</label>
+                <select id="compare-year" name="year">
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}학년도</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="compare-field">
+                <label for="compare-query">관심 학과</label>
+                <input id="compare-query" type="search" name="q" value="{{ query }}" placeholder="예: 컴퓨터, 소프트웨어, 간호">
+            </div>
+            <div class="compare-field">
+                <label for="compare-region">지역</label>
+                <select id="compare-region" name="region">
+                    {% for value, label in region_choices %}
+                    <option value="{{ value }}" {% if value == region %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="compare-submit">찾아보기</button>
+
+            <div class="compare-options" style="grid-column: 1 / -1;">
+                <div class="compare-option-group">
+                    <span>전형</span>
+                    <label class="compare-radio"><input type="radio" name="track" value="student" {% if track == 'student' %}checked{% endif %}><span>학생부교과</span></label>
+                    <label class="compare-radio"><input type="radio" name="track" value="holistic" {% if track == 'holistic' %}checked{% endif %}><span>학생부종합</span></label>
+                </div>
+                <div class="compare-option-group">
+                    <span>표시 범위</span>
+                    <label class="compare-radio"><input type="radio" name="scope" value="near" {% if scope == 'near' %}checked{% endif %}><span>내 등급 ±0.5</span></label>
+                    <label class="compare-radio"><input type="radio" name="scope" value="all" {% if scope == 'all' %}checked{% endif %}><span>전체 보기</span></label>
+                </div>
+            </div>
+        </form>
+
+        {% if grade_error %}<div class="compare-error">{{ grade_error }}</div>{% endif %}
+    </section>
+
+    {% include "partials/display_ad.html" %}
+
+    {% if my_grade %}
+    <section class="compare-summary" aria-label="분석 요약">
+        <div class="compare-summary-card">
+            <span>내 평균등급</span>
+            <strong>{{ my_grade|floatformat:2 }}</strong>
+            <small>입력한 단순 평균등급</small>
+        </div>
+        <div class="compare-summary-card">
+            <span>비교 범위</span>
+            <strong>{% if scope == 'near' %}{{ range_low|floatformat:2 }} ~ {{ range_high|floatformat:2 }}{% else %}전체{% endif %}</strong>
+            <small>{% if scope == 'near' %}내 점수 ±0.5 범위{% else %}1~9등급 전체 컷{% endif %}</small>
+        </div>
+        <div class="compare-summary-card">
+            <span>전형</span>
+            <strong>{{ track_label }}</strong>
+            <small>{{ selected_year }}학년도 수시</small>
+        </div>
+        <div class="compare-summary-card">
+            <span>찾은 결과</span>
+            <strong>{{ filtered_count }}건</strong>
+            <small>{% if query_terms %}학과 키워드 {{ query_terms|join:", " }}{% else %}모든 모집단위{% endif %}</small>
+        </div>
+    </section>
+
+    {% if chart_rows %}
+    <section class="compare-section">
+        <div class="compare-section-head">
+            <div>
+                <h2>내 점수와 가까운 대학</h2>
+                <p>검색된 모집단위의 50/70% 컷 중 70% 컷을 우선 사용해 대학별 평균을 표시합니다.</p>
+            </div>
+            <span class="compare-count">최대 16개 대학</span>
+        </div>
+        <div class="compare-chart">
+            <div class="compare-chart-inner">
+                <div class="compare-axis"><span>1등급</span><span>3등급</span><span>5등급</span><span>7등급</span><span>9등급</span></div>
+                {% for item in chart_rows %}
+                <div class="compare-chart-row">
+                    <div class="compare-chart-school">
+                        <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI&track={{ track }}">{{ item.university.name }}</a>
+                        <small>{{ item.result_count }}개 결과</small>
+                    </div>
+                    <div class="grade-track" aria-label="내 등급과 대학 평균 컷 비교">
+                        <span class="my-marker" style="left: {{ item.my_pct }}%;"></span>
+                        <span class="cut-marker" style="left: {{ item.cut_pct }}%;" title="평균 {{ item.average_cut }}등급"></span>
+                    </div>
+                    <div class="chart-value">
+                        <strong>{{ item.average_cut|floatformat:2 }}</strong>
+                        <small>{{ item.position_label }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="compare-section">
+        <div class="compare-section-head">
+            <div>
+                <h2>모집단위별 비교</h2>
+                <p>공식 발표된 학생부 등급 컷이 있는 결과만 표시합니다.</p>
+            </div>
+            <span class="compare-count">{{ filtered_count }}건</span>
+        </div>
+
+        {% if rows %}
+        <div class="compare-table-wrap">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>지역</th><th>대학</th><th>학과</th><th>전형</th><th>세부전형</th><th>50%컷</th><th>70%컷</th><th>내 위치</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in rows %}
+                    <tr>
+                        <td>{{ item.university.location_label }}</td>
+                        <td><a class="compare-school-link" href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI&track={{ track }}">{{ item.university.name }}</a></td>
+                        <td><span class="compare-unit">{{ item.unit.name }}</span></td>
+                        <td>{{ item.selection_category }}</td>
+                        <td>
+                            {{ item.selection_name }}
+                            <span class="compare-source">{{ item.source_name }} · <a href="{{ item.result.source.source_url }}" target="_blank" rel="noopener noreferrer">원문</a></span>
+                        </td>
+                        <td class="cut-value">{% if item.cut_50 != None %}{{ item.cut_50|floatformat:2 }}{% else %}-{% endif %}</td>
+                        <td class="cut-value">{% if item.cut_70 != None %}{{ item.cut_70|floatformat:2 }}{% else %}-{% endif %}</td>
+                        <td><span class="position-badge {{ item.position_tone }}">{{ item.position_label }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <nav class="compare-pagination" aria-label="비교 결과 페이지">
+            {% if page_obj.has_previous %}<a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a><a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>{% endif %}
+            <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a><a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>{% endif %}
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="compare-empty">
+            <strong>조건에 맞는 입결 데이터가 없습니다.</strong>
+            학과명을 조금 짧게 입력하거나, 지역을 전국으로 바꾸거나, '전체 보기'로 범위를 넓혀보세요.
+        </div>
+        {% endif %}
+    </section>
+
+    <div class="compare-note">
+        ※ 이 기능은 합격을 예측하는 계산기가 아니라, 대학이 공식 공개한 수시 학생부 50%·70% 컷과 입력 등급의 차이를 단순 비교하는 도구입니다. 대학별 교과 반영 방식과 전형별 산출식이 다르므로 실제 지원 판단은 반드시 해당 대학 모집요강과 함께 확인하세요. 공식 입학처 자료와 어디가 자료가 같은 전형에 겹치는 경우에는 대학 입학처 자료를 우선 표시합니다.
+    </div>
+    {% else %}
+    <div class="compare-empty">
+        <strong>내 평균등급을 입력해보세요.</strong>
+        예를 들어 3.50과 '컴퓨터'를 입력하면 내 점수 근처의 컴퓨터 관련 모집단위를 전국에서 찾아줍니다.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
