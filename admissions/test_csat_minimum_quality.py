@@ -11,9 +11,9 @@ from admissions.services.csat_minimum_quality import (
 
 
 class CsatMinimumQualityTests(SimpleTestCase):
-    def make_rule(self, selection_name, text):
+    def make_rule(self, selection_name, text, admission_year=2027):
         return ParsedCsatMinimumRule(
-            admission_year=2027,
+            admission_year=admission_year,
             selection_name=selection_name,
             requirement_text=text,
         )
@@ -93,6 +93,24 @@ class CsatMinimumQualityTests(SimpleTestCase):
         self.assertIsNotNone(normalized)
         self.assertIsNone(normalized.applied)
         self.assertIn("간호학과", normalized.requirement_text)
+
+    def test_rejects_conflicting_csat_admission_year(self):
+        rule = self.make_rule(
+            "학생부교과 ( 지역의사선발전형 )",
+            "수능최저학력기준 적용 모집단위 지원의 경우 2026학년도 대학수학능력시험 응시 필수",
+            admission_year=2027,
+        )
+        self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
+
+    def test_preserves_matching_csat_admission_year(self):
+        rule = self.make_rule(
+            "학생부교과 ( 일반전형 )",
+            "수능최저학력기준 적용 모집단위 지원의 경우 2027학년도 대학수학능력시험 응시 필수",
+            admission_year=2027,
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertTrue(normalized.applied)
 
     def test_hongik_main_rejects_explicit_sejong_rule(self):
         rule = self.make_rule(
