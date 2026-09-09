@@ -10,7 +10,8 @@ class CanonicalDomainMiddleware:
 
     www 요청이 애플리케이션까지 도달하면 루트 도메인으로 301 이동시키고,
     과거 템플릿/구조화 데이터에 남아 있는 www 절대 URL도 HTML 응답에서
-    루트 도메인으로 정규화한다.
+    루트 도메인으로 정규화한다. 검색 결과 조각처럼 단독 색인 가치가 없는
+    내부 HTML 응답은 X-Robots-Tag로 색인을 막는다.
     """
 
     def __init__(self, get_response):
@@ -23,6 +24,9 @@ class CanonicalDomainMiddleware:
             return HttpResponsePermanentRedirect(target)
 
         response = self.get_response(request)
+
+        if request.path == "/admissions/results/":
+            response["X-Robots-Tag"] = "noindex, nofollow"
 
         content_type = response.get("Content-Type", "").lower()
         if "text/html" in content_type and not response.streaming:
