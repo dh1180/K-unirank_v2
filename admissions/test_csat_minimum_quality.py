@@ -4,7 +4,10 @@ from admissions.services.csat_minimum import (
     ParsedCsatMinimumRule,
     parse_csat_minimum_rules,
 )
-from admissions.services.csat_minimum_quality import normalize_safe_csat_minimum_rule
+from admissions.services.csat_minimum_quality import (
+    normalize_safe_csat_minimum_rule,
+    rule_matches_university_scope,
+)
 
 
 class CsatMinimumQualityTests(SimpleTestCase):
@@ -90,6 +93,47 @@ class CsatMinimumQualityTests(SimpleTestCase):
         self.assertIsNotNone(normalized)
         self.assertIsNone(normalized.applied)
         self.assertIn("간호학과", normalized.requirement_text)
+
+    def test_hongik_main_rejects_explicit_sejong_rule(self):
+        rule = self.make_rule(
+            "교과우수자전형 ( 세종 )",
+            "수능최저학력기준 1개 영역 4등급 이내",
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertFalse(rule_matches_university_scope(normalized, "홍익대학교"))
+
+    def test_hongik_main_accepts_explicit_seoul_rule(self):
+        rule = self.make_rule(
+            "학교장추천자전형 ( 서울 )",
+            "수능최저학력기준 2개 영역 등급 합 5 이내",
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertTrue(rule_matches_university_scope(normalized, "홍익대학교"))
+
+    def test_hongik_sejong_rejects_explicit_seoul_rule(self):
+        rule = self.make_rule(
+            "학교장추천자전형 ( 서울 )",
+            "수능최저학력기준 2개 영역 등급 합 5 이내",
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertFalse(
+            rule_matches_university_scope(normalized, "홍익대학교 세종캠퍼스")
+        )
+
+    def test_common_rule_is_preserved_for_hongik_scope(self):
+        rule = self.make_rule(
+            "고른기회 I 전형",
+            "수능최저학력기준 없음",
+        )
+        normalized = normalize_safe_csat_minimum_rule(rule)
+        self.assertIsNotNone(normalized)
+        self.assertTrue(rule_matches_university_scope(normalized, "홍익대학교"))
+        self.assertTrue(
+            rule_matches_university_scope(normalized, "홍익대학교 세종캠퍼스")
+        )
 
 
 class CsatMinimumParserPhaseTests(SimpleTestCase):
