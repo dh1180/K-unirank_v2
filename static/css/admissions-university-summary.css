@@ -329,6 +329,100 @@
     font-weight: 850;
 }
 
+/* ---------------------------------------------------------
+   데스크톱 대표 컷: 별도 카드처럼 튀지 않고 표 안에 자연스럽게 녹인다.
+   공통 admissions-shared.css보다 높은 specificity로 이 페이지에서만 덮는다.
+   --------------------------------------------------------- */
+@media (min-width: 721px) {
+    #admission-unit-results .admissions-table-wrap .metrics-cell {
+        min-width: 410px;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-stack-highlighted {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 7px 10px;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) {
+        flex: 0 0 100%;
+        grid-column: auto;
+        opacity: .78;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured {
+        min-width: 0;
+        min-height: 0;
+        padding: 7px 10px;
+        display: inline-flex;
+        flex: 0 1 auto;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 7px;
+        border: 0;
+        border-radius: 10px;
+        background: #f7f9fc;
+        box-shadow: none;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-stack-featured-one .metric-item-featured {
+        max-width: none;
+        grid-column: auto;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured .metric-label {
+        color: #667085;
+        font-size: 11px;
+        font-weight: 750;
+        line-height: 1.25;
+        white-space: nowrap;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured .metric-value {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 3px;
+        color: #2456d3;
+        font-size: 17px;
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -.02em;
+        white-space: nowrap;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured .metric-value small {
+        color: #667085;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured-grade,
+    #admission-unit-results .admissions-table-wrap .metric-item-featured-percentile {
+        border-color: transparent;
+        background: #f7f9fc;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-item-featured-grade .metric-value,
+    #admission-unit-results .admissions-table-wrap .metric-item-featured-percentile .metric-value {
+        color: #2456d3;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-label {
+        color: #7d8799;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    #admission-unit-results .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-value {
+        color: #475467;
+        font-size: 12px;
+        font-weight: 700;
+    }
+}
+
 @media (max-width: 900px) {
     .core-admission-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
