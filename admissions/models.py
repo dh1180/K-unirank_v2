@@ -75,6 +75,81 @@ class AdmissionResult(models.Model):
         ]
 
 
+class AdmissionRequirement(models.Model):
+    """입시 결과와 분리해 보존하는 연도별 공식 지원 요건.
+
+    수능최저는 전년도 결과표(Q2)가 아니라 해당 학년도 전형별 주요사항(Q1)에
+    속하는 정보라 AdmissionResult와 별도 엔터티로 관리한다.
+    """
+
+    REQUIREMENT_CHOICES = [
+        ("CSAT_MINIMUM", "수능최저학력기준"),
+    ]
+
+    requirement_id = models.BigAutoField(primary_key=True)
+    university = models.ForeignKey(
+        University,
+        on_delete=models.CASCADE,
+        related_name="admission_requirements",
+    )
+    admission_year = models.PositiveIntegerField()
+    admission_phase = models.CharField(
+        max_length=10,
+        choices=AdmissionResult.PHASE_CHOICES,
+        default="SUSI",
+    )
+    requirement_type = models.CharField(
+        max_length=30,
+        choices=REQUIREMENT_CHOICES,
+        default="CSAT_MINIMUM",
+    )
+    selection_name = models.CharField(max_length=200, blank=True)
+    recruitment_unit_name = models.CharField(max_length=300, blank=True)
+    applied = models.BooleanField(null=True, blank=True)
+    requirement_text = models.TextField()
+    source_type = models.CharField(
+        max_length=20,
+        choices=AdmissionSource.SOURCE_CHOICES,
+        default="ADIGA",
+    )
+    source_code = models.CharField(max_length=30, blank=True)
+    source_url = models.URLField(max_length=1000)
+    collected_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "admission_requirements"
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "university",
+                    "admission_year",
+                    "admission_phase",
+                    "requirement_type",
+                    "source_type",
+                    "source_code",
+                    "selection_name",
+                    "recruitment_unit_name",
+                ],
+                name="uq_admission_requirement_scope",
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=["university", "admission_year", "admission_phase"],
+                name="admission_req_uni_year_idx",
+            ),
+            models.Index(
+                fields=["requirement_type", "source_type"],
+                name="admission_req_type_src_idx",
+            ),
+        ]
+
+    def __str__(self):
+        target = self.selection_name or self.recruitment_unit_name or "공통"
+        return f"{self.university} {self.admission_year} {target} {self.get_requirement_type_display()}"
+
+
 class AdmissionMetric(models.Model):
     metric_id = models.BigAutoField(primary_key=True)
     result = models.ForeignKey(AdmissionResult, on_delete=models.CASCADE, related_name="metrics")
