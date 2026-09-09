@@ -58,9 +58,11 @@ class Command(BaseCommand):
         )
 
         self.stdout.write("")
-        self.stdout.write("4/4 현재 모집학년도 수능최저 동기화")
+        self.stdout.write("4/4 최신 수능최저 동기화 (요청 학년 우선, 없으면 직전 학년)")
         # 같은 searchSyr 화면에서 Q2는 전년도 입시결과, Q1은 현재 모집학년도
         # 전형별 주요사항을 제공한다. 예: searchSyr=2027 -> 2026 결과 + 2027 최저.
+        # 다만 대학이 2027 Q1을 아직 제공하지 않으면 sync_adiga_csat_minimum이
+        # 해당 대학/코드에 한해 2026 Q1으로 fallback하고 실제 원문 학년으로 저장한다.
         call_command(
             "sync_adiga_csat_minimum",
             apply=True,
