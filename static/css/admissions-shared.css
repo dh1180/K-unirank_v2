@@ -49,6 +49,95 @@
     display: none;
 }
 
+/* ---------------------------------------------------------
+   Desktop admissions primary cut highlights
+   Mobile already renders the same values as compact pills.
+   --------------------------------------------------------- */
+@media (min-width: 721px) {
+    .admissions-table-wrap .metrics-cell {
+        min-width: 390px;
+    }
+
+    .admissions-table-wrap .metric-stack-highlighted {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 8px 10px;
+    }
+
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) {
+        grid-column: 1 / -1;
+    }
+
+    .admissions-table-wrap .metric-item-featured {
+        min-width: 0;
+        min-height: 62px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 5px;
+        border: 1px solid #dfe6ff;
+        border-radius: 13px;
+        background: #f7f9ff;
+        box-shadow: 0 2px 7px rgba(49, 87, 229, .05);
+    }
+
+    .admissions-table-wrap .metric-stack-featured-one .metric-item-featured {
+        grid-column: 1 / -1;
+        max-width: 220px;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-label {
+        color: #667085;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-value {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        color: #101828;
+        font-size: 19px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -.02em;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-value small {
+        color: #667085;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade {
+        border-color: #d8e6ff;
+        background: #f5f9ff;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade .metric-value {
+        color: #175cd3;
+    }
+
+    .admissions-table-wrap .metric-item-featured-percentile {
+        border-color: #dedcff;
+        background: #f7f6ff;
+    }
+
+    .admissions-table-wrap .metric-item-featured-percentile .metric-value {
+        color: #5038b8;
+    }
+
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) {
+        opacity: .82;
+    }
+}
+
 @media (max-width: 720px) {
     /*
      * Mobile admissions pagination should prioritize previous/next.
