@@ -1,6 +1,9 @@
 from django.test import SimpleTestCase
 
-from admissions.services.csat_minimum import ParsedCsatMinimumRule
+from admissions.services.csat_minimum import (
+    ParsedCsatMinimumRule,
+    parse_csat_minimum_rules,
+)
 from admissions.services.csat_minimum_quality import normalize_safe_csat_minimum_rule
 
 
@@ -23,6 +26,13 @@ class CsatMinimumQualityTests(SimpleTestCase):
         rule = self.make_rule(
             "정시 기회균형특별전형 ( 농어촌 · 저소득 )",
             "수능최저학력기준 4개 영역 중 3개 영역 등급 합이 7등급 이내",
+        )
+        self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
+
+    def test_rejects_jeongsi_recruitment_group_selection(self):
+        rule = self.make_rule(
+            "항공시스템공학 특별전형 ( 가군 )",
+            "수능최저학력기준 3개 영역 등급 합이 10 이내",
         )
         self.assertIsNone(normalize_safe_csat_minimum_rule(rule))
 
@@ -57,3 +67,37 @@ class CsatMinimumQualityTests(SimpleTestCase):
         self.assertIsNotNone(normalized)
         self.assertIsNone(normalized.applied)
         self.assertIn("간호학과", normalized.requirement_text)
+
+
+class CsatMinimumParserPhaseTests(SimpleTestCase):
+    def test_tab_40_jeongsi_table_is_excluded_structurally(self):
+        html = """
+        <section id="tab_30">
+            <h3>Q 1. 2027학년도 전형별 주요사항</h3>
+            <table>
+                <tr>
+                    <td>학생부교과 ( 지역균형전형 )</td>
+                    <td>수능최저학력기준 2개 영역 등급 합이 7 이내</td>
+                </tr>
+            </table>
+        </section>
+        <section id="tab_40">
+            <h3>Q 1. 2027학년도 전형별 주요사항</h3>
+            <table>
+                <tr>
+                    <td>기회균형특별전형 ( 농어촌 · 저소득 ) 미술대학</td>
+                    <td>수능최저학력기준 4개 영역 중 3개 영역 등급 합이 7 이내</td>
+                </tr>
+            </table>
+        </section>
+        """
+
+        rules = parse_csat_minimum_rules(html, 2027)
+        normalized = [
+            rule
+            for rule in (normalize_safe_csat_minimum_rule(item) for item in rules)
+            if rule is not None
+        ]
+
+        self.assertEqual(len(normalized), 1)
+        self.assertIn("지역균형전형", normalized[0].selection_name)
