@@ -62,6 +62,14 @@ _JEONGSI_GROUP_PATTERN = re.compile(
     r"(?:^|[\s(\[])\s*[가나다]\s*군(?:\s*[)\]]|\s|$)"
 )
 
+# ADIGA가 한 대학의 Q1 표 안에 다른 캠퍼스 전형까지 함께 렌더링하는
+# 확인된 사례만 명시적으로 제한한다. 일반 대학에는 이 규칙을 확대 적용하지 않는다.
+_EXPLICIT_CAMPUS_SCOPE = {
+    "홍익대학교": "서울",
+    "홍익대학교 세종캠퍼스": "세종",
+}
+_EXPLICIT_CAMPUS_PATTERN = re.compile(r"\(\s*(서울|세종)\s*\)")
+
 
 def _has_threshold(text):
     text = compact(text)
@@ -92,6 +100,32 @@ def _is_known_jeongsi_residual_selection(text):
         and "저소득" in key
         and ("미술대학" in key or "음악대학" in key)
     )
+
+
+def rule_matches_university_scope(rule, university_name):
+    """공식 문구가 명시한 캠퍼스와 현재 University 범위가 충돌하면 제외한다.
+
+    캠퍼스 범위를 추측하지 않고, 실제 미리보기에서 교차 노출이 확인된 대학과
+    '(서울)'/'(세종)'처럼 원문에 캠퍼스가 명시된 전형에만 적용한다.
+    캠퍼스 표기가 없는 공통 규칙은 그대로 보존한다.
+    """
+    expected = _EXPLICIT_CAMPUS_SCOPE.get(compact(university_name))
+    if not expected or rule is None:
+        return True
+
+    target_text = " ".join(
+        value
+        for value in (
+            compact(getattr(rule, "selection_name", "")),
+            compact(getattr(rule, "recruitment_unit_name", "")),
+        )
+        if value
+    )
+    markers = set(_EXPLICIT_CAMPUS_PATTERN.findall(target_text))
+    if not markers:
+        return True
+
+    return markers == {expected}
 
 
 def _looks_like_target(value, *, allow_selection=False):
