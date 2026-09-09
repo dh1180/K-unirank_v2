@@ -1,0 +1,89 @@
+/* University admissions detail: subtle desktop emphasis for primary 50/70 cut metrics. */
+@media (min-width: 721px) {
+    .admissions-table-wrap .metric-stack-highlighted {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+        gap: 7px 10px;
+    }
+
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) {
+        grid-column: 1 / -1;
+        opacity: 1;
+    }
+
+    .admissions-table-wrap .metric-item-featured {
+        min-width: 0;
+        min-height: 0;
+        padding: 7px 10px;
+        display: inline-flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 5px;
+        border: 0;
+        border-radius: 10px;
+        background: #f5f7fb;
+        box-shadow: none;
+    }
+
+    .admissions-table-wrap .metric-stack-featured-one .metric-item-featured {
+        grid-column: 1 / -1;
+        width: fit-content;
+        max-width: none;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-label,
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-label {
+        color: #667085;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.55;
+        white-space: nowrap;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-value,
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-value {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 2px;
+        color: #344054;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.55;
+        letter-spacing: 0;
+    }
+
+    .admissions-table-wrap .metric-item-featured .metric-value small,
+    .admissions-table-wrap .metric-stack-highlighted > .metric-item:not(.metric-item-featured) .metric-value small {
+        color: #667085;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade,
+    .admissions-table-wrap .metric-item-featured-percentile {
+        border: 0;
+        background: #f3f6ff;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade .metric-label,
+    .admissions-table-wrap .metric-item-featured-percentile .metric-label {
+        color: #536079;
+        font-weight: 650;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade .metric-value,
+    .admissions-table-wrap .metric-item-featured-percentile .metric-value {
+        color: #3157e5;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .admissions-table-wrap .metric-item-featured-grade .metric-value small,
+    .admissions-table-wrap .metric-item-featured-percentile .metric-value small {
+        color: #667085;
+        font-size: 13px;
+    }
+}
