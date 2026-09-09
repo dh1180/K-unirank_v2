@@ -61,6 +61,7 @@ _EXCEPTION_MARKERS = (
 _JEONGSI_GROUP_PATTERN = re.compile(
     r"(?:^|[\s(\[])\s*[가나다]\s*군(?:\s*[)\]]|\s|$)"
 )
+_CST_YEAR_PATTERN = re.compile(r"(\d{4})\s*학년도\s*대학수학능력시험")
 
 # ADIGA가 한 대학의 Q1 표 안에 다른 캠퍼스 전형까지 함께 렌더링하는
 # 확인된 사례만 명시적으로 제한한다. 일반 대학에는 이 규칙을 확대 적용하지 않는다.
@@ -84,6 +85,25 @@ def _has_threshold(text):
     if "등급이내" in key or "등급합" in key:
         return True
     return False
+
+
+def _has_conflicting_csat_year(rule, text):
+    """규칙 학년도와 본문에 명시된 수능 학년이 충돌하면 안전하게 제외한다.
+
+    2027 Q1 안에 일부 2026학년도 수능 문구가 섞여 들어오는 공식 원문 사례처럼,
+    어느 쪽이 맞는지 사이트가 추정해서 고치지 않고 해당 규칙 자체를 보류한다.
+    졸업연도(예: 2026년 2월 이후)는 이 패턴의 대상이 아니다.
+    """
+    admission_year = getattr(rule, "admission_year", None)
+    if not admission_year:
+        return False
+
+    mentioned_years = {
+        int(value)
+        for value in _CST_YEAR_PATTERN.findall(compact(text))
+        if value.isdigit()
+    }
+    return bool(mentioned_years and mentioned_years != {int(admission_year)})
 
 
 def _is_known_jeongsi_residual_selection(text):
@@ -203,6 +223,11 @@ def normalize_safe_csat_minimum_rule(rule):
     if unit_name and not _looks_like_target(unit_name):
         return None
     if not selection_name and not unit_name:
+        return None
+
+    # 요청한 모집학년도와 본문이 명시한 대학수학능력시험 학년이 다르면
+    # 어느 쪽이 맞는지 추정하지 않고 해당 규칙을 보류한다.
+    if _has_conflicting_csat_year(rule, text):
         return None
 
     body = re.sub(r"^수능최저학력기준\s*", "", text).strip(" :-")
