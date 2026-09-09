@@ -78,6 +78,22 @@ def _has_threshold(text):
     return False
 
 
+def _is_known_jeongsi_residual_selection(text):
+    """ADIGA Q1에서 정시 표 일부가 전형명만 남아 수시처럼 보이는 예외를 제거한다.
+
+    서울대 2027 Q1의 정시 기회균형특별전형(농어촌·저소득) 중
+    미술대학/음악대학 세부 행은 tab_40 밖에 렌더링되는 경우가 있어
+    구조 필터를 빠져나온다. 수시의 기회균형특별전형(사회통합)은 보존한다.
+    """
+    key = _key(text)
+    return (
+        "기회균형특별전형" in key
+        and "농어촌" in key
+        and "저소득" in key
+        and ("미술대학" in key or "음악대학" in key)
+    )
+
+
 def _looks_like_target(value, *, allow_selection=False):
     text = compact(value)
     if not text:
@@ -106,6 +122,11 @@ def _looks_like_target(value, *, allow_selection=False):
 
         # '(가군)', '(나군)', '(다군)'은 정시 모집군 표식이므로 수시 규칙에서 제외.
         if _JEONGSI_GROUP_PATTERN.search(text):
+            return False
+
+        # 서울대 Q1의 정시 농어촌·저소득 미술/음악 세부 행은
+        # 전형명에 '정시'나 모집군이 없어도 공식적으로 정시 전형이다.
+        if _is_known_jeongsi_residual_selection(text):
             return False
 
         # 표 제목/열 이름이 전형명처럼 잡힌 경우를 제거한다.
