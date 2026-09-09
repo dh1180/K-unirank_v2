@@ -25,7 +25,9 @@ ADIGA_RESULT_URL = "https://www.adiga.kr/ucp/uvt/uni/univDetailSelection.do"
 class Command(BaseCommand):
     help = (
         "대입정보포털 어디가 Q1(전형별 주요사항)에서 수시 수능최저학력기준을 "
-        "전형/모집단위 단위로 수집합니다. 기본은 미리보기입니다."
+        "전형/모집단위 단위로 수집합니다. 연도를 지정하면 해당 학년을 먼저 "
+        "확인하고, 자료가 없을 때 직전 학년으로 한 번 fallback합니다. "
+        "기본은 미리보기입니다."
     )
 
     def add_arguments(self, parser):
@@ -34,9 +36,10 @@ class Command(BaseCommand):
             type=int,
             default=0,
             help=(
-                "모집학년도. 연도를 지정하면 해당 학년도 입시결과가 아직 없어도 "
-                "ADIGA 대학 매핑 전체에서 Q1을 확인합니다. 0이면 현재 DB의 "
-                "ADIGA 수시 결과 학년만 확인합니다."
+                "우선 확인할 모집학년도. 예: 2027이면 대학별로 2027 Q1을 먼저 "
+                "확인하고 수능최저 규칙이 없을 때 2026 Q1을 확인합니다. "
+                "실제 저장 학년도는 원문 학년을 그대로 사용합니다. "
+                "0이면 현재 DB의 ADIGA 수시 결과 학년만 확인합니다."
             ),
         )
         parser.add_argument(
@@ -102,6 +105,7 @@ class Command(BaseCommand):
             "empty": 0,
             "failed": 0,
             "future_without_results": 0,
+            "fallback": 0,
         }
 
         for scope in scopes:
@@ -109,43 +113,50 @@ class Command(BaseCommand):
             if university is None:
                 continue
 
-            admission_year = scope["admission_year"]
+            preferred_year = scope["admission_year"]
             code = scope["code"]
+            allow_fallback = bool(scope.get("allow_fallback"))
             if not code:
                 stats["failed"] += 1
                 self.stderr.write(
-                    f"{university.name} {admission_year}: ADIGA 대학 코드를 찾지 못했습니다."
+                    f"{university.name} {preferred_year}: ADIGA 대학 코드를 찾지 못했습니다."
                 )
                 continue
 
-            source_url = self.source_url(code, admission_year)
-            if delay:
-                time.sleep(delay)
-
             try:
-                html = self.fetch(session, code, admission_year)
+                collected = self.collect_latest_rules(
+                    session=session,
+                    code=code,
+                    preferred_year=preferred_year,
+                    allow_fallback=allow_fallback,
+                    delay=delay,
+                )
             except CommandError as exc:
                 stats["failed"] += 1
                 self.stderr.write(
-                    f"[{code}] {university.name} {admission_year}: {exc}"
+                    f"[{code}] {university.name} {preferred_year}: {exc}"
                 )
                 continue
-
-            parsed_rules = []
-            for rule in parse_csat_minimum_rules(html, admission_year):
-                safe_rule = normalize_safe_csat_minimum_rule(rule)
-                if safe_rule is not None:
-                    parsed_rules.append(safe_rule)
 
             stats["scopes"] += 1
 
-            if not parsed_rules:
+            if collected is None:
                 stats["empty"] += 1
+                checked_years = [preferred_year]
+                if allow_fallback and preferred_year > 1:
+                    checked_years.append(preferred_year - 1)
+                years_text = " → ".join(str(value) for value in checked_years)
                 self.stdout.write(
-                    f"[{code}] {university.name} {admission_year}: 수능최저 규칙 미확인"
+                    f"[{code}] {university.name}: {years_text} 수능최저 규칙 미확인"
                 )
                 continue
 
+            admission_year, parsed_rules = collected
+            used_fallback = admission_year != preferred_year
+            if used_fallback:
+                stats["fallback"] += 1
+
+            source_url = self.source_url(code, admission_year)
             requirement_objects = [
                 AdmissionRequirement(
                     university=university,
@@ -184,8 +195,13 @@ class Command(BaseCommand):
                 match_note = "동학년도 수시결과 없음"
                 stats["future_without_results"] += 1
 
+            if used_fallback:
+                year_note = f"{preferred_year} 미확인 → {admission_year} fallback"
+            else:
+                year_note = f"{admission_year} 최신 자료"
+
             self.stdout.write(
-                f"[{code}] {university.name} {admission_year}: "
+                f"[{code}] {university.name}: {year_note} / "
                 f"규칙 {len(requirement_objects)}건 / {match_note}"
             )
 
@@ -200,6 +216,19 @@ class Command(BaseCommand):
 
             if apply_changes:
                 with transaction.atomic():
+                    # preferred year를 조회했지만 실제 규칙이 없어 직전 학년으로
+                    # fallback한 경우, 이전 실행에서 남은 preferred year 자료가
+                    # 최신 자료처럼 노출되지 않도록 해당 코드의 stale 행을 지운다.
+                    if used_fallback:
+                        AdmissionRequirement.objects.filter(
+                            university=university,
+                            admission_year=preferred_year,
+                            admission_phase="SUSI",
+                            requirement_type="CSAT_MINIMUM",
+                            source_type="ADIGA",
+                            source_code=code,
+                        ).delete()
+
                     AdmissionRequirement.objects.filter(
                         university=university,
                         admission_year=admission_year,
@@ -215,6 +244,10 @@ class Command(BaseCommand):
         self.stdout.write(f"확인한 대학/코드: {stats['scopes']}개")
         self.stdout.write(f"파싱한 수능최저 규칙: {stats['rules']}건")
         self.stdout.write(f"현재 수시 결과와 안전 매칭: {stats['matched_results']}건")
+        if stats["fallback"]:
+            self.stdout.write(
+                f"직전 학년도 fallback: {stats['fallback']}개 대학/코드"
+            )
         if stats["future_without_results"]:
             self.stdout.write(
                 f"입시결과보다 먼저 공개된 학년도 범위: {stats['future_without_results']}개"
@@ -226,12 +259,45 @@ class Command(BaseCommand):
         if stats["failed"]:
             self.stdout.write(self.style.WARNING(f"요청/코드 실패: {stats['failed']}개"))
 
+    def collect_latest_rules(
+        self,
+        session,
+        code,
+        preferred_year,
+        allow_fallback,
+        delay,
+    ):
+        """요청 학년을 우선하고 없으면 직전 학년의 안전한 규칙을 반환한다.
+
+        네트워크/HTTP 오류는 '자료 없음'으로 간주하지 않는다. 우선 학년 요청이
+        실패하면 잘못된 fallback을 하지 않고 CommandError를 그대로 올린다.
+        """
+        candidate_years = [preferred_year]
+        if allow_fallback and preferred_year > 1:
+            candidate_years.append(preferred_year - 1)
+
+        for index, admission_year in enumerate(candidate_years):
+            if delay and index > 0:
+                time.sleep(delay)
+
+            html = self.fetch(session, code, admission_year)
+            parsed_rules = []
+            for rule in parse_csat_minimum_rules(html, admission_year):
+                safe_rule = normalize_safe_csat_minimum_rule(rule)
+                if safe_rule is not None:
+                    parsed_rules.append(safe_rule)
+
+            if parsed_rules:
+                return admission_year, parsed_rules
+
+        return None
+
     def build_scopes(self, year, target_name):
         """수능최저 수집 범위를 만든다.
 
         명시적인 학년이 있으면 AdmissionResult 존재 여부와 무관하게 ADIGA
-        외부 매핑을 사용한다. 따라서 2027 수시 결과가 아직 없어도 이미 공개된
-        2027 전형별 주요사항(Q1)을 수집할 수 있다.
+        외부 매핑을 사용한다. 이 경우 각 대학/코드는 요청 학년을 먼저 확인하고
+        규칙이 없을 때 직전 학년으로 한 번 fallback한다.
         """
         if year:
             mappings = (
@@ -250,6 +316,7 @@ class Command(BaseCommand):
                     "university_id": mapping.university_id,
                     "admission_year": year,
                     "code": str(mapping.external_code or "").strip(),
+                    "allow_fallback": True,
                 }
                 for mapping in mappings
                 if str(mapping.external_code or "").strip()
@@ -286,6 +353,7 @@ class Command(BaseCommand):
                     "university_id": scope["university_id"],
                     "admission_year": scope["admission_year"],
                     "code": code,
+                    "allow_fallback": False,
                 }
             )
         return scopes
