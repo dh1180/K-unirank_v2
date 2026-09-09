@@ -23,7 +23,7 @@ class Command(BaseCommand):
             "--search-year",
             type=int,
             default=date.today().year + 1,
-            help="ADIGA 조회 화면의 학년도입니다.",
+            help="ADIGA 조회 화면의 모집학년도입니다.",
         )
         parser.add_argument(
             "--deactivate-missing",
@@ -46,7 +46,7 @@ class Command(BaseCommand):
         call_command("normalize_university_data", apply=True)
 
         self.stdout.write("")
-        self.stdout.write("3/4 ADIGA 입시결과 동기화")
+        self.stdout.write("3/4 ADIGA 전년도 입시결과 동기화")
         call_command(
             "sync_adiga_admissions",
             apply=True,
@@ -58,11 +58,13 @@ class Command(BaseCommand):
         )
 
         self.stdout.write("")
-        self.stdout.write("4/4 같은 모집학년도 수능최저 동기화")
+        self.stdout.write("4/4 현재 모집학년도 수능최저 동기화")
+        # 같은 searchSyr 화면에서 Q2는 전년도 입시결과, Q1은 현재 모집학년도
+        # 전형별 주요사항을 제공한다. 예: searchSyr=2027 -> 2026 결과 + 2027 최저.
         call_command(
             "sync_adiga_csat_minimum",
             apply=True,
-            year=max(0, options["search_year"] - 1),
+            year=max(0, options["search_year"]),
             university=options["university"],
             limit=max(0, options["adiga_limit"]),
             delay=0.2,
