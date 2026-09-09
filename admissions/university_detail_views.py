@@ -1,6 +1,8 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 from admissions.services.csat_minimum import (
     format_csat_minimum_display,
@@ -166,10 +168,21 @@ def _attach_csat_minimum_requirements(university, page_results):
         if not display:
             continue
 
-        # 기존 템플릿의 전형명 보조 줄을 그대로 활용한다. DB의 selection_name은
-        # 수정하지 않고 현재 응답 객체에만 표시 문구를 붙인다.
+        # 기존 전형명 보조 줄 안에서 수능최저를 별도 배지로 보이게 한다.
+        # mark_safe를 쓰기 전에 DB/공식 원문의 모든 문자열을 escape한다.
         base = (result.selection_name or "").strip()
-        result.selection_name = f"{base} · {display}" if base else display
+        detail = display
+        if detail.startswith("수능최저"):
+            detail = detail[len("수능최저"):].strip()
+
+        parts = []
+        if base:
+            parts.append(escape(base))
+        badge = '<span class="phase-badge susi">수능최저</span>'
+        if detail:
+            badge += f" {escape(detail)}"
+        parts.append(badge)
+        result.selection_name = mark_safe("<br>".join(parts))
 
 
 def university_admissions(request, university_id):
