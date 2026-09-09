@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "CareerNet 대학정보 정리 후 ADIGA 입시결과까지 순서대로 동기화합니다."
+    help = "CareerNet 대학정보 정리 후 ADIGA 입시결과와 수능최저까지 순서대로 동기화합니다."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.stdout.write("1/3 CareerNet 대학정보 갱신")
+        self.stdout.write("1/4 CareerNet 대학정보 갱신")
         call_command(
             "sync_career_universities",
             apply=True,
@@ -42,11 +42,11 @@ class Command(BaseCommand):
         )
 
         self.stdout.write("")
-        self.stdout.write("2/3 대학명, 캠퍼스, 주소 표기 정리")
+        self.stdout.write("2/4 대학명, 캠퍼스, 주소 표기 정리")
         call_command("normalize_university_data", apply=True)
 
         self.stdout.write("")
-        self.stdout.write("3/3 ADIGA 입시결과 동기화")
+        self.stdout.write("3/4 ADIGA 입시결과 동기화")
         call_command(
             "sync_adiga_admissions",
             apply=True,
@@ -57,6 +57,17 @@ class Command(BaseCommand):
             map_only=False,
         )
 
+        self.stdout.write("")
+        self.stdout.write("4/4 같은 모집학년도 수능최저 동기화")
+        call_command(
+            "sync_adiga_csat_minimum",
+            apply=True,
+            year=max(0, options["search_year"] - 1),
+            university=options["university"],
+            limit=max(0, options["adiga_limit"]),
+            delay=0.2,
+        )
+
         self.stdout.write(
-            self.style.SUCCESS("대학정보와 입시결과 동기화를 완료했습니다.")
+            self.style.SUCCESS("대학정보, 입시결과, 수능최저 동기화를 완료했습니다.")
         )
