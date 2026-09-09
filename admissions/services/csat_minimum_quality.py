@@ -58,6 +58,10 @@ _EXCEPTION_MARKERS = (
     "만반영",
 )
 
+_JEONGSI_GROUP_PATTERN = re.compile(
+    r"(?:^|[\s(\[])\s*[가나다]\s*군(?:\s*[)\]]|\s|$)"
+)
+
 
 def _has_threshold(text):
     text = compact(text)
@@ -98,6 +102,10 @@ def _looks_like_target(value, *, allow_selection=False):
         # 이 수집기는 '수시 수능최저' 전용이다. Q1에는 정시/수능위주 표도
         # 함께 있으므로 그 전형 제목은 여기서 확실히 제외한다.
         if key.startswith("수능") or "수능위주" in key or "정시" in key:
+            return False
+
+        # '(가군)', '(나군)', '(다군)'은 정시 모집군 표식이므로 수시 규칙에서 제외.
+        if _JEONGSI_GROUP_PATTERN.search(text):
             return False
 
         # 표 제목/열 이름이 전형명처럼 잡힌 경우를 제거한다.
