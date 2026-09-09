@@ -118,13 +118,18 @@ def _inject_admission_seo(html, university, latest_year):
     return html
 
 
-def _inject_detail_mobile_script(html):
-    if "</body>" not in html:
-        return html
+def _inject_detail_assets(html):
+    css_url = escape(static("css/admissions-metric-refine.css"), quote=True)
+    css_tag = f'<link rel="stylesheet" href="{css_url}">'
+    if "</head>" in html:
+        html = html.replace("</head>", css_tag + "\n</head>", 1)
 
-    script_url = escape(static("js/admissions-detail-mobile.js"), quote=True)
-    script_tag = f'<script defer src="{script_url}"></script>'
-    return html.replace("</body>", script_tag + "\n</body>", 1)
+    if "</body>" in html:
+        script_url = escape(static("js/admissions-detail-mobile.js"), quote=True)
+        script_tag = f'<script defer src="{script_url}"></script>'
+        html = html.replace("</body>", script_tag + "\n</body>", 1)
+
+    return html
 
 
 def university_admissions(request, university_id):
@@ -147,8 +152,8 @@ def university_admissions(request, university_id):
         html = _inject_admission_seo(html, university, latest_year)
 
     # 전형 유형 필터는 templates/admissions/university.html에서 한 번만 렌더링한다.
-    # 여기서는 모바일 결과 압축 스크립트만 추가한다.
-    html = _inject_detail_mobile_script(html)
+    # 여기서는 대학 입결 상세 전용 CSS와 모바일 결과 압축 스크립트만 추가한다.
+    html = _inject_detail_assets(html)
 
     response.content = html.encode(response.charset or "utf-8")
     return response
