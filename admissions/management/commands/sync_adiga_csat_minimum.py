@@ -15,7 +15,8 @@ from admissions.services.csat_minimum import (
     match_csat_minimum_rule,
     parse_csat_minimum_rules,
 )
-from universities.models import University
+from admissions.services.csat_minimum_quality import normalize_safe_csat_minimum_rule
+from universities.models import University, UniversityExternalMapping
 
 
 ADIGA_RESULT_URL = "https://www.adiga.kr/ucp/uvt/uni/univDetailSelection.do"
@@ -32,7 +33,11 @@ class Command(BaseCommand):
             "--year",
             type=int,
             default=0,
-            help="모집학년도. 0이면 현재 DB의 ADIGA 수시 결과 학년 전체를 확인합니다.",
+            help=(
+                "모집학년도. 연도를 지정하면 해당 학년도 입시결과가 아직 없어도 "
+                "ADIGA 대학 매핑 전체에서 Q1을 확인합니다. 0이면 현재 DB의 "
+                "ADIGA 수시 결과 학년만 확인합니다."
+            ),
         )
         parser.add_argument(
             "--university",
@@ -70,31 +75,12 @@ class Command(BaseCommand):
         show_rules = options["show_rules"]
         apply_changes = options["apply"]
 
-        results = AdmissionResult.objects.filter(
-            source__source_type="ADIGA",
-            admission_phase="SUSI",
-            university__is_active=True,
-        )
-        if year:
-            results = results.filter(admission_year=year)
-        if target_name:
-            results = results.filter(university__name__icontains=target_name)
-
-        scopes = list(
-            results.values(
-                "university_id",
-                "admission_year",
-                "source__source_url",
-            )
-            .distinct()
-            .order_by("-admission_year", "university_id", "source__source_url")
-        )
-
+        scopes = self.build_scopes(year=year, target_name=target_name)
         if limit:
             scopes = scopes[:limit]
 
         if not scopes:
-            self.stdout.write(self.style.WARNING("처리할 ADIGA 수시 결과가 없습니다."))
+            self.stdout.write(self.style.WARNING("처리할 ADIGA 대학/학년도 범위가 없습니다."))
             return
 
         university_map = {
@@ -115,6 +101,7 @@ class Command(BaseCommand):
             "saved": 0,
             "empty": 0,
             "failed": 0,
+            "future_without_results": 0,
         }
 
         for scope in scopes:
@@ -123,12 +110,11 @@ class Command(BaseCommand):
                 continue
 
             admission_year = scope["admission_year"]
-            result_source_url = scope["source__source_url"]
-            code = extract_adiga_code(result_source_url)
+            code = scope["code"]
             if not code:
                 stats["failed"] += 1
                 self.stderr.write(
-                    f"{university.name} {admission_year}: ADIGA 대학 코드를 source_url에서 찾지 못했습니다."
+                    f"{university.name} {admission_year}: ADIGA 대학 코드를 찾지 못했습니다."
                 )
                 continue
 
@@ -145,7 +131,12 @@ class Command(BaseCommand):
                 )
                 continue
 
-            parsed_rules = parse_csat_minimum_rules(html, admission_year)
+            parsed_rules = []
+            for rule in parse_csat_minimum_rules(html, admission_year):
+                safe_rule = normalize_safe_csat_minimum_rule(rule)
+                if safe_rule is not None:
+                    parsed_rules.append(safe_rule)
+
             stats["scopes"] += 1
 
             if not parsed_rules:
@@ -173,14 +164,10 @@ class Command(BaseCommand):
                 for rule in parsed_rules
             ]
 
-            scope_results = list(
-                AdmissionResult.objects.filter(
-                    university=university,
-                    admission_year=admission_year,
-                    admission_phase="SUSI",
-                    source__source_type="ADIGA",
-                    source__source_url=result_source_url,
-                ).select_related("source", "recruitment_unit")
+            scope_results = self.results_for_code(
+                university=university,
+                admission_year=admission_year,
+                code=code,
             )
             matched_count = sum(
                 1
@@ -191,9 +178,15 @@ class Command(BaseCommand):
             stats["rules"] += len(requirement_objects)
             stats["matched_results"] += matched_count
 
+            if scope_results:
+                match_note = f"현재 수시결과 매칭 {matched_count}/{len(scope_results)}건"
+            else:
+                match_note = "동학년도 수시결과 없음"
+                stats["future_without_results"] += 1
+
             self.stdout.write(
                 f"[{code}] {university.name} {admission_year}: "
-                f"규칙 {len(requirement_objects)}건 / 현재 수시결과 매칭 {matched_count}/{len(scope_results)}건"
+                f"규칙 {len(requirement_objects)}건 / {match_note}"
             )
 
             if show_rules:
@@ -222,12 +215,95 @@ class Command(BaseCommand):
         self.stdout.write(f"확인한 대학/코드: {stats['scopes']}개")
         self.stdout.write(f"파싱한 수능최저 규칙: {stats['rules']}건")
         self.stdout.write(f"현재 수시 결과와 안전 매칭: {stats['matched_results']}건")
+        if stats["future_without_results"]:
+            self.stdout.write(
+                f"입시결과보다 먼저 공개된 학년도 범위: {stats['future_without_results']}개"
+            )
         if apply_changes:
             self.stdout.write(self.style.SUCCESS(f"DB 저장: {stats['saved']}건"))
         if stats["empty"]:
             self.stdout.write(f"수능최저 규칙 미확인: {stats['empty']}개")
         if stats["failed"]:
             self.stdout.write(self.style.WARNING(f"요청/코드 실패: {stats['failed']}개"))
+
+    def build_scopes(self, year, target_name):
+        """수능최저 수집 범위를 만든다.
+
+        명시적인 학년이 있으면 AdmissionResult 존재 여부와 무관하게 ADIGA
+        외부 매핑을 사용한다. 따라서 2027 수시 결과가 아직 없어도 이미 공개된
+        2027 전형별 주요사항(Q1)을 수집할 수 있다.
+        """
+        if year:
+            mappings = (
+                UniversityExternalMapping.objects.filter(
+                    source="ADIGA",
+                    university__is_active=True,
+                )
+                .select_related("university")
+                .order_by("university_id", "external_code")
+            )
+            if target_name:
+                mappings = mappings.filter(university__name__icontains=target_name)
+
+            return [
+                {
+                    "university_id": mapping.university_id,
+                    "admission_year": year,
+                    "code": str(mapping.external_code or "").strip(),
+                }
+                for mapping in mappings
+                if str(mapping.external_code or "").strip()
+            ]
+
+        results = AdmissionResult.objects.filter(
+            source__source_type="ADIGA",
+            admission_phase="SUSI",
+            university__is_active=True,
+        )
+        if target_name:
+            results = results.filter(university__name__icontains=target_name)
+
+        raw_scopes = list(
+            results.values(
+                "university_id",
+                "admission_year",
+                "source__source_url",
+            )
+            .distinct()
+            .order_by("-admission_year", "university_id", "source__source_url")
+        )
+
+        scopes = []
+        seen = set()
+        for scope in raw_scopes:
+            code = extract_adiga_code(scope["source__source_url"])
+            key = (scope["university_id"], scope["admission_year"], code)
+            if not code or key in seen:
+                continue
+            seen.add(key)
+            scopes.append(
+                {
+                    "university_id": scope["university_id"],
+                    "admission_year": scope["admission_year"],
+                    "code": code,
+                }
+            )
+        return scopes
+
+    def results_for_code(self, university, admission_year, code):
+        candidates = list(
+            AdmissionResult.objects.filter(
+                university=university,
+                admission_year=admission_year,
+                admission_phase="SUSI",
+                source__source_type="ADIGA",
+            ).select_related("source", "recruitment_unit")
+        )
+        return [
+            result
+            for result in candidates
+            if extract_adiga_code(result.source.source_url) == code
+        ]
 
     def source_url(self, code, admission_year):
         return (
