@@ -17,18 +17,29 @@ def _replace_meta(html, attribute, value):
     return re.sub(pattern, rf'\g<1>{escaped_value}\g<2>', html, count=1, flags=re.IGNORECASE)
 
 
+def _replace_canonical(html, value):
+    escaped_value = escape(value, quote=True)
+    pattern = r'(<link\s+rel="canonical"\s+href=")[^"]*(">)'
+    return re.sub(pattern, rf'\g<1>{escaped_value}\g<2>', html, count=1, flags=re.IGNORECASE)
+
+
 def _inject_admission_seo(html, university, latest_year):
     year_label = f"{latest_year} " if latest_year else ""
     title = f"{university.name} 입결 | {year_label}수시·정시·학과별 입시결과 | K-unirank"
     description = (
         f"{university.name} 입결을 확인하세요. "
-        f"{latest_year or '최신'}학년도 수시 학생부교과·학생부종합, 정시 수능, 논술·실기와 "
-        "학과·모집단위별 50%·70% 컷, 경쟁률, 수능최저학력기준, 공식 원문 출처를 제공합니다."
+        f"{latest_year or '최신'}학년도 수시 학생부교과·학생부종합, 정시 수능과 "
+        "학과·모집단위별 50%·70% 컷, 모집인원, 경쟁률, 공식 원문 출처를 제공합니다."
     )
     short_description = (
-        f"{university.name}의 {latest_year or '최신'}학년도 수시·정시 입결, "
-        "학과별 모집단위 결과와 수능최저학력기준을 확인하세요."
+        f"{university.name}의 {latest_year or '최신'}학년도 수시·정시 입결과 "
+        "학과별 50%·70% 컷, 경쟁률을 확인하세요."
     )
+
+    canonical_path = reverse("admissions:university", args=[university.pk])
+    university_path = reverse("universities:detail", args=[university.pk])
+    admissions_url = f"https://k-unirank.com{canonical_path}"
+    university_url = f"https://k-unirank.com{university_path}"
 
     html = re.sub(
         r"<title>.*?</title>",
@@ -40,13 +51,10 @@ def _inject_admission_seo(html, university, latest_year):
     html = _replace_meta(html, 'name="description"', description)
     html = _replace_meta(html, 'property="og:title"', title)
     html = _replace_meta(html, 'property="og:description"', short_description)
+    html = _replace_meta(html, 'property="og:url"', admissions_url)
     html = _replace_meta(html, 'name="twitter:title"', title)
     html = _replace_meta(html, 'name="twitter:description"', short_description)
-
-    canonical_path = reverse("admissions:university", args=[university.pk])
-    university_path = reverse("universities:detail", args=[university.pk])
-    admissions_url = f"https://k-unirank.com{canonical_path}"
-    university_url = f"https://k-unirank.com{university_path}"
+    html = _replace_canonical(html, admissions_url)
 
     structured_data = {
         "@context": "https://schema.org",
