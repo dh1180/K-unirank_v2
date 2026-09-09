@@ -2,6 +2,10 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
+from admissions.services.csat_minimum import (
+    format_csat_minimum_display,
+    match_csat_minimum_rule,
+)
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
 from universities.models import University
 
@@ -12,7 +16,7 @@ from .filter_views import (
     _normalize_track,
     _phase_for_track,
 )
-from .models import AdmissionAggregate, AdmissionResult
+from .models import AdmissionAggregate, AdmissionRequirement, AdmissionResult
 
 
 def _pick_aggregate(university, year, phase, category, metric_code):
@@ -112,6 +116,62 @@ def _build_core_summary(university, year):
     return cards
 
 
+def _attach_csat_minimum_requirements(university, page_results):
+    """현재 페이지의 수시 결과에 같은 학년도 ADIGA Q1 수능최저를 연결한다.
+
+    결과표와 수능최저는 서로 다른 시점의 공개 영역이므로 DB에서는 분리해 두고,
+    화면에 표시할 때만 보수적인 전형/모집단위 매칭을 수행한다. 애매한 규칙은
+    match_csat_minimum_rule()이 None을 반환하므로 임의로 붙이지 않는다.
+    """
+    susi_results = [
+        result
+        for result in page_results
+        if result.admission_phase == "SUSI"
+    ]
+    if not susi_results:
+        return
+
+    years = {result.admission_year for result in susi_results}
+    requirements = list(
+        AdmissionRequirement.objects.filter(
+            university=university,
+            admission_year__in=years,
+            admission_phase="SUSI",
+            requirement_type="CSAT_MINIMUM",
+            source_type="ADIGA",
+        ).order_by(
+            "admission_year",
+            "source_code",
+            "selection_name",
+            "recruitment_unit_name",
+        )
+    )
+    if not requirements:
+        return
+
+    by_year = {}
+    for requirement in requirements:
+        by_year.setdefault(requirement.admission_year, []).append(requirement)
+
+    for result in susi_results:
+        requirement = match_csat_minimum_rule(
+            result,
+            by_year.get(result.admission_year, []),
+        )
+        if requirement is None:
+            continue
+
+        result.csat_minimum_requirement = requirement
+        display = format_csat_minimum_display(requirement)
+        if not display:
+            continue
+
+        # 기존 템플릿의 전형명 보조 줄을 그대로 활용한다. DB의 selection_name은
+        # 수정하지 않고 현재 응답 객체에만 표시 문구를 붙인다.
+        base = (result.selection_name or "").strip()
+        result.selection_name = f"{base} · {display}" if base else display
+
+
 def university_admissions(request, university_id):
     university = get_object_or_404(University, pk=university_id, is_active=True)
 
@@ -180,6 +240,7 @@ def university_admissions(request, university_id):
     )
     page_results = list(page_obj.object_list)
     attach_mobile_cut_metrics(page_results)
+    _attach_csat_minimum_requirements(university, page_results)
 
     # 전체 연도를 보고 있을 때도 서로 다른 학년의 집계값을 섞지 않는다.
     # 핵심 요약은 항상 선택 학년도, 또는 가장 최신 학년도 하나만 사용한다.
