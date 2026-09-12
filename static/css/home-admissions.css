@@ -1,163 +1,149 @@
-/* K-unirank v84 — admissions-first canonical home */
-
-.home-hero-search {
-    max-width: 690px;
-    margin-top: 26px;
+/* Admissions discovery. Scoped so shared ranking/detail pages retain their layout. */
+.home-discovery { --ink: #162641; --blue: #3157e5; --muted: #63718a; color: var(--ink); }
+.home-discovery *, .home-discovery *::before, .home-discovery *::after { box-sizing: border-box; }
+.home-discovery :is(a, button, input, select, summary):focus-visible { outline: 3px solid #3157e5; outline-offset: 4px; }
+.home-discovery .admission-mode-tabs { margin-bottom: 24px; }
+.discovery-hero { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 48px; align-items: center; padding: 42px; background: #fff; border: 1px solid #e1e6ef; border-radius: 24px; }
+.discovery-kicker { display: inline-flex; align-items: center; gap: 8px; color: #486176; font-size: 12px; font-weight: 750; }
+.discovery-kicker > span, .coverage-dot { width: 7px; height: 7px; border-radius: 50%; background: #16856a; flex-shrink: 0; }
+.discovery-copy h1 { margin: 20px 0 16px; color: var(--ink); font-size: clamp(32px, 3.5vw, 47px); font-weight: 850; line-height: 1.24; letter-spacing: -.055em; word-break: keep-all; }
+.discovery-copy h1 em { color: var(--blue); font-style: normal; }
+.discovery-copy > p { margin: 0; color: var(--muted); line-height: 1.8; font-size: 14px; word-break: keep-all; }
+.home-hero-search { margin-top: 26px; }
+.home-hero-search-shell { display: flex; gap: 10px; align-items: center; padding: 7px 7px 7px 16px; min-height: 60px; border: 1px solid #cdd6e6; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px #16264108; }
+.home-hero-search-shell:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px #3157e515; }
+.home-search-icon { flex-shrink: 0; color: #718098; }
+.home-hero-search-shell input { min-width: 0; width: 100%; padding: 8px 0; border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; font-size: 14px; }
+.home-hero-search-shell input::placeholder { color: #7b879b; }
+.home-hero-search-shell button { display: inline-flex; align-items: center; gap: 14px; flex-shrink: 0; min-height: 44px; padding: 0 17px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.home-hero-search-shell button:hover { background: #2446cb; }
+.discovery-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; font-size: 11px; }
+.discovery-examples > span { margin-right: 4px; color: var(--muted); }
+.discovery-examples a { padding: 6px 9px; border: 1px solid #e6eaf1; border-radius: 6px; background: #f8f9fc; color: #475773; text-decoration: none; }
+.discovery-examples a:hover { border-color: #3157e5; color: var(--blue); }
+.discovery-grade { min-width: 0; padding: 26px; border: 1px solid #dae2ed; border-radius: 17px; background: #f4f7fb; }
+.grade-entry-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #4e627e; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.grade-entry-tag { padding: 5px 8px; background: #e6edf6; color: #476080; border-radius: 5px; letter-spacing: 0; }
+.discovery-grade h2 { margin: 17px 0 9px; font-size: 25px; line-height: 1.4; letter-spacing: -.04em; word-break: keep-all; }
+.discovery-grade > p { margin: 0 0 23px; color: var(--muted); font-size: 12px; }
+.grade-entry-fields { display: grid; grid-template-columns: 1fr 1.15fr; gap: 10px; }
+.grade-entry-fields > div { min-width: 0; }
+.grade-entry-fields label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 750; color: #56667e; }
+.grade-entry-fields input, .grade-entry-fields select { width: 100%; min-width: 0; min-height: 46px; border: 1px solid #d2dae6; border-radius: 8px; background: #fff; color: var(--ink); padding: 0 10px; font: inherit; font-size: 14px; }
+.grade-entry-submit { width: 100%; display: flex; align-items: center; justify-content: space-between; min-height: 47px; margin-top: 12px; padding: 0 14px; border: 0; border-radius: 8px; color: #fff; background: #203858; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.grade-entry-submit:hover { background: #142b49; }
+.discovery-grade > small { display: block; margin-top: 13px; color: #65758c; font-size: 10px; line-height: 1.6; }
+.discovery-coverage { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin: 0 12px 36px; padding: 20px 8px; border-bottom: 1px solid #dde3ed; font-size: 12px; }
+.discovery-coverage > div { display: flex; align-items: baseline; gap: 5px; color: var(--muted); }
+.discovery-coverage strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.discovery-coverage .coverage-heading { align-items: center; gap: 8px; }
+.discovery-coverage .coverage-sources { margin-left: auto; font-size: 11px; }
+.home-discovery .explorer-section { margin-top: 0; scroll-margin-top: 90px; }
+.discovery-section-number { font-size: 10px; color: #688096; font-weight: 800; letter-spacing: .1em; }
+.home-discovery .admissions-results-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
+.home-discovery .admissions-results-title h2 { margin: 8px 0; font-size: 26px; letter-spacing: -.04em; }
+.home-discovery .admissions-results-title p { margin: 0; font-size: 13px; color: var(--muted); }
+.discovery-ranking-link { flex-shrink: 0; font-size: 12px; color: #496281; font-weight: 700; text-decoration: none; }
+.home-discovery .admission-explorer { padding: 24px; border: 1px solid #dfe5ef; background: #fff; border-radius: 16px; }
+.discovery-search-row { display: grid; grid-template-columns: minmax(0, 1fr) 145px; gap: 16px; align-items: end; }
+.home-discovery .overview-search-form { margin: 0; }
+.home-discovery .overview-search-box { display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 14px; border: 1px solid #d8e0ed; border-radius: 10px; box-shadow: none; min-width: 0; background: #fff; }
+.home-discovery .overview-search-box .search-icon { flex-shrink: 0; color: #73819a; }
+.home-discovery .overview-search-box input { width: 100%; min-width: 0; min-height: 40px; border: 0; padding: 0; background: transparent; font: inherit; font-size: 14px; color: var(--ink); }
+.home-discovery .overview-search-box .button { flex-shrink: 0; min-height: 40px; padding: 0 20px; border-radius: 7px; font-size: 12px; }
+.discovery-year-field label { display: block; margin-bottom: 7px; font-size: 11px; font-weight: 750; color: var(--muted); }
+.discovery-year-field select { width: 100%; min-height: 54px; padding: 0 12px; border: 1px solid #d8e0ed; border-radius: 10px; background: #f8faff; color: var(--ink); font: inherit; font-size: 13px; }
+.home-discovery .explorer-filter-row { display: grid; gap: 12px; margin-top: 22px; }
+.home-discovery .filter-group { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; padding: 0; border: 0; background: transparent; }
+.home-discovery .filter-label { min-width: 73px; font-size: 12px; font-weight: 750; color: var(--muted); }
+.home-discovery .explorer-chip { display: inline-flex; align-items: center; justify-content: center; min-height: 35px; padding: 7px 13px; border: 1px solid #e2e7ef; border-radius: 7px; background: #fff; color: #586b82; font-size: 12px; font-weight: 650; text-decoration: none; }
+.home-discovery .explorer-chip.active { color: #2446cb; border-color: #bbc9f9; background: #edf2ff; box-shadow: none; }
+.home-discovery .explorer-chip:hover { color: var(--blue); border-color: #91a6ee; }
+.discovery-result-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 20px 0 6px; }
+.discovery-result-toolbar > div { display: flex; align-items: center; gap: 10px; }
+.home-discovery .result-count-pill { border: 0; border-radius: 6px; background: #e9eefb; color: #3153ab; font-size: 12px; }
+.discovery-result-hint { font-size: 11px; color: var(--muted); }
+.home-discovery .filter-reset { background: transparent; padding: 6px 0; border: 0; color: #536783; font-size: 12px; text-decoration: none; }
+.discovery-status { min-height: 20px; padding: 0 0 5px; color: #476196; font-size: 12px; }
+.discovery-search-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #eed8b1; border-radius: 10px; background: #fff9ef; color: #735127; font-size: 13px; }
+.discovery-search-error[hidden] { display: none; }
+.discovery-search-error p { margin: 0; }
+.discovery-search-error button { flex-shrink: 0; border: 1px solid #c9ac7d; border-radius: 6px; padding: 8px 11px; background: #fff; color: inherit; font: inherit; cursor: pointer; }
+.home-discovery .async-results-meta { font-size: 12px; }
+.home-discovery .overview-results-table { border-radius: 14px; }
+.home-discovery .overview-results-table th { background: #edf2f8; color: #516681; font-size: 11px; }
+.home-discovery .overview-results-table td { border-color: #edf0f6; }
+.home-discovery .table-school-link { color: #253d64; }
+.discovery-empty { display: grid; justify-items: center; gap: 10px; padding: 30px 16px; text-align: center; white-space: normal; }
+.discovery-empty strong { color: var(--ink); font-size: 17px; }
+.discovery-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.discovery-empty a { color: var(--blue); font-size: 13px; font-weight: 750; }
+.discovery-highlights { margin-top: 32px; background: #fff; border: 1px solid #dfe5ef; border-radius: 16px; }
+.discovery-highlights summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 26px; cursor: pointer; }
+.discovery-highlights summary::-webkit-details-marker { display: none; }
+.discovery-highlights summary small { display: block; margin-bottom: 8px; font-size: 10px; letter-spacing: .1em; color: #6b8097; }
+.discovery-highlights summary strong { font-size: 18px; }
+.highlights-toggle { font-size: 26px; font-weight: 400; }
+.discovery-highlights[open] .highlights-toggle { transform: rotate(45deg); }
+.discovery-highlights-note { padding: 0 26px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.discovery-highlights .representative-section { padding: 16px 24px 24px; margin: 0; }
+.discovery-highlights .representative-title { display: none; }
+@media (max-width: 1000px) {
+    .discovery-hero { gap: 26px; padding: 30px; grid-template-columns: minmax(0, 1.3fr) minmax(285px, 1fr); }
+    .discovery-copy h1 { font-size: 35px; }
+    .discovery-grade { padding: 22px; }
+    .discovery-coverage { gap: 12px 20px; }
+    .discovery-coverage .coverage-sources { width: 100%; margin-left: 0; }
 }
-
-.home-hero-search-shell {
-    min-height: 62px;
-    padding: 7px 7px 7px 16px;
-    display: grid;
-    grid-template-columns: 28px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 9px;
-    border: 1px solid rgba(49, 87, 229, .18);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, .96);
-    box-shadow:
-        0 16px 36px rgba(28, 45, 94, .09),
-        0 1px 2px rgba(16, 24, 40, .04);
-}
-
-.home-search-icon {
-    color: #8b98b4;
-    font-size: 25px;
-    line-height: 1;
-    text-align: center;
-}
-
-.home-hero-search-shell input {
-    min-width: 0;
-    width: 100%;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: #101828;
-    font: inherit;
-    font-size: 14px;
-}
-
-.home-hero-search-shell input::placeholder {
-    color: #98a2b3;
-}
-
-.home-hero-search-shell button {
-    min-height: 48px;
-    padding: 0 22px;
-    border: 0;
-    border-radius: 14px;
-    background: #3157e5;
-    color: #fff;
-    font: inherit;
-    font-size: 13px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 8px 18px rgba(49, 87, 229, .2);
-    transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-}
-
-.home-hero-search-shell button:hover {
-    transform: translateY(-1px);
-    background: #294bd1;
-    box-shadow: 0 10px 24px rgba(49, 87, 229, .25);
-}
-
-.home-trust-row {
-    margin-top: 13px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-}
-
-.home-trust-row span {
-    padding: 6px 9px;
-    border: 1px solid #e4e9f5;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .72);
-    color: #7b8497;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.home-quick-actions {
-    margin-top: 18px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.home-quick-actions a {
-    color: #475467;
-    font-size: 12px;
-    font-weight: 850;
-    text-decoration: none;
-}
-
-.home-quick-actions a:first-child {
-    color: #3157e5;
-}
-
-.home-quick-actions a:hover {
-    color: #3157e5;
-}
-
-/* 메인 도구라는 인상을 강화 */
-.admission-overview-hero {
-    min-height: 360px;
-}
-
-.admission-mode-tabs {
-    margin-bottom: 24px;
-}
-
-@media (max-width: 900px) {
-    .home-hero-search {
-        max-width: none;
+@media (max-width: 720px) {
+    /* Keep the server-rendered rows usable before JS, or when JS is unavailable. */
+    .home-discovery #admission-results-region .overview-results-table tbody tr:not(.has-mobile-compact) > td[data-label] {
+        display: grid !important;
     }
+    .home-discovery .admission-mode-tabs { margin-bottom: 18px; }
+    .discovery-hero { grid-template-columns: minmax(0, 1fr); padding: 23px 19px; gap: 26px; border-radius: 18px; }
+    .discovery-copy h1 { font-size: clamp(28px, 6.9vw, 39px); margin-top: 15px; }
+    .discovery-copy > p { font-size: 12px; line-height: 1.8; }
+    .discovery-kicker { font-size: 10px; }
+    .home-hero-search { margin-top: 20px; }
+    .home-hero-search-shell { gap: 7px; padding: 5px 5px 5px 10px; min-height: 54px; }
+    .home-hero-search-shell input { font-size: 12px; }
+    .home-hero-search-shell button { padding: 0 11px; min-height: 42px; font-size: 12px; }
+    .home-hero-search-shell button span { display: none; }
+    .home-search-icon { width: 18px; }
+    .discovery-examples { gap: 6px; font-size: 10px; }
+    .discovery-examples > span { width: 100%; margin-bottom: 2px; }
+    .discovery-examples a { min-height: 34px; display: inline-flex; align-items: center; padding: 6px 12px; }
+    .discovery-grade { padding: 20px; border-radius: 12px; }
+    .discovery-grade h2 { font-size: 21px; margin-top: 13px; }
+    .discovery-grade h2 br { display: none; }
+    .discovery-grade > p { margin-bottom: 18px; }
+    .grade-entry-fields input, .grade-entry-fields select { font-size: 16px; }
+    .discovery-coverage { margin: 0 3px 27px; padding: 18px 4px; gap: 12px 18px; font-size: 11px; }
+    .discovery-coverage .coverage-heading { width: 100%; }
+    .discovery-coverage .coverage-sources { font-size: 10px; }
+    .home-discovery .admissions-results-title { align-items: flex-end; gap: 10px; }
+    .home-discovery .admissions-results-title h2 { font-size: 22px; }
+    .home-discovery .admissions-results-title p { font-size: 11px; }
+    .discovery-ranking-link { font-size: 11px; padding-bottom: 2px; }
+    .home-discovery .admission-explorer { padding: 16px 13px; border-radius: 12px; }
+    .discovery-search-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .discovery-year-field { display: flex; align-items: center; gap: 14px; }
+    .discovery-year-field label { margin: 0; flex-shrink: 0; }
+    .discovery-year-field select { width: auto; min-height: 40px; font-size: 13px; }
+    .home-discovery .overview-search-box { gap: 8px; padding-left: 10px; }
+    .home-discovery .overview-search-box input { font-size: 16px; }
+    .home-discovery .overview-search-box .button { padding: 0 13px; }
+    .home-discovery .filter-label { width: 100%; margin-bottom: 2px; }
+    .home-discovery .explorer-filter-row { gap: 16px; margin-top: 18px; }
+    .home-discovery .filter-group { gap: 6px; }
+    .home-discovery .explorer-chip { min-height: 36px; font-size: 11px; padding: 7px 10px; }
+    .discovery-result-hint { font-size: 10px; }
+    .discovery-search-error { align-items: flex-start; font-size: 12px; }
+    .discovery-highlights summary { padding: 20px 18px; }
+    .discovery-highlights summary strong { font-size: 15px; }
+    .discovery-highlights .representative-section { padding: 10px 12px 16px; }
 }
-
-@media (max-width: 640px) {
-    .admission-overview-hero {
-        min-height: 0;
-    }
-
-    .home-hero-search {
-        margin-top: 20px;
-    }
-
-    .home-hero-search-shell {
-        min-height: 0;
-        padding: 10px 10px 10px 13px;
-        grid-template-columns: 22px minmax(0, 1fr);
-        border-radius: 17px;
-    }
-
-    .home-search-icon {
-        font-size: 21px;
-    }
-
-    .home-hero-search-shell input {
-        min-height: 42px;
-        font-size: 13px;
-    }
-
-    .home-hero-search-shell button {
-        grid-column: 1 / -1;
-        min-height: 46px;
-        width: 100%;
-    }
-
-    .home-trust-row {
-        gap: 5px;
-    }
-
-    .home-trust-row span {
-        padding: 5px 8px;
-        font-size: 9px;
-    }
-
-    .home-quick-actions {
-        gap: 10px 15px;
-    }
+@media (prefers-reduced-motion: reduce) {
+    .home-discovery *, .home-discovery *::before, .home-discovery *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

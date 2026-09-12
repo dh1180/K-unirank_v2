@@ -2,7 +2,7 @@
 {% load static admission_extras %}
 {% block title %}대학 입결 검색 · 입시결과 비교 | K-unirank{% endblock %}
 {% block meta_description %}4년제는 대입정보포털 어디가, 전문대는 전문대학포털의 공개 입시결과를 바탕으로 대학·학과별 수시·정시 입결과 대표 지표를 검색하고 비교해보세요.{% endblock %}
-{% block canonical_url %}https://www.k-unirank.com/{% endblock %}
+{% block canonical_url %}https://k-unirank.com/{% endblock %}
 {% block og_title %}대학 입결 검색 · 입시결과 비교 | K-unirank{% endblock %}
 {% block og_description %}대학명·학과명·전형명으로 4년제와 전문대 입시결과를 빠르게 찾아보고 비교해보세요.{% endblock %}
 {% block twitter_title %}대학 입결 검색 · K-unirank{% endblock %}
@@ -17,10 +17,10 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "K-unirank",
-  "url": "https://www.k-unirank.com/",
+  "url": "https://k-unirank.com/",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://www.k-unirank.com/?q={search_term_string}#admission-explorer",
+    "target": "https://k-unirank.com/?q={search_term_string}#admission-explorer",
     "query-input": "required name=search_term_string"
   }
 }
@@ -28,294 +28,106 @@
 {% endblock %}
 
 {% block content %}
-<div class="admission-mode-tabs" aria-label="입시 메뉴">
-    <a class="admission-mode-tab active" href="{% url 'home' %}">
-        입결 찾기
-    </a>
-    <a class="admission-mode-tab" href="{% url 'admissions:ranking' %}">
-        입결 순위
-    </a>
-</div>
+<div class="home-discovery">
+<nav class="admission-mode-tabs" aria-label="입시 메뉴">
+    <a class="admission-mode-tab active" href="{% url 'home' %}" aria-current="page">입결 찾기</a>
+    <a class="admission-mode-tab" href="{% url 'admissions:compare' %}">내 점수 학과 찾기</a>
+    <a class="admission-mode-tab" href="{% url 'admissions:ranking' %}">입결 순위</a>
+</nav>
 
-<section class="admission-overview-hero"
-         data-ga-view="admission_overview_view"
-         data-ga-param-year="{{ selected_year|default:'' }}"
-         data-ga-param-result-count="{{ result_count }}">
-    <div class="admission-overview-copy">
-        <span class="eyebrow">ADMISSIONS DATA</span>
-        <h1>대학·학과 입결을<br>바로 찾아보세요.</h1>
-        <p>4년제는 대입정보포털 어디가, 전문대는 전문대학포털의 공개 데이터를 바탕으로 수시·정시 입결과 모집단위별 결과를 한곳에서 비교합니다.</p>
-
-        <form method="get"
-              action="{% url 'home' %}#admission-explorer"
-              class="home-hero-search"
-              autocomplete="off"
-              data-ga-submit="home_admission_search"
-              data-ga-search-field="q">
-            {% if selected_year %}
-            <input type="hidden" name="year" value="{{ selected_year }}">
-            {% endif %}
+<section class="discovery-hero" aria-labelledby="discovery-title"
+         data-ga-view="admission_overview_view" data-ga-param-year="{{ selected_year|default:'' }}">
+    <div class="discovery-copy">
+        <span class="discovery-kicker"><span aria-hidden="true"></span>대학 선택을 위한 데이터 가이드</span>
+        <h1 id="discovery-title">궁금한 대학부터,<br><em>나에게 맞는 학과까지.</em></h1>
+        <p>대학·학과별 입결을 찾고, 내 점수와 비교해보세요.<br>공개된 입시 결과와 원문 출처를 한곳에 모았어요.</p>
+        <form method="get" action="{% url 'home' %}#admission-explorer" class="home-hero-search"
+              role="search" data-ga-submit="home_admission_search" data-ga-search-field="q">
+            {% if selected_year %}<input type="hidden" name="year" value="{{ selected_year }}">{% endif %}
             <div class="home-hero-search-shell">
-                <span class="home-search-icon" aria-hidden="true">⌕</span>
-                <input type="search"
-                       name="q"
-                       value="{{ query }}"
-                       placeholder="예: 가천대학교, 간호학과, 컴퓨터공학과, 학생부교과"
-                       aria-label="대학명, 학과명, 전형명으로 입결 검색">
-                <button type="submit">입결 검색</button>
+                <svg class="home-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                <input type="search" name="q" value="{{ query }}" placeholder="대학명, 학과명, 전형명으로 검색" aria-label="대학명, 학과명, 전형명으로 입결 검색">
+                <button type="submit">입결 검색 <span aria-hidden="true">→</span></button>
             </div>
         </form>
-
-        <div class="home-trust-row" aria-label="입시 데이터 출처">
-            <span>4년제 · 어디가</span>
-            <span>전문대 · 전문대학포털</span>
-            <span>원문 출처 제공</span>
-        </div>
-
-        <div class="home-quick-actions" aria-label="K-unirank 주요 기능">
-            <a href="{% url 'admissions:ranking' %}" data-ga-event="home_quick_admission_ranking">입결 순위 보기 →</a>
-            <a href="{% url 'rankings:ranking_default' %}" data-ga-event="home_quick_preference_ranking">대학 선호도 랭킹 →</a>
-            <a href="{% url 'rankings:vote_default' %}" data-ga-event="home_quick_vs">VS 참여하기 →</a>
+        <div class="discovery-examples" aria-label="학과 검색 예시">
+            <span>이렇게 찾아보세요</span>
+            <a href="{% querystring q='컴퓨터' page=None %}#admission-explorer" data-search-term="컴퓨터">컴퓨터</a>
+            <a href="{% querystring q='간호' page=None %}#admission-explorer" data-search-term="간호">간호</a>
+            <a href="{% querystring q='기계' page=None %}#admission-explorer" data-search-term="기계">기계</a>
+            <a href="{% querystring q='경영' page=None %}#admission-explorer" data-search-term="경영">경영</a>
         </div>
     </div>
-
-    {% if selected_year %}
-    <div class="admission-overview-stats">
-        <div class="overview-stat primary">
-            <span>데이터 보유 대학</span>
-            <strong>{{ coverage_count }}</strong>
-            <small>{{ selected_year }}학년도</small>
-        </div>
-        <div class="overview-stat">
-            <span>4년제</span>
-            <strong>{{ four_year_coverage }}</strong>
-            <small>{{ four_year_result_count }}개 결과</small>
-        </div>
-        <div class="overview-stat">
-            <span>전문대</span>
-            <strong>{{ college_coverage }}</strong>
-            <small>{{ college_result_count }}개 결과</small>
-        </div>
-    </div>
-    {% endif %}
+    <aside class="discovery-grade" aria-labelledby="grade-entry-title">
+        <div class="grade-entry-top"><span>MY GRADE</span><span class="grade-entry-tag">4년제 수시</span></div>
+        <h2 id="grade-entry-title">내 점수에 가까운<br>학과를 찾아볼까요?</h2>
+        <p>내신과 공개된 등급컷을 비교해요.</p>
+        <form method="get" action="{% url 'admissions:compare' %}" data-ga-submit="home_grade_compare">
+            <div class="grade-entry-fields">
+                <div><label for="home-grade">내 평균등급</label><input id="home-grade" type="number" name="grade" min="1" max="9" step="0.01" inputmode="decimal" placeholder="예: 3.50" required aria-describedby="home-grade-note"></div>
+                <div><label for="home-track">전형</label><select id="home-track" name="track"><option value="student">학생부교과</option><option value="holistic">학생부종합</option></select></div>
+            </div>
+            <button type="submit" class="grade-entry-submit">내 점수로 학과 찾기 <span aria-hidden="true">↗</span></button>
+        </form>
+        <small id="home-grade-note">9등급제 내신 기준 · 과거 입결과의 단순 비교</small>
+    </aside>
 </section>
-
-{% include "partials/display_ad.html" %}
-
-{% if years %}
-<div class="region-chips admission-year-tabs">
-    {% for y in years %}
-    <a class="region-chip {% if selected_year == y %}active{% endif %}"
-       href="?year={{ y }}"
-       data-ga-event="admission_filter"
-       data-ga-param-filter-kind="year"
-       data-ga-param-filter-value="{{ y }}">{{ y }}학년도</a>
-    {% endfor %}
-</div>
-{% endif %}
 
 {% if selected_year %}
-<section class="representative-section">
-    <div class="section-title representative-title">
-        <div>
-            <span class="eyebrow">REPRESENTATIVE METRICS</span>
-            <h2>{{ selected_year }}학년도 대표 지표</h2>
-            <p class="muted">4년제와 전문대에서 비교하기 쉬운 대표 지표만 TOP 10으로 정리했습니다.</p>
-        </div>
-    </div>
-
-    <div class="representative-metric-grid">
-        <article class="representative-card">
-            <div class="representative-card-head">
-                <div>
-                    <span class="representative-source four">4년제 · 어디가</span>
-                    <div class="representative-title-line">
-                        <span class="phase-badge susi">수시</span>
-                        <h3>학생부교과 70% 컷</h3>
-                    </div>
-                </div>
-                <span class="metric-direction">등급 ↓</span>
-            </div>
-            <div class="representative-list">
-                {% for item in susi_rows %}
-                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
-                    <span class="metric-rank">{{ forloop.counter }}</span>
-                    <span class="representative-school">
-                        <span class="representative-logo" aria-hidden="true">
-                            {% if item.university.logo_path %}
-                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
-                            {% else %}
-                                <span class="representative-logo-fallback">K</span>
-                            {% endif %}
-                        </span>
-                        <strong>{{ item.university.name }}</strong>
-                    </span>
-                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
-                </a>
-                {% empty %}
-                <div class="mini-empty">해당 지표 데이터가 없습니다.</div>
-                {% endfor %}
-            </div>
-        </article>
-
-        <article class="representative-card">
-            <div class="representative-card-head">
-                <div>
-                    <span class="representative-source four">4년제 · 어디가</span>
-                    <div class="representative-title-line">
-                        <span class="phase-badge jeongsi">정시</span>
-                        <h3>공식 평균 백분위 70% 컷</h3>
-                    </div>
-                </div>
-                <span class="metric-direction">백분위 ↑</span>
-            </div>
-            <div class="representative-list">
-                {% for item in jeongsi_rows %}
-                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
-                    <span class="metric-rank">{{ forloop.counter }}</span>
-                    <span class="representative-school">
-                        <span class="representative-logo" aria-hidden="true">
-                            {% if item.university.logo_path %}
-                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
-                            {% else %}
-                                <span class="representative-logo-fallback">K</span>
-                            {% endif %}
-                        </span>
-                        <strong>{{ item.university.name }}</strong>
-                    </span>
-                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}</span>
-                </a>
-                {% empty %}
-                <div class="mini-empty">해당 지표 데이터가 없습니다.</div>
-                {% endfor %}
-            </div>
-        </article>
-
-        <article class="representative-card college">
-            <div class="representative-card-head">
-                <div>
-                    <span class="representative-source college">전문대 · 전문대학포털</span>
-                    <div class="representative-title-line">
-                        <span class="phase-badge susi">수시</span>
-                        <h3>학생부 합격자 평균</h3>
-                    </div>
-                </div>
-                <span class="metric-direction">등급 ↓</span>
-            </div>
-            <div class="representative-list">
-                {% for item in college_susi_rows %}
-                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
-                    <span class="metric-rank">{{ forloop.counter }}</span>
-                    <span class="representative-school">
-                        <span class="representative-logo" aria-hidden="true">
-                            {% if item.university.logo_path %}
-                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
-                            {% else %}
-                                <span class="representative-logo-fallback">K</span>
-                            {% endif %}
-                        </span>
-                        <strong>{{ item.university.name }}</strong>
-                    </span>
-                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
-                </a>
-                {% empty %}
-                <div class="mini-empty">학생부 평균등급 데이터가 없습니다.</div>
-                {% endfor %}
-            </div>
-        </article>
-
-        <article class="representative-card college">
-            <div class="representative-card-head">
-                <div>
-                    <span class="representative-source college">전문대 · 전문대학포털</span>
-                    <div class="representative-title-line">
-                        <span class="phase-badge jeongsi">정시</span>
-                        <h3>수능 합격자 평균</h3>
-                    </div>
-                </div>
-                <span class="metric-direction">백분위 ↑</span>
-            </div>
-            <div class="representative-list">
-                {% for item in college_jeongsi_rows %}
-                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
-                    <span class="metric-rank">{{ forloop.counter }}</span>
-                    <span class="representative-school">
-                        <span class="representative-logo" aria-hidden="true">
-                            {% if item.university.logo_path %}
-                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
-                            {% else %}
-                                <span class="representative-logo-fallback">K</span>
-                            {% endif %}
-                        </span>
-                        <strong>{{ item.university.name }}</strong>
-                    </span>
-                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>백분위</small></span>
-                </a>
-                {% empty %}
-                <div class="mini-empty">수능 평균 백분위 데이터가 없습니다.</div>
-                {% endfor %}
-            </div>
-        </article>
-    </div>
-
-    <p class="representative-note">※ 전문대학포털에서 점수산출기준이 비어 있지만 수능 성적값이 제공되는 경우, 9 초과 100 이하 값은 백분위 기준으로 보정하여 표시합니다.</p>
+<section class="discovery-coverage" aria-label="입시 데이터 수록 현황">
+    <div class="coverage-heading"><span class="coverage-dot" aria-hidden="true"></span><strong>{{ selected_year }}학년도</strong><span>공개 입시결과</span></div>
+    <div><strong>{{ coverage_count }}</strong><span>개 대학</span></div>
+    <div><strong>{{ result_count }}</strong><span>건의 입시결과</span></div>
+    <div class="coverage-sources">어디가 · 전문대학포털 · 대학 입학처</div>
 </section>
 
-<section class="explorer-section"
-         id="admission-explorer"
-         data-results-url="{% url 'admissions:overview_results' %}"
-         data-selected-year="{{ selected_year }}">
+<section class="explorer-section" id="admission-explorer" data-results-url="{% url 'admissions:overview_results' %}" data-selected-year="{{ selected_year }}">
     <div class="section-title admissions-results-title">
-        <div>
-            <span class="eyebrow">EXPLORE ADMISSIONS</span>
-            <h2>대학·학과 입결 찾아보기</h2>
-            <p class="muted">검색과 필터는 페이지 이동 없이 바로 반영됩니다.</p>
-        </div>
-        <div class="section-title-side">
-            <span class="result-count-pill" id="async-result-count">{{ filtered_result_count }}건</span>
-        </div>
+        <div><span class="discovery-section-number">01 / EXPLORE</span><h2>대학·학과 입결 찾기</h2><p class="muted">궁금한 대학과 학과를 검색하고, 조건을 좁혀보세요.</p></div>
+        <a class="discovery-ranking-link" href="{% url 'admissions:ranking' %}">입결 순위 보기 <span aria-hidden="true">↗</span></a>
     </div>
-
     <div class="admission-explorer compact-explorer">
-        <form method="get" id="admission-async-search" class="overview-search-form" autocomplete="off">
-            <input type="hidden" name="year" value="{{ selected_year }}">
-            <div class="overview-search-box">
-                <span class="search-icon">⌕</span>
-                <input type="search" id="admission-search-input" name="q" value="{{ query }}" placeholder="대학명, 학과명, 전형명 검색" aria-label="대학, 학과, 전형 검색">
-                <button type="submit" class="button primary">검색</button>
+        <form method="get" action="{% url 'home' %}#admission-explorer" id="admission-async-search" class="overview-search-form" role="search">
+            <input type="hidden" name="kind" value="{{ source_kind }}">
+            <input type="hidden" name="phase" value="{{ selected_phase }}">
+            <input type="hidden" name="track" value="{{ selected_track }}">
+            <div class="discovery-search-row">
+                <div class="overview-search-box">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                    <input type="search" id="admission-search-input" name="q" value="{{ query }}" placeholder="대학명, 학과명, 전형명 검색" aria-label="대학, 학과, 전형 검색">
+                    <button type="submit" class="button primary">검색</button>
+                </div>
+                <div class="discovery-year-field"><label for="admission-year">입결 학년도</label><select id="admission-year" name="year">{% for y in years %}<option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}학년도</option>{% endfor %}</select></div>
             </div>
         </form>
-
         <div class="explorer-filter-row" id="admission-async-filters">
-            <div class="filter-group" data-filter-group="kind">
-                <span class="filter-label">대학 유형</span>
-                <button type="button" class="explorer-chip js-async-filter {% if not source_kind %}active{% endif %}" data-filter="kind" data-value="">전체</button>
-                <button type="button" class="explorer-chip js-async-filter {% if source_kind == 'four' %}active{% endif %}" data-filter="kind" data-value="four">4년제</button>
-                <button type="button" class="explorer-chip js-async-filter {% if source_kind == 'college' %}active{% endif %}" data-filter="kind" data-value="college">전문대</button>
+            {% for group in filter_groups %}
+            <div class="filter-group" data-filter-group="{{ group.name }}" role="group" aria-label="{{ group.label }}">
+                <span class="filter-label">{{ group.label }}</span>
+                {% for option in group.options %}<a class="explorer-chip js-async-filter {% if option.active %}active{% endif %}" href="{{ option.url }}" data-filter="{{ group.name }}" data-value="{{ option.value }}" {% if option.active %}aria-current="true"{% endif %}>{{ option.label }}</a>{% endfor %}
             </div>
-
-            <div class="filter-group" data-filter-group="phase">
-                <span class="filter-label">모집 구분</span>
-                <button type="button" class="explorer-chip js-async-filter {% if not selected_phase %}active{% endif %}" data-filter="phase" data-value="">전체</button>
-                <button type="button" class="explorer-chip js-async-filter {% if selected_phase == 'SUSI' %}active{% endif %}" data-filter="phase" data-value="SUSI">수시</button>
-                <button type="button" class="explorer-chip js-async-filter {% if selected_phase == 'JEONGSI' %}active{% endif %}" data-filter="phase" data-value="JEONGSI">정시</button>
-            </div>
-
-            <button type="button" class="filter-reset" id="admission-filter-reset">초기화</button>
+            {% endfor %}
         </div>
     </div>
-
-
-    <div id="admission-results-region" aria-live="polite">
+    <div class="discovery-result-toolbar">
+        <div><span class="result-count-pill" id="async-result-count">{{ filtered_result_count }}건</span><span class="discovery-result-hint">대학명순 · 원문 기준</span></div>
+        <a href="?year={{ selected_year }}#admission-explorer" class="filter-reset" id="admission-filter-reset">조건 초기화 <span aria-hidden="true">↺</span></a>
+    </div>
+    <div id="admission-search-status" class="discovery-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="admission-search-error" class="discovery-search-error" hidden><p>새 결과를 불러오지 못했어요. 아래에는 이전 결과가 표시돼요.</p><button type="button" id="admission-search-retry">다시 시도</button></div>
+    <div id="admission-results-region" aria-busy="false">
         {% include "admissions/partials/overview_results.html" %}
     </div>
 </section>
 
+{% include "partials/display_ad.html" %}
+<details class="discovery-highlights">
+    <summary><span><small>02 / HIGHLIGHTS</small><strong>{{ selected_year }}학년도 대표 지표 TOP 10</strong></span><span class="highlights-toggle" aria-hidden="true">+</span></summary>
+    <p class="discovery-highlights-note">공개된 모집단위의 집계값이에요. 표본과 전형 구성이 달라 대학 전체의 수준을 뜻하지 않아요.</p>
+    {% include "admissions/partials/overview_highlights.html" %}
+</details>
 {% else %}
-<div class="empty-state card-empty">
-    <div class="empty-state-icon">입</div>
-    <strong>아직 입시 데이터를 가져오지 않았습니다.</strong>
-    <p>입시 데이터 동기화를 실행하면 대표 지표와 모집단위 결과가 표시됩니다.</p>
-</div>
+<div class="empty-state card-empty"><strong>입시 데이터를 준비하고 있어요.</strong><p>먼저 대학 정보와 공식 공시 지표를 살펴보세요.</p><a class="button primary" href="{% url 'universities:list' %}">대학 둘러보기</a></div>
 {% endif %}
+</div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, render
 
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
@@ -185,6 +186,43 @@ def _overview_result_context(request, selected_year):
     }
 
 
+def _overview_filter_groups(context, selected_year):
+    """Real GET links keep filtering usable without JavaScript or in a new tab."""
+    state = {
+        "year": selected_year or "",
+        "q": context["query"],
+        "kind": context["source_kind"],
+        "phase": context["selected_phase"],
+        "track": context["selected_track"],
+    }
+    groups = []
+    for name, label, choices in (
+        ("kind", "대학 유형", (("", "전체"), ("four", "4년제"), ("college", "전문대"))),
+        ("phase", "모집 구분", (("", "전체"), ("SUSI", "수시"), ("JEONGSI", "정시"))),
+        ("track", "전형 유형", (("", "전체"), *TRACK_CHOICES.items())),
+    ):
+        options = []
+        for value, option_label in choices:
+            params = QueryDict(mutable=True)
+            params.update(state)
+            params[name] = value
+            if name == "track" and _phase_for_track(value, ""):
+                params["phase"] = _phase_for_track(value, "")
+            if name == "phase" and _phase_for_track(state["track"], "") not in {"", value}:
+                params["track"] = ""
+            for key in list(params):
+                if not params[key]:
+                    del params[key]
+            options.append({
+                "value": value,
+                "label": option_label,
+                "active": state[name] == value,
+                "url": "?" + params.urlencode() + "#admission-explorer",
+            })
+        groups.append({"name": name, "label": label, "options": options})
+    return groups
+
+
 def overview_results(request):
     years = list(
         AdmissionResult.objects.values_list("admission_year", flat=True)
@@ -315,6 +353,7 @@ def overview(request):
         "selected_track": result_context["selected_track"],
         "pagination_query": result_context["pagination_query"],
         "track_choices": TRACK_CHOICES,
+        "filter_groups": _overview_filter_groups(result_context, selected_year),
         "metric_label": metric_label,
         "metric_unit": metric_unit,
     }

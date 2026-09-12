@@ -8,6 +8,7 @@
 
         if (!mobileAdmissionMedia.matches) {
             scope.querySelectorAll('.mobile-admission-compact').forEach(function (compact) {
+                compact.parentElement.classList.remove('has-mobile-compact');
                 compact.remove();
             });
             return;
@@ -50,7 +51,8 @@
 
             var universityLink = universityCell && universityCell.querySelector('.table-school-link');
             if (universityLink) {
-                var compactUniversity = make('span', 'mobile-result-university', text(universityLink));
+                var compactUniversity = make('a', 'mobile-result-university', text(universityLink));
+                compactUniversity.href = universityLink.href;
                 meta.appendChild(compactUniversity);
             }
 
@@ -76,7 +78,10 @@
 
             var main = make('div', 'mobile-result-main');
             var unitName = unitCell && unitCell.querySelector('.unit-name');
-            main.appendChild(make('strong', 'mobile-result-unit', text(unitName) || text(unitCell) || '-'));
+            var unitHref = unitName && unitName.getAttribute('href');
+            var compactUnit = make(unitHref ? 'a' : 'strong', 'mobile-result-unit', text(unitName) || text(unitCell) || '-');
+            if (unitHref) compactUnit.href = unitHref;
+            main.appendChild(compactUnit);
 
             var selectionParts = selectionCell
                 ? Array.from(selectionCell.querySelectorAll('strong, small')).map(text).filter(Boolean)
@@ -129,12 +134,19 @@
                 }).slice(0, 2);
             }
 
+            if (!selectedMetrics.length) {
+                selectedMetrics = metricItems.filter(function (item) {
+                    return item.label.indexOf('합격자 평균') !== -1 || item.label.indexOf('합격자 최저') !== -1;
+                }).slice(0, 2);
+            }
+
             var cutline = make('div', 'mobile-result-cutline');
             if (selectedMetrics.length) {
                 selectedMetrics.forEach(function (metric) {
                     var cut = make('span', 'mobile-cut-item');
                     var cutLabel = metric.label.indexOf('50% 컷') !== -1 ? '50%' :
-                        (metric.label.indexOf('70% 컷') !== -1 ? '70%' : '컷');
+                        (metric.label.indexOf('70% 컷') !== -1 ? '70%' :
+                            (metric.label.indexOf('평균') !== -1 ? '평균' : '최저'));
                     cut.appendChild(make('b', '', cutLabel));
 
                     var valueParts = metric.value.match(/^([\d.,-]+)\s*(.*)$/);
@@ -147,7 +159,7 @@
                     cutline.appendChild(cut);
                 });
             } else {
-                cutline.appendChild(make('span', 'mobile-cut-empty', '50·70% 컷 미공개'));
+                cutline.appendChild(make('span', 'mobile-cut-empty', '대표 성적 지표 미공개'));
             }
             compact.appendChild(cutline);
 
@@ -168,280 +180,237 @@
             compact.appendChild(bottom);
 
             row.appendChild(compact);
+            row.classList.add('has-mobile-compact');
         });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         var explorer = document.getElementById('admission-explorer');
         if (!explorer) return;
-
-        var resultsUrl = explorer.dataset.resultsUrl;
-        var selectedYear = explorer.dataset.selectedYear;
         var resultsRegion = document.getElementById('admission-results-region');
-        var countPill = document.getElementById('async-result-count');
         var form = document.getElementById('admission-async-search');
         var searchInput = document.getElementById('admission-search-input');
-        var resetButton = document.getElementById('admission-filter-reset');
-        var filterContainer = document.getElementById('admission-async-filters');
-        var initialParams = new URLSearchParams(window.location.search);
+        var yearSelect = document.getElementById('admission-year');
+        var countPill = document.getElementById('async-result-count');
+        var status = document.getElementById('admission-search-status');
+        var errorBanner = document.getElementById('admission-search-error');
+        var resetLink = document.getElementById('admission-filter-reset');
+        var heroForm = document.querySelector('.home-hero-search');
+        if (!resultsRegion || !form || !searchInput) return;
 
-        ensureTrackFilters(initialParams.get('track') || '');
-        compactAdmissionRows(resultsRegion || document);
-
-        if (typeof mobileAdmissionMedia.addEventListener === 'function') {
-            mobileAdmissionMedia.addEventListener('change', function () {
-                compactAdmissionRows(resultsRegion || document);
-            });
-        } else if (typeof mobileAdmissionMedia.addListener === 'function') {
-            mobileAdmissionMedia.addListener(function () {
-                compactAdmissionRows(resultsRegion || document);
-            });
-        }
-
-        var state = {
-            q: searchInput ? searchInput.value.trim() : '',
-            kind: activeFilterValue('kind'),
-            phase: activeFilterValue('phase'),
-            track: activeFilterValue('track'),
-            page: '1'
-        };
-
+        var state = readRenderedState();
         var controller = null;
+        var revision = 0;
         var debounceTimer = null;
+        var composing = false;
 
-        function ensureTrackFilters(initialTrack) {
-            if (!filterContainer || filterContainer.querySelector('[data-filter-group="track"]')) return;
-
-            var group = document.createElement('div');
-            group.className = 'filter-group admission-track-filter';
-            group.dataset.filterGroup = 'track';
-
-            var label = document.createElement('span');
-            label.className = 'filter-label';
-            label.textContent = '전형 유형';
-            group.appendChild(label);
-
-            [
-                ['', '전체'],
-                ['student', '학생부교과'],
-                ['holistic', '학생부종합'],
-                ['csat', '수능'],
-                ['essay', '논술'],
-                ['practical', '실기']
-            ].forEach(function (item) {
-                var button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'explorer-chip js-async-filter';
-                button.dataset.filter = 'track';
-                button.dataset.value = item[0];
-                button.textContent = item[1];
-                button.classList.toggle('active', item[0] === initialTrack);
-                group.appendChild(button);
-            });
-
-            filterContainer.insertBefore(group, resetButton || null);
+        function readRenderedState() {
+            var meta = resultsRegion.querySelector('.async-results-meta');
+            return {
+                year: meta.dataset.year || explorer.dataset.selectedYear,
+                q: meta.dataset.query || '',
+                kind: meta.dataset.kind || '',
+                phase: meta.dataset.phase || '',
+                track: meta.dataset.track || '',
+                page: meta.dataset.page || '1'
+            };
         }
 
-        function activeFilterValue(name) {
-            var active = explorer.querySelector(
-                '[data-filter="' + name + '"].active'
-            );
-            return active ? (active.dataset.value || '') : '';
+        function fromParams(params) {
+            return {
+                year: params.get('year') || explorer.dataset.selectedYear,
+                q: params.get('q') || '', kind: params.get('kind') || '',
+                phase: params.get('phase') || '', track: params.get('track') || '',
+                page: params.get('page') || '1'
+            };
         }
 
-        function buildParams(page) {
+        function paramsFor(values) {
             var params = new URLSearchParams();
-            if (selectedYear) params.set('year', selectedYear);
-            if (state.q) params.set('q', state.q);
-            if (state.kind) params.set('kind', state.kind);
-            if (state.phase) params.set('phase', state.phase);
-            if (state.track) params.set('track', state.track);
-            if (page && String(page) !== '1') params.set('page', String(page));
+            ['year', 'q', 'kind', 'phase', 'track', 'page'].forEach(function (name) {
+                if (values[name] && !(name === 'page' && values[name] === '1')) {
+                    params.set(name, values[name]);
+                }
+            });
             return params;
         }
 
-        function setActiveFilter(name, value) {
-            explorer.querySelectorAll('[data-filter="' + name + '"]').forEach(
-                function (button) {
-                    button.classList.toggle(
-                        'active',
-                        (button.dataset.value || '') === value
-                    );
-                }
-            );
+        function suggestedPhase(track) {
+            if (['student', 'holistic', 'essay'].includes(track)) return 'SUSI';
+            return track === 'csat' ? 'JEONGSI' : '';
         }
 
-        function applyRecommendedPhase(track) {
-            if (track === 'student' || track === 'holistic' || track === 'essay') {
-                state.phase = 'SUSI';
-                setActiveFilter('phase', 'SUSI');
-            } else if (track === 'csat') {
-                state.phase = 'JEONGSI';
-                setActiveFilter('phase', 'JEONGSI');
+        function withFilter(name, value) {
+            var next = Object.assign({}, state, { page: '1' });
+            next[name] = value;
+            if (name === 'track' && suggestedPhase(value)) next.phase = suggestedPhase(value);
+            if (name === 'phase' && suggestedPhase(next.track) && suggestedPhase(next.track) !== value) {
+                next.track = '';
             }
+            return next;
         }
 
-        function setLoading(isLoading) {
-            explorer.classList.toggle('is-loading', isLoading);
+        function syncControls() {
+            searchInput.value = state.q;
+            if (heroForm) heroForm.elements.q.value = state.q;
+            explorer.querySelectorAll('.js-async-filter').forEach(function (link) {
+                var active = state[link.dataset.filter] === link.dataset.value;
+                link.classList.toggle('active', active);
+                if (active) link.setAttribute('aria-current', 'true');
+                else link.removeAttribute('aria-current');
+                link.href = '?' + paramsFor(withFilter(link.dataset.filter, link.dataset.value)) + '#admission-explorer';
+            });
+            ['kind', 'phase', 'track'].forEach(function (name) { form.elements[name].value = state[name]; });
+            resetLink.href = '?year=' + encodeURIComponent(state.year) + '#admission-explorer';
         }
 
-        function updateCountFromPartial() {
-            if (!countPill || !resultsRegion) return;
-            var strong = resultsRegion.querySelector(
-                '.async-results-meta strong'
-            );
-            if (strong) countPill.textContent = strong.textContent + '건';
+        function setLoading(loading) {
+            explorer.classList.toggle('is-loading', loading);
+            resultsRegion.setAttribute('aria-busy', String(loading));
         }
 
-        function updateAddressBar(params) {
-            var url = new URL(window.location.href);
-            url.search = params.toString();
-            window.history.replaceState(
-                { admissionsAsync: true },
-                '',
-                url.pathname + (url.search ? '?' + url.searchParams.toString() : '')
-            );
+        // Invalidate as soon as intent changes, including the debounce/IME interval.
+        // A cancelled fetch may already have completed response.text().
+        function invalidate() {
+            window.clearTimeout(debounceTimer);
+            if (controller) controller.abort();
+            revision += 1;
+            setLoading(false);
+        }
+
+        function scrollToResults() {
+            explorer.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
         }
 
         async function loadResults(options) {
             options = options || {};
-            var page = options.page || '1';
-            state.page = String(page);
-
-            if (controller) controller.abort();
-            controller = new AbortController();
-
-            var params = buildParams(page);
-            var requestUrl = resultsUrl + '?' + params.toString();
-
+            invalidate();
+            var requestRevision = revision;
+            var requestState = Object.assign({}, state);
+            var requestController = new AbortController();
+            controller = requestController;
+            syncControls();
+            errorBanner.hidden = true;
+            status.textContent = '조건에 맞는 입결을 찾고 있어요…';
             setLoading(true);
-
             try {
-                var response = await fetch(requestUrl, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    signal: controller.signal,
+                var response = await fetch(explorer.dataset.resultsUrl + '?' + paramsFor(requestState), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: requestController.signal,
                     credentials: 'same-origin'
                 });
-
-                if (!response.ok) {
-                    throw new Error('입시 결과를 불러오지 못했습니다.');
-                }
-
+                if (!response.ok) throw new Error('Search failed');
                 var html = await response.text();
-                resultsRegion.innerHTML = html;
+                if (requestRevision !== revision) return;
+                var fragment = document.createElement('template');
+                fragment.innerHTML = html;
+                if (!fragment.content.querySelector('.async-results-meta[data-page]')) throw new Error('Invalid results');
+                resultsRegion.replaceChildren(fragment.content);
+                state = readRenderedState();
+                syncControls();
                 compactAdmissionRows(resultsRegion);
-
-                updateCountFromPartial();
-                updateAddressBar(params);
-
-                if (options.scroll) {
-                    explorer.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                var meta = resultsRegion.querySelector('.async-results-meta');
+                countPill.textContent = Number(meta.dataset.count).toLocaleString('ko-KR') + '건';
+                status.textContent = countPill.textContent + '의 검색 결과를 표시했어요.';
+                var url = window.location.pathname + '?' + paramsFor(state) + '#admission-explorer';
+                if (options.history !== false && url !== window.location.pathname + window.location.search + window.location.hash) {
+                    window.history.pushState({ admissionsAsync: true }, '', url);
                 }
-
-                if (typeof window.kuniTrack === 'function') {
-                    window.kuniTrack('admission_async_filter', {
-                        search_term: state.q || undefined,
-                        university_kind: state.kind || 'all',
-                        phase: state.phase || 'all',
-                        admission_track: state.track || 'all',
-                        page: Number(page || 1)
-                    });
+                if (options.scroll) scrollToResults();
+                if (typeof window.kuniTrack === 'function' && options.history !== false) {
+                    window.kuniTrack('admission_async_filter', { search_term: state.q || undefined,
+                        university_kind: state.kind || 'all', phase: state.phase || 'all',
+                        admission_track: state.track || 'all', page: Number(state.page) });
                 }
             } catch (error) {
-                if (error.name === 'AbortError') return;
-
-                resultsRegion.innerHTML =
-                    '<div class="async-error">' +
-                    '<strong>결과를 불러오지 못했어요.</strong>' +
-                    '<span>잠시 후 다시 시도해주세요.</span>' +
-                    '</div>';
+                if (requestRevision !== revision || error.name === 'AbortError') return;
+                // Preserve the last successful results and give the current query a retry.
+                errorBanner.hidden = false;
+                status.textContent = '검색에 실패했어요. 이전 결과를 유지했어요. 다시 시도할 수 있어요.';
             } finally {
-                setLoading(false);
+                if (requestRevision === revision) setLoading(false);
             }
         }
 
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            state.q = searchInput.value.trim();
-            loadResults({ page: '1' });
-        });
-
-        searchInput.addEventListener('input', function () {
-            window.clearTimeout(debounceTimer);
+        function scheduleSearch() {
+            invalidate();
+            status.textContent = '';
+            if (composing) return;
             debounceTimer = window.setTimeout(function () {
                 state.q = searchInput.value.trim();
-                loadResults({ page: '1' });
+                state.page = '1';
+                loadResults();
             }, 350);
+        }
+
+        form.addEventListener('submit', function (event) {
+            if (composing) { event.preventDefault(); return; }
+            // A new year needs the full response: coverage and highlights also change.
+            if (yearSelect && yearSelect.value !== state.year) return;
+            event.preventDefault();
+            state.q = searchInput.value.trim();
+            state.page = '1';
+            loadResults();
+        });
+        if (yearSelect) yearSelect.addEventListener('change', function () {
+            invalidate();
+            form.requestSubmit();
+        });
+        searchInput.addEventListener('compositionstart', function () { composing = true; invalidate(); });
+        searchInput.addEventListener('compositionend', function () { composing = false; scheduleSearch(); });
+        searchInput.addEventListener('input', scheduleSearch);
+
+        if (heroForm) heroForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            state = { year: state.year, q: heroForm.elements.q.value.trim(), kind: '', phase: '', track: '', page: '1' };
+            loadResults({ scroll: true });
         });
 
-        explorer.addEventListener('click', function (event) {
+        document.querySelector('.home-discovery').addEventListener('click', function (event) {
+            // Retain native new-tab / modified-click behavior for every real link.
+            if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            var example = event.target.closest('[data-search-term]');
+            if (example) {
+                event.preventDefault();
+                state.q = example.dataset.searchTerm;
+                state.page = '1';
+                loadResults({ scroll: true });
+                return;
+            }
             var filter = event.target.closest('.js-async-filter');
             if (filter) {
                 event.preventDefault();
-
-                var name = filter.dataset.filter;
-                var value = filter.dataset.value || '';
-
-                state[name] = value;
-                setActiveFilter(name, value);
-
-                if (name === 'track') {
-                    applyRecommendedPhase(value);
-                }
-
-                loadResults({ page: '1' });
+                state.q = searchInput.value.trim();
+                state = withFilter(filter.dataset.filter, filter.dataset.value);
+                loadResults();
                 return;
             }
-
             var pageLink = event.target.closest('.js-async-page');
             if (pageLink) {
                 event.preventDefault();
-
-                var href = new URL(
-                    pageLink.getAttribute('href'),
-                    window.location.origin
-                );
-                var page = href.searchParams.get('page') || '1';
-                loadResults({ page: page, scroll: true });
+                // The displayed pager belongs to the last successful result set.
+                state = fromParams(new URL(pageLink.href).searchParams);
+                loadResults({ scroll: true });
+                return;
+            }
+            if (event.target.closest('#admission-filter-reset, [data-reset-search]')) {
+                event.preventDefault();
+                state = { year: state.year, q: '', kind: '', phase: '', track: '', page: '1' };
+                loadResults();
             }
         });
-
-        resetButton.addEventListener('click', function () {
-            state.q = '';
-            state.kind = '';
-            state.phase = '';
-            state.track = '';
-            state.page = '1';
-
-            searchInput.value = '';
-            setActiveFilter('kind', '');
-            setActiveFilter('phase', '');
-            setActiveFilter('track', '');
-
-            loadResults({ page: '1' });
-        });
-
+        document.getElementById('admission-search-retry').addEventListener('click', function () { loadResults(); });
         window.addEventListener('popstate', function () {
-            var params = new URLSearchParams(window.location.search);
-
-            state.q = params.get('q') || '';
-            state.kind = params.get('kind') || '';
-            state.phase = params.get('phase') || '';
-            state.track = params.get('track') || '';
-            state.page = params.get('page') || '1';
-
-            searchInput.value = state.q;
-            setActiveFilter('kind', state.kind);
-            setActiveFilter('phase', state.phase);
-            setActiveFilter('track', state.track);
-
-            loadResults({ page: state.page });
+            state = fromParams(new URLSearchParams(window.location.search));
+            if (state.year !== explorer.dataset.selectedYear) { window.location.reload(); return; }
+            loadResults({ history: false });
         });
+        syncControls();
+        compactAdmissionRows(resultsRegion);
+        if (typeof mobileAdmissionMedia.addEventListener === 'function') {
+            mobileAdmissionMedia.addEventListener('change', function () { compactAdmissionRows(resultsRegion); });
+        } else if (typeof mobileAdmissionMedia.addListener === 'function') {
+            mobileAdmissionMedia.addListener(function () { compactAdmissionRows(resultsRegion); });
+        }
     });
 })();

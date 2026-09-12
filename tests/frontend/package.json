@@ -1,0 +1,6 @@
+{
+  "name": "kunirank-search-tests",
+  "private": true,
+  "scripts": { "test": "node --test admissions-search.test.cjs" },
+  "devDependencies": { "jsdom": "26.1.0" }
+}
