@@ -1,5 +1,5 @@
 {% load admission_extras %}
-<div class="async-results-meta">
+<div class="async-results-meta" data-count="{{ filtered_result_count }}" data-page="{{ page_obj.number|default:1 }}" data-year="{{ selected_year|default:'' }}" data-query="{{ query }}" data-kind="{{ source_kind }}" data-phase="{{ selected_phase }}" data-track="{{ selected_track }}">
     {% if page_obj and filtered_result_count %}
     <span>전체 <strong>{{ filtered_result_count }}</strong>건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건</span>
     {% else %}
@@ -118,8 +118,10 @@
         {% empty %}
             <tr class="empty-table-row">
                 <td colspan="8">
-                    <div class="mini-empty">
-                        조건에 맞는 입시 결과가 없습니다.
+                    <div class="discovery-empty">
+                        <strong>조건에 맞는 입결이 없어요.</strong>
+                        <p>학과명을 짧게 입력하거나 전형 조건을 줄여보세요.<br>예: 컴퓨터공학과 → 컴퓨터</p>
+                        <a href="?year={{ selected_year }}#admission-explorer" data-reset-search>조건을 초기화하고 다시 찾기 →</a>
                     </div>
                 </td>
             </tr>

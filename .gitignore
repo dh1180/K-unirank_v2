@@ -10,3 +10,4 @@ legacy/
 .vscode/
 *.dump
 diff/
+node_modules/

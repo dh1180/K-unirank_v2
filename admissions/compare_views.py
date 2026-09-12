@@ -68,7 +68,7 @@ def _parse_grade(raw_value):
     except InvalidOperation:
         return None, "내신 평균등급을 숫자로 입력해 주세요."
 
-    if grade < Decimal("1.0") or grade > Decimal("9.0"):
+    if not grade.is_finite() or grade < Decimal("1.0") or grade > Decimal("9.0"):
         return None, "내신 평균등급은 1.0~9.0 사이로 입력해 주세요."
 
     return grade.quantize(Decimal("0.01")), ""
@@ -201,9 +201,6 @@ def compare_by_grade(request):
             if reference_cut is None:
                 continue
 
-            if scope == "near" and not (range_low <= reference_cut <= range_high):
-                continue
-
             source_type = result.source.source_type
             row = {
                 "result": result,
@@ -244,7 +241,12 @@ def compare_by_grade(request):
             if (new_priority, new_metric_count) > (current_priority, current_metric_count):
                 deduplicated[duplicate_key] = row
 
-        rows = list(deduplicated.values())
+        # Resolve the authoritative source before applying the user's range.
+        # Otherwise an in-range ADIGA row can replace an out-of-range university row.
+        rows = [
+            row for row in deduplicated.values()
+            if scope == "all" or range_low <= row["reference_cut"] <= range_high
+        ]
         rows.sort(
             key=lambda item: (
                 item["abs_gap"],
@@ -261,10 +263,17 @@ def compare_by_grade(request):
             university_groups[row["university_id"]].append(row)
 
         for university_rows in university_groups.values():
+            # A 50% cutoff and a 70% cutoff describe different populations.
+            # Keep each university's chart average on one cutoff basis.
+            chart_sample = [row for row in university_rows if row["cut_70"] is not None]
+            reference_label = "70% 컷"
+            if not chart_sample:
+                chart_sample = university_rows
+                reference_label = "50% 컷"
             avg_cut = sum(
-                (row["reference_cut"] for row in university_rows),
+                (row["reference_cut"] for row in chart_sample),
                 Decimal("0"),
-            ) / Decimal(len(university_rows))
+            ) / Decimal(len(chart_sample))
             avg_cut = avg_cut.quantize(Decimal("0.01"))
             position_label, position_tone, gap = _position_label(my_grade, avg_cut)
             chart_rows.append(
@@ -274,7 +283,8 @@ def compare_by_grade(request):
                     "average_cut": avg_cut,
                     "cut_pct": _grade_pct(avg_cut),
                     "my_pct": _grade_pct(my_grade),
-                    "result_count": len(university_rows),
+                    "result_count": len(chart_sample),
+                    "reference_label": reference_label,
                     "position_label": position_label,
                     "position_tone": position_tone,
                     "abs_gap": abs(gap),

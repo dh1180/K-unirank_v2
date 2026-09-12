@@ -1,0 +1,146 @@
+{% load static %}
+<section class="representative-section">
+    <div class="section-title representative-title">
+        <div>
+            <span class="eyebrow">REPRESENTATIVE METRICS</span>
+            <h2>{{ selected_year }}학년도 대표 지표</h2>
+            <p class="muted">4년제와 전문대에서 비교하기 쉬운 대표 지표만 TOP 10으로 정리했습니다.</p>
+        </div>
+    </div>
+
+    <div class="representative-metric-grid">
+        <article class="representative-card">
+            <div class="representative-card-head">
+                <div>
+                    <span class="representative-source four">4년제 · 어디가</span>
+                    <div class="representative-title-line">
+                        <span class="phase-badge susi">수시</span>
+                        <h3>학생부교과 70% 컷</h3>
+                    </div>
+                </div>
+                <span class="metric-direction">등급 ↓</span>
+            </div>
+            <div class="representative-list">
+                {% for item in susi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
+                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">해당 지표 데이터가 없습니다.</div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="representative-card">
+            <div class="representative-card-head">
+                <div>
+                    <span class="representative-source four">4년제 · 어디가</span>
+                    <div class="representative-title-line">
+                        <span class="phase-badge jeongsi">정시</span>
+                        <h3>공식 평균 백분위 70% 컷</h3>
+                    </div>
+                </div>
+                <span class="metric-direction">백분위 ↑</span>
+            </div>
+            <div class="representative-list">
+                {% for item in jeongsi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
+                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}</span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">해당 지표 데이터가 없습니다.</div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="representative-card college">
+            <div class="representative-card-head">
+                <div>
+                    <span class="representative-source college">전문대 · 전문대학포털</span>
+                    <div class="representative-title-line">
+                        <span class="phase-badge susi">수시</span>
+                        <h3>학생부 합격자 평균</h3>
+                    </div>
+                </div>
+                <span class="metric-direction">등급 ↓</span>
+            </div>
+            <div class="representative-list">
+                {% for item in college_susi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=SUSI" class="representative-row">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
+                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>등급</small></span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">학생부 평균등급 데이터가 없습니다.</div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="representative-card college">
+            <div class="representative-card-head">
+                <div>
+                    <span class="representative-source college">전문대 · 전문대학포털</span>
+                    <div class="representative-title-line">
+                        <span class="phase-badge jeongsi">정시</span>
+                        <h3>수능 합격자 평균</h3>
+                    </div>
+                </div>
+                <span class="metric-direction">백분위 ↑</span>
+            </div>
+            <div class="representative-list">
+                {% for item in college_jeongsi_rows %}
+                <a href="{% url 'admissions:university' item.university_id %}?year={{ selected_year }}&phase=JEONGSI" class="representative-row">
+                    <span class="metric-rank">{{ forloop.counter }}</span>
+                    <span class="representative-school">
+                        <span class="representative-logo" aria-hidden="true">
+                            {% if item.university.logo_path %}
+                                <img src="{% static item.university.logo_path %}" alt="" loading="lazy">
+                            {% else %}
+                                <span class="representative-logo-fallback">K</span>
+                            {% endif %}
+                        </span>
+                        <strong>{{ item.university.name }}</strong>
+                    </span>
+                    <span class="metric-rank-value">{{ item.value|floatformat:2 }}<small>백분위</small></span>
+                </a>
+                {% empty %}
+                <div class="mini-empty">수능 평균 백분위 데이터가 없습니다.</div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+
+    <p class="representative-note">※ 전문대학포털에서 점수산출기준이 비어 있지만 수능 성적값이 제공되는 경우, 9 초과 100 이하 값은 백분위 기준으로 보정하여 표시합니다.</p>
+</section>
