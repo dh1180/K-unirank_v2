@@ -165,6 +165,14 @@ class AdmissionsDiscoveryTests(TestCase):
                 response = self.client.get(reverse("admissions:compare"), {"grade": "3.5"})
                 self.assertEqual(response.context["filtered_count"], 1)
 
+    def test_recruitment_unit_detail_includes_mobile_detail_assets(self):
+        response = self.client.get(reverse("admissions:unit", args=[self.unit.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "js/admissions-detail-mobile.js")
+        self.assertContains(response, "css/admissions-metric-refine.css")
+        self.assertContains(response, self.unit.name)
+        self.assertContains(response, "admissions-table-wrap")
+
     def test_empty_database_shows_user_facing_next_step(self):
         AdmissionResult.objects.all().delete()
         response = self.client.get(reverse("home"))

@@ -58,6 +58,10 @@
 }
 </script>
 {% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admissions-metric-refine.css' %}">
+<script defer src="{% static 'js/admissions-detail-mobile.js' %}"></script>
+{% endblock %}
 {% block content %}
 <section class="admission-university-head">
     <div class="detail-logo small-detail-logo">
