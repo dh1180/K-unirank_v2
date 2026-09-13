@@ -7,7 +7,6 @@ from admissions.services.metrics import attach_mobile_cut_metrics, metric_label,
 from universities.models import University
 
 from .models import AdmissionAggregate, AdmissionResult
-from .views import _build_procollege_metric_ranking
 
 
 RESULTS_PER_PAGE = 60
@@ -262,71 +261,12 @@ def overview(request):
 
     coverage_count = 0
     result_count = 0
-    four_year_coverage = 0
-    college_coverage = 0
-    four_year_result_count = 0
-    college_result_count = 0
-
-    susi_rows = AdmissionAggregate.objects.none()
-    jeongsi_rows = AdmissionAggregate.objects.none()
-    college_susi_rows = []
-    college_jeongsi_rows = []
-
     result_context = _overview_result_context(request, selected_year)
 
     if selected_year:
         year_results = AdmissionResult.objects.filter(admission_year=selected_year)
         coverage_count = year_results.values("university_id").distinct().count()
         result_count = year_results.count()
-
-        four_year_results = year_results.filter(
-            source__source_type__in=["ADIGA", "UNIVERSITY"]
-        )
-        college_results = year_results.filter(source__source_type="PROCOLLEGE")
-
-        four_year_coverage = four_year_results.values("university_id").distinct().count()
-        college_coverage = college_results.values("university_id").distinct().count()
-        four_year_result_count = four_year_results.count()
-        college_result_count = college_results.count()
-
-        susi_rows = (
-            AdmissionAggregate.objects.filter(
-                admission_year=selected_year,
-                admission_phase="SUSI",
-                selection_category="학생부교과",
-                metric_code="STUDENT_GRADE_70_CUT",
-            )
-            .select_related("university")
-            .order_by("value", "university__name")[:10]
-        )
-
-        jeongsi_rows = (
-            AdmissionAggregate.objects.filter(
-                admission_year=selected_year,
-                admission_phase="JEONGSI",
-                selection_category="수능",
-                metric_code="CSAT_PERCENTILE_MEAN_70_CUT",
-            )
-            .select_related("university")
-            .order_by("-value", "university__name")[:10]
-        )
-
-        college_susi_rows = _build_procollege_metric_ranking(
-            admission_year=selected_year,
-            admission_phase="SUSI",
-            metric_code="COLLEGE_STUDENT_AVERAGE",
-            unit="등급",
-            ascending=True,
-            limit=10,
-        )
-        college_jeongsi_rows = _build_procollege_metric_ranking(
-            admission_year=selected_year,
-            admission_phase="JEONGSI",
-            metric_code="COLLEGE_CSAT_AVERAGE",
-            unit="백분위",
-            ascending=False,
-            limit=10,
-        )
 
     context = {
         "latest_year": latest_year,
@@ -335,16 +275,6 @@ def overview(request):
         "coverage_count": coverage_count,
         "result_count": result_count,
         "filtered_result_count": result_context["filtered_result_count"],
-        "four_year_coverage": four_year_coverage,
-        "college_coverage": college_coverage,
-        "four_year_result_count": four_year_result_count,
-        "college_result_count": college_result_count,
-        "susi_rows": susi_rows,
-        "jeongsi_rows": jeongsi_rows,
-        "college_susi_rows": college_susi_rows,
-        "college_jeongsi_rows": college_jeongsi_rows,
-        "college_jeongsi_metric_label": "수능 합격자 평균",
-        "college_jeongsi_unit": "백분위",
         "recent_results": result_context["recent_results"],
         "page_obj": result_context["page_obj"],
         "query": result_context["query"],

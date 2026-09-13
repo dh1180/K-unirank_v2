@@ -9,7 +9,6 @@
 {% block twitter_description %}4년제·전문대 대학별 학과 입시결과를 한곳에서 검색하고 비교해보세요.{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
-<link rel="stylesheet" href="{% static 'css/admissions-top10-logos.css' %}">
 <link rel="stylesheet" href="{% static 'css/home-admissions.css' %}">
 <script defer src="{% static 'js/admissions-overview.js' %}"></script>
 <script type="application/ld+json">
@@ -74,6 +73,7 @@
 </section>
 
 {% if selected_year %}
+{% include "partials/display_ad.html" %}
 <section class="discovery-coverage" aria-label="입시 데이터 수록 현황">
     <div class="coverage-heading"><span class="coverage-dot" aria-hidden="true"></span><strong>{{ selected_year }}학년도</strong><span>공개 입시결과</span></div>
     <div><strong>{{ coverage_count }}</strong><span>개 대학</span></div>
@@ -120,12 +120,6 @@
     </div>
 </section>
 
-{% include "partials/display_ad.html" %}
-<details class="discovery-highlights">
-    <summary><span><small>02 / HIGHLIGHTS</small><strong>{{ selected_year }}학년도 대표 지표 TOP 10</strong></span><span class="highlights-toggle" aria-hidden="true">+</span></summary>
-    <p class="discovery-highlights-note">공개된 모집단위의 집계값이에요. 표본과 전형 구성이 달라 대학 전체의 수준을 뜻하지 않아요.</p>
-    {% include "admissions/partials/overview_highlights.html" %}
-</details>
 {% else %}
 <div class="empty-state card-empty"><strong>입시 데이터를 준비하고 있어요.</strong><p>먼저 대학 정보와 공식 공시 지표를 살펴보세요.</p><a class="button primary" href="{% url 'universities:list' %}">대학 둘러보기</a></div>
 {% endif %}

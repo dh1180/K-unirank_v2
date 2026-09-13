@@ -1,0 +1,169 @@
+/* Shared visual language from admissions discovery.
+ * Loaded after page CSS: only named surfaces/controls, never chart geometry,
+ * result visibility, university logos or semantic status colors.
+ */
+.kuni-design {
+    --text: #162641;
+    --muted: #63718a;
+    --line: #dfe5ef;
+    --brand: #3157e5;
+    --brand-dark: #2446cb;
+    --brand-soft: #edf2ff;
+    --navy: #203858;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --panel: #f4f7fb;
+    background: #f5f7fb;
+    color: var(--text);
+}
+.kuni-design :is(a, button, input, select, summary):focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: 3px;
+}
+.kuni-design .eyebrow { color: #688096; font-size: 11px; letter-spacing: .1em; }
+
+/* Introductory panels share the home hero's white surface and type scale. */
+.kuni-design :is(.directory-hero, .ranking-hub-head, .admission-ranking-hero,
+    .compare-hero, .university-head, .admission-university-head, .mypage-hero,
+    .vote-header, .result-hero, .data-hero) {
+    padding: 32px;
+    margin-bottom: 26px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    color: var(--text);
+    box-shadow: none;
+}
+.kuni-design :is(.directory-hero, .ranking-hub-head, .admission-ranking-hero,
+    .compare-hero, .university-head, .admission-university-head, .mypage-hero,
+    .vote-header, .result-hero, .data-hero) h1 {
+    color: var(--text);
+    font-size: clamp(28px, 3.2vw, 42px);
+    line-height: 1.25;
+    letter-spacing: -.045em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+.kuni-design :is(.directory-hero, .ranking-hub-head, .admission-ranking-hero,
+    .compare-hero, .mypage-hero, .vote-header, .result-hero, .data-hero) p {
+    color: var(--muted);
+    line-height: 1.75;
+}
+.kuni-design :is(.ranking-method-card, .compare-note, .data-summary-item) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: none;
+}
+.kuni-design .ranking-method-card :is(span, small) { color: var(--muted); }
+.kuni-design .ranking-method-card strong { color: var(--text); }
+
+/* Card treatment across directories, rankings, favorites and comparison. */
+.kuni-design :is(.school-card, .board-card, .stat-card, .ranking-hub-primary-card,
+    .ranking-hub-indicator-card, .favorite-card, .mypage-summary-card,
+    .vs-history-card, .compare-school-card, .compare-summary-card,
+    .official-indicator-card, .university-card, .admission-ranking-controls,
+    .admission-control-card, .core-admission-summary, .official-indicator-section,
+    .table-wrap, .compare-table-wrap, .compare-chart, .ranking-list,
+    .admission-ranking-list, .auth-panel, .auth-shell) {
+    border-color: var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: 0 4px 18px #16264104;
+}
+.kuni-design .official-indicator-card:nth-child(n) { background: #fff; }
+.kuni-design :is(.school-card, .ranking-hub-primary-card,
+    .ranking-hub-indicator-card, .university-card):hover {
+    border-color: #91a6ee;
+    box-shadow: 0 6px 20px #1626410a;
+}
+.kuni-design :is(.ranking-hub-primary-icon, .mini-logo, .detail-logo) {
+    background: var(--panel);
+    border-color: var(--line);
+}
+
+/* Familiar actions, rectangular filter chips and clear selected states. */
+.kuni-design .button { border-radius: 9px; box-shadow: none; }
+.kuni-design :is(.button.primary, .compare-submit) {
+    background: var(--brand); color: #fff; border-color: var(--brand);
+}
+.kuni-design :is(.button.primary, .compare-submit):hover { background: var(--brand-dark); }
+.kuni-design .button.ghost { background: #fff; border-color: var(--line); color: #496281; }
+.kuni-design :is(.region-chip, .admission-mode-tab, .ranking-segment a, .compare-radio span) {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: #586b82;
+    box-shadow: none;
+}
+.kuni-design :is(.region-chip.active, .admission-mode-tab.active, .ranking-segment a.active),
+.kuni-design .compare-radio input:checked + span {
+    border-color: #bbc9f9;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    box-shadow: none;
+}
+.kuni-design :is(.region-chip, .admission-mode-tab, .ranking-segment a):hover { border-color: #91a6ee; }
+.kuni-design :is(.search-input, .search-form input[type="search"],
+    .admission-ranking-search input, .unified-ranking-select, .unified-ranking-number,
+    .compare-field input, .compare-field select, .auth-field input,
+    .filter-form select, .share-box input) {
+    min-height: 46px;
+    border: 1px solid #d2dae6;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+}
+.kuni-design :is(.search-input, .compare-field input, .auth-field input)::placeholder { color: #7b879b; }
+.kuni-design :is(.auth-field label, .compare-field label, .ranking-control-label) { color: #56667e; }
+.kuni-design :is(.button, .compare-submit):disabled,
+.kuni-design :is(.page-link, .list-page-link, .button).disabled {
+    opacity: .45; cursor: default; box-shadow: none; transform: none;
+}
+
+/* Tables retain each page's responsive layout and column widths. */
+.kuni-design :is(.admissions-table-wrap, .compare-table, .table-wrap) thead th,
+.kuni-design .admission-ranking-head {
+    background: #edf2f8;
+    color: #516681;
+    border-color: var(--line);
+}
+.kuni-design :is(.table-wrap, .compare-table) td { border-color: #edf0f6; }
+.kuni-design :is(.list-pagination, .admission-ranking-pager, .vs-history-pager) {
+    border-color: var(--line); border-radius: var(--radius); box-shadow: none;
+}
+.kuni-design :is(.page-link, .list-page-link, .compare-pagination a) {
+    border-color: var(--line); border-radius: 8px; color: #496281;
+}
+.kuni-design :is(.page-link.current, .list-page-link.current, .compare-pagination .current) {
+    background: var(--brand-soft); border-color: #bbc9f9; color: var(--brand-dark);
+}
+
+/* Accounts use the same quiet secondary panel as the home grade finder. */
+.kuni-design .auth-shell { border-radius: var(--radius-lg); }
+.kuni-design .auth-intro { background: var(--panel); color: var(--text); }
+.kuni-design .auth-intro::after { display: none; }
+.kuni-design .auth-intro h1 { font-size: clamp(32px, 3.5vw, 47px); line-height: 1.24; }
+.kuni-design :is(.auth-kicker, .auth-intro > p, .auth-points small) { color: var(--muted); }
+.kuni-design .auth-points > div { background: #fff; border-color: var(--line); backdrop-filter: none; }
+.kuni-design .auth-points span { background: var(--brand-soft); color: var(--brand); }
+.kuni-design .auth-panel { border-radius: 0; box-shadow: none; }
+
+@media (max-width: 720px) {
+    .kuni-design :is(.directory-hero, .ranking-hub-head, .admission-ranking-hero,
+        .compare-hero, .university-head, .admission-university-head, .mypage-hero,
+        .vote-header, .result-hero, .data-hero) {
+        padding: 22px 18px; border-radius: 18px; margin-bottom: 20px;
+    }
+    .kuni-design :is(.directory-hero, .ranking-hub-head, .admission-ranking-hero,
+        .compare-hero, .university-head, .admission-university-head, .mypage-hero,
+        .vote-header, .result-hero, .data-hero) h1 { font-size: 28px; }
+    .kuni-design .auth-intro { padding: 28px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kuni-design :is(.button, .school-card, .ranking-hub-primary-card,
+        .ranking-hub-indicator-card, .university-card) { transition: none; }
+}
