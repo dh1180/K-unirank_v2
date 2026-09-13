@@ -40,25 +40,7 @@
     {% if vs_page_obj.object_list %}
         {% include "users/partials/vs_history_cards.html" with vs_votes=vs_page_obj %}
 
-        {% if vs_page_obj.paginator.num_pages > 1 %}
-        <nav class="vs-history-pager" aria-label="내 VS 전체 내역 페이지">
-            {% if vs_page_obj.has_previous %}
-            <a class="button ghost" href="?page={{ vs_page_obj.previous_page_number }}#vs-history-all">이전</a>
-            {% else %}
-            <span class="button ghost disabled">이전</span>
-            {% endif %}
-
-            <span class="vs-history-page-number">
-                <strong>{{ vs_page_obj.number }}</strong> / {{ vs_page_obj.paginator.num_pages }} 페이지
-            </span>
-
-            {% if vs_page_obj.has_next %}
-            <a class="button ghost" href="?page={{ vs_page_obj.next_page_number }}#vs-history-all">다음</a>
-            {% else %}
-            <span class="button ghost disabled">다음</span>
-            {% endif %}
-        </nav>
-        {% endif %}
+        {% include "partials/pagination.html" with page_obj=vs_page_obj pagination_anchor="vs-history-all" pagination_label="내 VS 전체 내역 페이지" only %}
     {% else %}
     <div class="favorite-empty">
         <strong>아직 로그인 후 참여한 VS 기록이 없어요.</strong>

@@ -125,6 +125,39 @@ class AdmissionsDiscoveryTests(TestCase):
         self.assertEqual(response.context["chart_rows"][0]["reference_label"], "50% 컷")
         self.assertContains(response, "50% 컷 평균")
 
+    def test_compare_pagination_targets_results_and_supports_async_navigation(self):
+        results = [
+            AdmissionResult(
+                university=self.university,
+                recruitment_unit=self.unit,
+                source=self.source,
+                admission_year=2026,
+                admission_phase="SUSI",
+                selection_category="학생부교과",
+                selection_name=f"비교전형 {index:02d}",
+            )
+            for index in range(60)
+        ]
+        AdmissionResult.objects.bulk_create(results)
+        AdmissionMetric.objects.bulk_create([
+            AdmissionMetric(
+                result=result,
+                metric_code="STUDENT_GRADE_70_CUT",
+                value=Decimal("3.40"),
+                unit="등급",
+            )
+            for result in results
+        ])
+
+        response = self.client.get(reverse("admissions:compare"), {"grade": "3.5"})
+
+        self.assertEqual(response.context["page_obj"].paginator.num_pages, 2)
+        self.assertContains(response, 'id="comparison-results"', count=1)
+        self.assertContains(response, 'class="results-pager kuni-pagination"')
+        self.assertContains(response, "page=2#comparison-results")
+        self.assertContains(response, "js-compare-page")
+        self.assertContains(response, "js/admissions-compare.js")
+
     def test_exact_nearby_boundaries_are_included(self):
         for cut in ("3.0", "4.0"):
             with self.subTest(cut=cut):

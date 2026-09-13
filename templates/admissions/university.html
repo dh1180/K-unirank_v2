@@ -36,12 +36,13 @@
 
 {% if core_summary_cards %}
 <section class="core-admission-summary">
-    <div class="section-title">
+    <div class="section-title core-admission-summary-head">
         <div>
             <span class="eyebrow">CORE ADMISSIONS</span>
             <h2>{{ summary_year }}학년도 핵심 입결 요약</h2>
             <p class="muted">대학 전체 모집단위에서 비교하기 쉬운 50%·70% 컷만 간단히 정리했습니다.</p>
         </div>
+        <span class="core-summary-method">모집인원 가중평균 기준</span>
     </div>
 
     <div class="core-admission-summary-grid">
@@ -82,8 +83,8 @@
             </div>
 
             <div class="core-admission-card-foot">
-                <span>모집인원 가중평균 우선</span>
-                <b>모집단위 보기 →</b>
+                <span>50% · 70% 컷</span>
+                <b>상세 모집단위 보기 <span aria-hidden="true">→</span></b>
             </div>
         </a>
         {% endfor %}
@@ -260,31 +261,6 @@
         </table>
     </div>
 
-    {% if page_obj and page_obj.paginator.num_pages > 1 %}
-    <nav class="results-pager" aria-label="입시 결과 페이지">
-        <div class="pagination-side">
-            {% if page_obj.has_previous %}
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page=1">처음</a>
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.previous_page_number }}">이전</a>
-            {% else %}
-                <span class="page-button disabled">처음</span>
-                <span class="page-button disabled">이전</span>
-            {% endif %}
-        </div>
-        <div class="pagination-center">
-            <strong>{{ page_obj.number }}</strong>
-            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
-        </div>
-        <div class="pagination-side">
-            {% if page_obj.has_next %}
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.next_page_number }}">다음</a>
-                <a class="page-button" href="?year={% if show_all_years %}all{% else %}{{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}&page={{ page_obj.paginator.num_pages }}">마지막</a>
-            {% else %}
-                <span class="page-button disabled">다음</span>
-                <span class="page-button disabled">마지막</span>
-            {% endif %}
-        </div>
-    </nav>
-    {% endif %}
+    {% include "partials/pagination.html" with page_obj=page_obj pagination_query=pagination_query pagination_anchor="admission-unit-results" pagination_label="입시 결과 페이지" only %}
 </section>
 {% endblock %}

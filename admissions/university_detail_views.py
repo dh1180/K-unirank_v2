@@ -181,6 +181,9 @@ def university_admissions(request, university_id):
     page_results = list(page_obj.object_list)
     attach_mobile_cut_metrics(page_results)
 
+    pagination_params = request.GET.copy()
+    pagination_params.pop("page", None)
+
     # 전체 연도를 보고 있을 때도 서로 다른 학년의 집계값을 섞지 않는다.
     # 핵심 요약은 항상 선택 학년도, 또는 가장 최신 학년도 하나만 사용한다.
     latest_result_year = available_years[0] if available_years else None
@@ -206,5 +209,6 @@ def university_admissions(request, university_id):
             "track_choices": TRACK_CHOICES,
             "metric_label": metric_label,
             "metric_unit": metric_unit,
+            "pagination_query": pagination_params.urlencode(),
         },
     )

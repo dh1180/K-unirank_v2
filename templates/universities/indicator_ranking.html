@@ -126,33 +126,6 @@
         {% endfor %}
     </div>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="results-pager admission-ranking-pager unified-ranking-pager" aria-label="공시 지표 순위 페이지 이동">
-        <div class="pagination-side">
-            {% if page_obj.has_previous %}
-            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a>
-            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
-            {% else %}
-            <span class="page-button disabled">처음</span>
-            <span class="page-button disabled">이전</span>
-            {% endif %}
-        </div>
-
-        <div class="pagination-center">
-            <strong>{{ page_obj.number }}</strong>
-            <span>/ {{ page_obj.paginator.num_pages }} 페이지</span>
-        </div>
-
-        <div class="pagination-side">
-            {% if page_obj.has_next %}
-            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
-            <a class="page-button" href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>
-            {% else %}
-            <span class="page-button disabled">다음</span>
-            <span class="page-button disabled">마지막</span>
-            {% endif %}
-        </div>
-    </nav>
-    {% endif %}
+    {% include "partials/pagination.html" with page_obj=page_obj pagination_query=pagination_query pagination_label="공시 지표 순위 페이지 이동" pager_class="admission-ranking-pager unified-ranking-pager" only %}
 </section>
 {% endblock %}

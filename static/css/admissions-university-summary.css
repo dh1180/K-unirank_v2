@@ -3,33 +3,83 @@
     margin-bottom: 48px;
 }
 
-.core-admission-summary .section-title {
-    margin-bottom: 16px;
+body.kuni-design .core-admission-summary {
+    position: relative;
+    padding: 26px;
+    overflow: hidden;
+    border: 1px solid #dfe5ef;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(49, 87, 229, .075), transparent 26rem),
+        #fff;
+    box-shadow: 0 10px 30px rgba(22, 38, 65, .035);
+}
+
+.core-admission-summary-head {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.core-admission-summary-head h2 {
+    margin: 5px 0 5px;
+    font-size: clamp(23px, 2vw, 30px);
+    line-height: 1.25;
+    letter-spacing: -.04em;
+}
+
+.core-admission-summary-head p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.core-summary-method {
+    flex: 0 0 auto;
+    padding: 8px 11px;
+    border: 1px solid #dbe3ff;
+    border-radius: 999px;
+    color: #3157e5;
+    background: #f4f7ff;
+    font-size: 11px;
+    font-weight: 850;
+    white-space: nowrap;
 }
 
 .core-admission-summary-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 14px;
 }
 
 .core-admission-card {
+    position: relative;
     min-width: 0;
-    padding: 20px;
+    padding: 19px 19px 16px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    border: 1px solid #e4e7ec;
-    border-radius: 20px;
+    gap: 17px;
+    overflow: hidden;
+    border: 1px solid #e2e7f0;
+    border-radius: 17px;
     background: #fff;
-    box-shadow: 0 3px 12px rgba(16, 24, 40, .035);
-    transition: .15s ease;
+    box-shadow: 0 4px 16px rgba(16, 24, 40, .035);
+    transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.core-admission-card::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    content: "";
+    background: linear-gradient(90deg, #3157e5, #8aa2ff);
 }
 
 .core-admission-card:hover {
-    transform: translateY(-2px);
-    border-color: #cbd5ff;
-    box-shadow: 0 10px 28px rgba(16, 24, 40, .07);
+    transform: translateY(-3px);
+    border-color: #c5d0f7;
+    box-shadow: 0 13px 30px rgba(31, 60, 150, .09);
 }
 
 .core-admission-card-head {
@@ -40,49 +90,57 @@
 }
 
 .core-admission-card-head strong {
-    font-size: 17px;
+    color: #162641;
+    font-size: 16px;
+    font-weight: 900;
     letter-spacing: -.03em;
 }
 
 .core-admission-values {
-    overflow: hidden;
-    border: 1px solid #edf0f5;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid #e7ebf2;
     border-radius: 14px;
-    background: #fafbfc;
+    background: #f7f9fc;
 }
 
 .core-admission-value-row {
-    min-height: 56px;
-    padding: 10px 13px;
+    min-width: 0;
+    min-height: 82px;
+    padding: 13px 14px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    border-bottom: 1px solid #edf0f5;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 7px;
+    border-right: 1px solid #e7ebf2;
 }
 
 .core-admission-value-row:last-child {
-    border-bottom: 0;
+    border-right: 0;
 }
 
 .core-admission-value-row > span {
-    color: #667085;
-    font-size: 12px;
+    color: #718096;
+    font-size: 11px;
     font-weight: 800;
 }
 
 .core-admission-value {
+    width: 100%;
     min-width: 0;
     display: flex;
     align-items: baseline;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 4px;
-    text-align: right;
+    text-align: left;
 }
 
 .core-admission-value strong {
-    color: #101828;
-    font-size: 22px;
+    color: #162641;
+    font-size: 25px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 900;
     letter-spacing: -.04em;
 }
 
@@ -100,6 +158,7 @@
 
 .core-admission-card-foot {
     margin-top: auto;
+    padding-top: 1px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -111,11 +170,12 @@
 .core-admission-card-foot b {
     color: #3157e5;
     font-size: 11px;
+    font-weight: 850;
 }
 
 .core-summary-note {
-    margin: 12px 2px 0;
-    color: #98a2b3;
+    margin: 15px 2px 0;
+    color: #7c889c;
     font-size: 11px;
     line-height: 1.6;
 }
@@ -434,6 +494,21 @@
 }
 
 @media (max-width: 720px) {
+    body.kuni-design .core-admission-summary {
+        margin-bottom: 36px;
+        padding: 18px 16px;
+        border-radius: 19px;
+    }
+
+    .core-admission-summary-head {
+        margin-bottom: 15px;
+        align-items: flex-start;
+    }
+
+    .core-summary-method {
+        display: none;
+    }
+
     .future-csat-minimum {
         margin-bottom: 36px;
     }
@@ -509,15 +584,16 @@
     }
 
     .core-admission-card {
-        padding: 17px;
-        border-radius: 17px;
+        padding: 16px 16px 14px;
+        gap: 14px;
+        border-radius: 15px;
     }
 
     .core-admission-value-row {
-        min-height: 52px;
+        min-height: 70px;
     }
 
     .core-admission-value strong {
-        font-size: 20px;
+        font-size: 22px;
     }
 }
