@@ -76,40 +76,5 @@
 {% endfor %}
 </div>
 
-{% if page_obj.paginator.num_pages > 1 %}
-<nav class="list-pagination" aria-label="대학 목록 페이지 이동">
-    <div class="list-pagination-side">
-        {% if page_obj.has_previous %}
-            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page=1">처음</a>
-            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.previous_page_number }}">이전</a>
-        {% else %}
-            <span class="list-page-link disabled">처음</span>
-            <span class="list-page-link disabled">이전</span>
-        {% endif %}
-    </div>
-
-    <div class="list-pagination-center">
-        <div class="list-pagination-numbers">
-            {% for number in page_obj.paginator.page_range %}
-                {% if number == page_obj.number %}
-                    <span class="list-page-link current">{{ number }}</span>
-                {% elif number >= page_obj.number|add:'-2' and number <= page_obj.number|add:'2' %}
-                    <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ number }}">{{ number }}</a>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <div class="list-pagination-summary">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 페이지</div>
-    </div>
-
-    <div class="list-pagination-side end">
-        {% if page_obj.has_next %}
-            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.next_page_number }}">다음</a>
-            <a class="list-page-link" href="?q={{ query|urlencode }}&region={{ selected_region|urlencode }}&page={{ page_obj.paginator.num_pages }}">마지막</a>
-        {% else %}
-            <span class="list-page-link disabled">다음</span>
-            <span class="list-page-link disabled">마지막</span>
-        {% endif %}
-    </div>
-</nav>
-{% endif %}
+{% include "partials/pagination.html" with page_obj=page_obj pagination_query=pagination_query pagination_label="대학 목록 페이지 이동" only %}
 {% endblock %}

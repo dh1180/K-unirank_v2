@@ -88,9 +88,6 @@
 .compare-empty { padding: 34px 20px; text-align: center; border: 1px dashed #d8dde8; border-radius: 18px; background: #fafbfc; color: #6f788a; }
 .compare-empty strong { display: block; color: #2d3649; margin-bottom: 6px; }
 .compare-note { margin-top: 14px; border-radius: 14px; background: #f7f8fb; padding: 14px 16px; color: #6d7688; font-size: 12px; line-height: 1.65; }
-.compare-pagination { margin-top: 16px; display: flex; justify-content: center; gap: 8px; align-items: center; }
-.compare-pagination a, .compare-pagination span { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0 11px; border: 1px solid #dfe3eb; border-radius: 9px; color: #4f596d; text-decoration: none; font-size: 12px; font-weight: 700; background: #fff; }
-.compare-pagination .current { background: #3157e5; color: #fff; border-color: #3157e5; }
 @media (max-width: 920px) {
     .compare-form { grid-template-columns: 1fr 1fr; }
     .compare-submit { width: 100%; }
@@ -484,19 +481,6 @@
         font-size: 9px;
     }
 
-    .compare-pagination {
-        margin-top: 12px;
-        gap: 5px;
-    }
-
-    .compare-pagination a,
-    .compare-pagination span {
-        min-height: 34px;
-        padding: 0 9px;
-        border-radius: 9px;
-        font-size: 10px;
-    }
-
     .compare-empty {
         padding: 24px 14px;
         border-radius: 15px;
@@ -632,7 +616,7 @@
     </section>
     {% endif %}
 
-    <section class="compare-section">
+    <section id="comparison-results" class="compare-section" data-compare-results>
         <div class="compare-section-head">
             <div>
                 <h2>모집단위별 비교</h2>
@@ -669,13 +653,7 @@
             </table>
         </div>
 
-        {% if page_obj and page_obj.paginator.num_pages > 1 %}
-        <nav class="compare-pagination" aria-label="비교 결과 페이지">
-            {% if page_obj.has_previous %}<a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1">처음</a><a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>{% endif %}
-            <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}<a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a><a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">마지막</a>{% endif %}
-        </nav>
-        {% endif %}
+        {% include "partials/pagination.html" with page_obj=page_obj pagination_query=pagination_query pagination_anchor="comparison-results" pagination_label="비교 결과 페이지" pager_link_class="js-compare-page" only %}
         {% else %}
         <div class="compare-empty">
             <strong>조건에 맞는 입결 데이터가 없습니다.</strong>
@@ -713,4 +691,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script defer src="{% static 'js/admissions-compare.js' %}"></script>
 {% endblock %}

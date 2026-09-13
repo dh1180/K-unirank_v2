@@ -132,14 +132,76 @@
     border-color: var(--line);
 }
 .kuni-design :is(.table-wrap, .compare-table) td { border-color: #edf0f6; }
-.kuni-design :is(.list-pagination, .admission-ranking-pager, .vs-history-pager) {
-    border-color: var(--line); border-radius: var(--radius); box-shadow: none;
+/* Every paginated screen uses the same full-width navigation bar. */
+.kuni-design .kuni-pagination {
+    width: 100%;
+    min-height: 96px;
+    margin-top: 22px;
+    padding: 20px 26px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(22, 38, 65, .025);
 }
-.kuni-design :is(.page-link, .list-page-link, .compare-pagination a) {
-    border-color: var(--line); border-radius: 8px; color: #496281;
+.kuni-design .kuni-pagination .pagination-side {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.kuni-design :is(.page-link.current, .list-page-link.current, .compare-pagination .current) {
-    background: var(--brand-soft); border-color: #bbc9f9; color: var(--brand-dark);
+.kuni-design .kuni-pagination .pagination-side:last-child {
+    justify-content: flex-end;
+}
+.kuni-design .kuni-pagination .page-button {
+    min-width: 66px;
+    min-height: 48px;
+    padding: 0 17px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: #344054;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 850;
+    white-space: nowrap;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.kuni-design .kuni-pagination a.page-button:hover {
+    color: var(--brand-dark);
+    border-color: #bbc9f9;
+    background: var(--brand-soft);
+}
+.kuni-design .kuni-pagination .page-button.disabled {
+    opacity: 1;
+    color: #b4bdca;
+    border-color: #e5e9f0;
+    background: #f8fafc;
+}
+.kuni-design .kuni-pagination .pagination-center {
+    min-width: 150px;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+    color: #63718a;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.kuni-design .kuni-pagination .pagination-center strong {
+    color: var(--brand);
+    font-size: 18px;
+    font-weight: 900;
+}
+.kuni-design [data-compare-results] {
+    scroll-margin-top: 112px;
+    transition: opacity .15s ease;
+}
+.kuni-design [data-compare-results].is-loading {
+    opacity: .58;
+    pointer-events: none;
 }
 
 /* Accounts use the same quiet secondary panel as the home grade finder. */
@@ -162,6 +224,55 @@
         .compare-hero, .university-head, .admission-university-head, .mypage-hero,
         .vote-header, .result-hero, .data-hero) h1 { font-size: 28px; }
     .kuni-design .auth-intro { padding: 28px 22px; }
+
+    .kuni-design .kuni-pagination {
+        min-height: 76px;
+        margin-top: 16px;
+        padding: 12px;
+        gap: 8px;
+        border-radius: 16px;
+    }
+    .kuni-design .kuni-pagination .pagination-side {
+        gap: 6px;
+    }
+    .kuni-design .kuni-pagination .page-button {
+        min-width: 54px;
+        min-height: 40px;
+        padding: 0 10px;
+        border-radius: 10px;
+        font-size: 11px;
+    }
+    .kuni-design .kuni-pagination .pagination-side:first-child .page-button:first-child,
+    .kuni-design .kuni-pagination .pagination-side:last-child .page-button:last-child {
+        display: none;
+    }
+    .kuni-design .kuni-pagination .pagination-center {
+        min-width: 86px;
+        font-size: 11px;
+    }
+    .kuni-design .kuni-pagination .pagination-center strong {
+        font-size: 15px;
+    }
+}
+@media (max-width: 430px) {
+    .kuni-design .kuni-pagination {
+        padding: 10px;
+        gap: 5px;
+    }
+    .kuni-design .kuni-pagination .page-button {
+        min-width: 50px;
+        padding: 0 8px;
+    }
+    .kuni-design .kuni-pagination .pagination-center {
+        min-width: 72px;
+    }
+    .kuni-design .kuni-pagination .pagination-center span {
+        font-size: 0;
+    }
+    .kuni-design .kuni-pagination .pagination-center span::after {
+        content: "/ " attr(data-total);
+        font-size: 11px;
+    }
 }
 @media (prefers-reduced-motion: reduce) {
     .kuni-design :is(.button, .school-card, .ranking-hub-primary-card,

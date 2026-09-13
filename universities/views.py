@@ -65,6 +65,9 @@ def university_list(request):
     paginator = Paginator(universities, 36)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    pagination_params = request.GET.copy()
+    pagination_params.pop("page", None)
+
     return render(
         request,
         "universities/university_list.html",
@@ -75,6 +78,7 @@ def university_list(request):
             "regions": regions,
             "selected_region": selected_region,
             "total_count": paginator.count,
+            "pagination_query": pagination_params.urlencode(),
         },
     )
 
