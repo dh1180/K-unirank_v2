@@ -24,7 +24,7 @@
 </script>
 {% endblock %}
 {% block content %}
-<div class="section-title" data-ga-view="university_list_view" data-ga-param-query="{{ query }}" data-ga-param-region="{{ selected_region }}">
+<div class="section-title directory-hero" data-ga-view="university_list_view" data-ga-param-query="{{ query }}" data-ga-param-region="{{ selected_region }}">
     <div>
         <span class="eyebrow">UNIVERSITIES</span>
         <h1>전국 대학 찾기</h1>
@@ -34,7 +34,7 @@
 
 <div class="toolbar">
     <form method="get" class="search-form" data-ga-submit="university_search" data-ga-search-field="q" data-ga-param-region="{{ selected_region }}">
-        <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="대학명 또는 주소로 검색">
+        <input class="search-input" type="search" name="q" value="{{ query }}" placeholder="대학명 또는 주소로 검색" aria-label="대학명 또는 주소 검색">
         {% if selected_region %}<input type="hidden" name="region" value="{{ selected_region }}">{% endif %}
         <button class="button primary" type="submit">검색</button>
     </form>
