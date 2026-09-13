@@ -138,11 +138,18 @@
 
         if (!mobileAdmissionMedia.matches) {
             scope.querySelectorAll('.mobile-admission-compact').forEach(function (compact) {
+                if (compact.parentElement) {
+                    compact.parentElement.classList.remove('has-mobile-compact');
+                }
                 compact.remove();
+            });
+            scope.querySelectorAll('.admissions-table-wrap.has-mobile-compact').forEach(function (wrap) {
+                wrap.classList.remove('has-mobile-compact');
             });
             return;
         }
 
+        var hasCompacted = false;
         scope.querySelectorAll('.admissions-table-wrap tbody tr:not(.empty-table-row)').forEach(function (row) {
             if (row.querySelector('.mobile-admission-compact')) return;
 
@@ -158,9 +165,9 @@
             var phaseCell = cell('구분');
             var selectionCell = cell('전형');
             var unitCell = cell('모집단위');
-            var recruitmentCell = cell('모집');
+            var recruitmentCell = cell('모집') || cell('모집인원');
             var competitionCell = cell('경쟁률');
-            var metricsCell = cell('공개 지표');
+            var metricsCell = cell('공개 지표') || cell('대표 지표');
             var sourceCell = cell('출처');
 
             var top = make('div', 'mobile-result-top');
@@ -183,19 +190,35 @@
 
             var main = make('div', 'mobile-result-main');
             var unitName = unitCell && unitCell.querySelector('.unit-name');
-            main.appendChild(make('strong', 'mobile-result-unit', text(unitName) || text(unitCell) || '-'));
+            var unitText = text(unitName) || text(unitCell);
 
-            var selectionParts = selectionCell
-                ? Array.from(selectionCell.querySelectorAll('strong, small')).map(text).filter(Boolean)
-                : [];
-            if (!selectionParts.length && selectionCell) selectionParts = [text(selectionCell)];
+            if (unitText) {
+                main.appendChild(make('strong', 'mobile-result-unit', unitText));
 
-            var campus = unitCell && unitCell.querySelector('small.subtle');
-            var selectionLine = selectionParts.join(' · ');
-            if (campus && text(campus)) {
-                selectionLine += (selectionLine ? ' · ' : '') + text(campus);
+                var selectionParts = selectionCell
+                    ? Array.from(selectionCell.querySelectorAll('strong, small')).map(text).filter(Boolean)
+                    : [];
+                if (!selectionParts.length && selectionCell) selectionParts = [text(selectionCell)];
+
+                var campus = unitCell && unitCell.querySelector('small.subtle');
+                var selectionLine = selectionParts.join(' · ');
+                if (campus && text(campus)) {
+                    selectionLine += (selectionLine ? ' · ' : '') + text(campus);
+                }
+                if (selectionLine) main.appendChild(make('div', 'mobile-result-selection', selectionLine));
+            } else if (selectionCell) {
+                // 모집단위 컬럼이 없는 상세 페이지(예: 모집단위별 상세 페이지) 대응
+                var categoryElem = selectionCell.querySelector('strong');
+                var categoryText = text(categoryElem) || text(selectionCell);
+                main.appendChild(make('strong', 'mobile-result-unit', categoryText || '-'));
+
+                var detailParts = Array.from(selectionCell.querySelectorAll('small')).map(text).filter(Boolean);
+                if (detailParts.length) {
+                    main.appendChild(make('div', 'mobile-result-selection', detailParts.join(' · ')));
+                }
+            } else {
+                main.appendChild(make('strong', 'mobile-result-unit', '-'));
             }
-            if (selectionLine) main.appendChild(make('div', 'mobile-result-selection', selectionLine));
             compact.appendChild(main);
 
             var metricItems = metricsCell
@@ -236,12 +259,19 @@
                 }).slice(0, 2);
             }
 
+            if (!selectedMetrics.length) {
+                selectedMetrics = metricItems.filter(function (item) {
+                    return item.label.indexOf('합격자 평균') !== -1 || item.label.indexOf('합격자 최저') !== -1;
+                }).slice(0, 2);
+            }
+
             var cutline = make('div', 'mobile-result-cutline');
             if (selectedMetrics.length) {
                 selectedMetrics.forEach(function (metric) {
                     var cut = make('span', 'mobile-cut-item');
                     var cutLabel = metric.label.indexOf('50% 컷') !== -1 ? '50%' :
-                        (metric.label.indexOf('70% 컷') !== -1 ? '70%' : '컷');
+                        (metric.label.indexOf('70% 컷') !== -1 ? '70%' :
+                            (metric.label.indexOf('평균') !== -1 ? '평균' : '컷'));
                     cut.appendChild(make('b', '', cutLabel));
 
                     var valueParts = metric.value.match(/^([\d.,-]+)\s*(.*)$/);
@@ -261,7 +291,10 @@
             var bottom = make('div', 'mobile-result-bottom');
             var recruitment = text(recruitmentCell);
             var competition = text(competitionCell);
-            if (recruitment && recruitment !== '-') bottom.appendChild(make('span', '', '모집 ' + recruitment));
+            if (recruitment && recruitment !== '-') {
+                var recruitText = recruitment.indexOf('명') !== -1 ? recruitment : (recruitment + '명');
+                bottom.appendChild(make('span', '', '모집 ' + recruitText));
+            }
             if (competition && competition !== '-') bottom.appendChild(make('span', '', '경쟁률 ' + competition));
 
             var sourceLink = sourceCell && sourceCell.querySelector('a[href]');
@@ -275,7 +308,15 @@
             compact.appendChild(bottom);
 
             row.appendChild(compact);
+            row.classList.add('has-mobile-compact');
+            hasCompacted = true;
         });
+
+        if (hasCompacted) {
+            scope.querySelectorAll('.admissions-table-wrap').forEach(function (wrap) {
+                wrap.classList.add('has-mobile-compact');
+            });
+        }
     }
 
     function boot() {

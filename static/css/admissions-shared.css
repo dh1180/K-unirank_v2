@@ -202,8 +202,10 @@
         display: block !important;
     }
 
-    .admissions-table-wrap thead,
-    .overview-results-table thead {
+    .admissions-table-wrap.has-mobile-compact thead,
+    .admissions-table-wrap:has(.mobile-admission-compact) thead,
+    .overview-results-table.has-mobile-compact thead,
+    .overview-results-table:has(.mobile-admission-compact) thead {
         display: none !important;
     }
 
@@ -227,8 +229,10 @@
         border-top: 1px solid #edf0f4 !important;
     }
 
-    .admissions-table-wrap tbody tr:not(.empty-table-row) > td:not(.mobile-admission-compact),
-    .overview-results-table tbody tr:not(.empty-table-row) > td:not(.mobile-admission-compact) {
+    .admissions-table-wrap tbody tr.has-mobile-compact:not(.empty-table-row) > td:not(.mobile-admission-compact),
+    .admissions-table-wrap tbody tr:not(.empty-table-row):has(.mobile-admission-compact) > td:not(.mobile-admission-compact),
+    .overview-results-table tbody tr.has-mobile-compact:not(.empty-table-row) > td:not(.mobile-admission-compact),
+    .overview-results-table tbody tr:not(.empty-table-row):has(.mobile-admission-compact) > td:not(.mobile-admission-compact) {
         display: none !important;
     }
 
