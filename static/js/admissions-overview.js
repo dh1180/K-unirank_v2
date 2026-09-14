@@ -192,6 +192,8 @@
         var searchInput = document.getElementById('admission-search-input');
         var yearSelect = document.getElementById('admission-year');
         var countPill = document.getElementById('async-result-count');
+        var countHint = document.getElementById('admission-result-count-hint');
+        var metricsToggle = document.getElementById('admission-metrics-only');
         var status = document.getElementById('admission-search-status');
         var errorBanner = document.getElementById('admission-search-error');
         var resetLink = document.getElementById('admission-filter-reset');
@@ -212,6 +214,7 @@
                 kind: meta.dataset.kind || '',
                 phase: meta.dataset.phase || '',
                 track: meta.dataset.track || '',
+                metrics: meta.dataset.metrics === 'all' ? 'all' : 'available',
                 page: meta.dataset.page || '1'
             };
         }
@@ -221,6 +224,7 @@
                 year: params.get('year') || explorer.dataset.selectedYear,
                 q: params.get('q') || '', kind: params.get('kind') || '',
                 phase: params.get('phase') || '', track: params.get('track') || '',
+                metrics: params.get('metrics') === 'all' ? 'all' : 'available',
                 page: params.get('page') || '1'
             };
         }
@@ -232,6 +236,7 @@
                     params.set(name, values[name]);
                 }
             });
+            if (values.metrics === 'all') params.set('metrics', 'all');
             return params;
         }
 
@@ -261,6 +266,10 @@
                 link.href = '?' + paramsFor(withFilter(link.dataset.filter, link.dataset.value)) + '#admission-explorer';
             });
             ['kind', 'phase', 'track'].forEach(function (name) { form.elements[name].value = state[name]; });
+            if (metricsToggle) metricsToggle.checked = state.metrics !== 'all';
+            explorer.querySelectorAll('.js-metrics-view-field').forEach(function (field) {
+                field.disabled = state.metrics !== 'all';
+            });
             resetLink.href = '?year=' + encodeURIComponent(state.year) + '#admission-explorer';
         }
 
@@ -311,6 +320,13 @@
                 compactAdmissionRows(resultsRegion);
                 var meta = resultsRegion.querySelector('.async-results-meta');
                 countPill.textContent = Number(meta.dataset.count).toLocaleString('ko-KR') + '건';
+                if (countHint) {
+                    var allCount = Number(meta.dataset.allCount).toLocaleString('ko-KR');
+                    var metricCount = Number(meta.dataset.metricCount).toLocaleString('ko-KR');
+                    countHint.textContent = state.metrics === 'all'
+                        ? '전체 결과 · 입결 지표 공개 ' + metricCount + '건'
+                        : '입결 지표 공개 · 전체 ' + allCount + '건';
+                }
                 status.textContent = countPill.textContent + '의 검색 결과를 표시했어요.';
                 var url = window.location.pathname + '?' + paramsFor(state) + '#admission-explorer';
                 if (options.history !== false && url !== window.location.pathname + window.location.search + window.location.hash) {
@@ -320,7 +336,8 @@
                 if (typeof window.kuniTrack === 'function' && options.history !== false) {
                     window.kuniTrack('admission_async_filter', { search_term: state.q || undefined,
                         university_kind: state.kind || 'all', phase: state.phase || 'all',
-                        admission_track: state.track || 'all', page: Number(state.page) });
+                        admission_track: state.track || 'all', metrics_only: state.metrics !== 'all',
+                        page: Number(state.page) });
                 }
             } catch (error) {
                 if (requestRevision !== revision || error.name === 'AbortError') return;
@@ -359,10 +376,15 @@
         searchInput.addEventListener('compositionstart', function () { composing = true; invalidate(); });
         searchInput.addEventListener('compositionend', function () { composing = false; scheduleSearch(); });
         searchInput.addEventListener('input', scheduleSearch);
+        if (metricsToggle) metricsToggle.addEventListener('change', function () {
+            state.metrics = metricsToggle.checked ? 'available' : 'all';
+            state.page = '1';
+            loadResults();
+        });
 
         if (heroForm) heroForm.addEventListener('submit', function (event) {
             event.preventDefault();
-            state = { year: state.year, q: heroForm.elements.q.value.trim(), kind: '', phase: '', track: '', page: '1' };
+            state = { year: state.year, q: heroForm.elements.q.value.trim(), kind: '', phase: '', track: '', metrics: state.metrics, page: '1' };
             loadResults({ scroll: true });
         });
 
@@ -395,7 +417,7 @@
             }
             if (event.target.closest('#admission-filter-reset, [data-reset-search]')) {
                 event.preventDefault();
-                state = { year: state.year, q: '', kind: '', phase: '', track: '', page: '1' };
+                state = { year: state.year, q: '', kind: '', phase: '', track: '', metrics: 'available', page: '1' };
                 loadResults();
             }
         });

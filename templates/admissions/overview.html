@@ -8,9 +8,9 @@
 {% block twitter_title %}대학 입결 검색 · K-unirank{% endblock %}
 {% block twitter_description %}4년제·전문대 대학별 학과 입시결과를 한곳에서 검색하고 비교해보세요.{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-overview.css' %}?v=20260915-1">
 <link rel="stylesheet" href="{% static 'css/home-admissions.css' %}">
-<script defer src="{% static 'js/admissions-overview.js' %}"></script>
+<script defer src="{% static 'js/admissions-overview.js' %}?v=20260915-1"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -91,6 +91,7 @@
             <input type="hidden" name="kind" value="{{ source_kind }}">
             <input type="hidden" name="phase" value="{{ selected_phase }}">
             <input type="hidden" name="track" value="{{ selected_track }}">
+            <input type="hidden" name="metrics" value="all" class="js-metrics-view-field" {% if metrics_only %}disabled{% endif %}>
             <div class="discovery-search-row">
                 <div class="overview-search-box">
                     <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
@@ -108,9 +109,22 @@
             </div>
             {% endfor %}
         </div>
+        <form method="get" action="{% url 'home' %}#admission-explorer" class="metric-availability-form" id="admission-metric-filter-form">
+            {% if selected_year %}<input type="hidden" name="year" value="{{ selected_year }}">{% endif %}
+            {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+            {% if source_kind %}<input type="hidden" name="kind" value="{{ source_kind }}">{% endif %}
+            {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
+            {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
+            <input type="hidden" name="metrics" value="all" id="admission-metrics-view" class="js-metrics-view-field" {% if metrics_only %}disabled{% endif %}>
+            <label class="metric-availability-check" for="admission-metrics-only">
+                <input type="checkbox" id="admission-metrics-only" {% if metrics_only %}checked{% endif %}>
+                <span>입결 지표 있는 결과만</span>
+            </label>
+            <noscript><button class="button ghost compact" type="submit">적용</button></noscript>
+        </form>
     </div>
     <div class="discovery-result-toolbar">
-        <div><span class="result-count-pill" id="async-result-count">{{ filtered_result_count }}건</span><span class="discovery-result-hint">대학명순 · 원문 기준</span></div>
+        <div><span class="result-count-pill" id="async-result-count">{{ filtered_result_count }}건</span><span class="discovery-result-hint" id="admission-result-count-hint">{% if metrics_only %}입결 지표 공개 · 전체 {{ all_result_count }}건{% else %}전체 결과 · 입결 지표 공개 {{ metric_result_count }}건{% endif %}</span></div>
         <a href="?year={{ selected_year }}#admission-explorer" class="filter-reset" id="admission-filter-reset">조건 초기화 <span aria-hidden="true">↺</span></a>
     </div>
     <div id="admission-search-status" class="discovery-status" role="status" aria-live="polite" aria-atomic="true"></div>

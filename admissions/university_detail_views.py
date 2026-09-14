@@ -9,8 +9,11 @@ from .filter_views import (
     TRACK_CHOICES,
     UNIVERSITY_RESULTS_PER_PAGE,
     _apply_track_filter,
+    _metrics_only,
     _normalize_track,
     _phase_for_track,
+    _public_metric_prefetch,
+    _with_public_metrics,
 )
 from .models import AdmissionAggregate, AdmissionResult
 
@@ -145,11 +148,12 @@ def university_admissions(request, university_id):
     selected_track = _normalize_track(request.GET.get("track"))
     phase = _phase_for_track(selected_track, phase)
     query = request.GET.get("q", "").strip()
+    metrics_only = _metrics_only(request)
 
     results = (
         AdmissionResult.objects.filter(university=university)
         .select_related("recruitment_unit", "source", "recruitment_unit__campus")
-        .prefetch_related("metrics")
+        .prefetch_related(_public_metric_prefetch())
     )
 
     if year:
@@ -165,6 +169,12 @@ def university_admissions(request, university_id):
             | Q(selection_name__icontains=query)
         )
 
+    all_result_count = results.count()
+    metric_results = _with_public_metrics(results)
+    metric_result_count = metric_results.count()
+    if metrics_only:
+        results = metric_results
+
     results = results.order_by(
         "-admission_year",
         "admission_phase",
@@ -174,7 +184,7 @@ def university_admissions(request, university_id):
         "result_id",
     )
 
-    result_count = results.count()
+    result_count = metric_result_count if metrics_only else all_result_count
     page_obj = Paginator(results, UNIVERSITY_RESULTS_PER_PAGE).get_page(
         request.GET.get("page", 1)
     )
@@ -183,6 +193,10 @@ def university_admissions(request, university_id):
 
     pagination_params = request.GET.copy()
     pagination_params.pop("page", None)
+    if metrics_only:
+        pagination_params.pop("metrics", None)
+    else:
+        pagination_params["metrics"] = "all"
 
     # 전체 연도를 보고 있을 때도 서로 다른 학년의 집계값을 섞지 않는다.
     # 핵심 요약은 항상 선택 학년도, 또는 가장 최신 학년도 하나만 사용한다.
@@ -203,6 +217,9 @@ def university_admissions(request, university_id):
             "selected_year": year,
             "selected_phase": phase,
             "selected_track": selected_track,
+            "metrics_only": metrics_only,
+            "metric_result_count": metric_result_count,
+            "all_result_count": all_result_count,
             "show_all_years": show_all_years,
             "summary_year": summary_year,
             "core_summary_cards": core_summary_cards,
