@@ -6,16 +6,16 @@ const { JSDOM } = require('jsdom');
 const script = fs.readFileSync(path.join(__dirname, '../../static/js/admissions-overview.js'), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
-function partial(query = '', { track = '', phase = '', count = 1, page = 1 } = {}) {
-  return `<div class="async-results-meta" data-year="2026" data-page="${page}" data-count="${count}" data-query="${escape(query)}" data-kind="" data-track="${track}" data-phase="${phase}"></div><p class="result-name">${escape(query || 'initial results')}</p>`;
+function partial(query = '', { track = '', phase = '', metrics = 'available', count = 1, metricCount = count, allCount = count, page = 1 } = {}) {
+  return `<div class="async-results-meta" data-year="2026" data-page="${page}" data-count="${count}" data-metric-count="${metricCount}" data-all-count="${allCount}" data-metrics="${metrics}" data-query="${escape(query)}" data-kind="" data-track="${track}" data-phase="${phase}"></div><p class="result-name">${escape(query || 'initial results')}</p>`;
 }
 
 async function setup(t, { mobile = false, content = partial() } = {}) {
   const filters = [['kind', ['', 'four', 'college']], ['phase', ['', 'SUSI', 'JEONGSI']], ['track', ['', 'student', 'csat']]]
     .flatMap(([name, values]) => values.map(value => `<a href="?${name}=${value}" class="js-async-filter" data-filter="${name}" data-value="${value}">${name}:${value}</a>`)).join('');
   const dom = new JSDOM(`<div class="home-discovery"><form class="home-hero-search"><input name="q"></form><section id="admission-explorer" data-selected-year="2026" data-results-url="/admissions/results/">
-    <form id="admission-async-search"><input id="admission-search-input" name="q"><input name="kind"><input name="phase"><input name="track"><select id="admission-year" name="year"><option value="2026">2026</option></select></form>
-    ${filters}<a id="admission-filter-reset" href="/">reset</a><span id="async-result-count">1건</span><div id="admission-search-status"></div><div id="admission-search-error" hidden></div><button id="admission-search-retry">retry</button><div id="admission-results-region">${content}</div></section></div>`, { url: 'https://example.test/', runScripts: 'outside-only' });
+    <form id="admission-async-search"><input id="admission-search-input" name="q"><input name="kind"><input name="phase"><input name="track"><input name="metrics" value="all" class="js-metrics-view-field" disabled><select id="admission-year" name="year"><option value="2026">2026</option></select></form>
+    ${filters}<input id="admission-metrics-only" type="checkbox" checked><input class="js-metrics-view-field" value="all" disabled><a id="admission-filter-reset" href="/">reset</a><span id="async-result-count">1건</span><span id="admission-result-count-hint"></span><div id="admission-search-status"></div><div id="admission-search-error" hidden></div><button id="admission-search-retry">retry</button><div id="admission-results-region">${content}</div></section></div>`, { url: 'https://example.test/', runScripts: 'outside-only' });
   const { window } = dom;
   t.after(() => window.close());
   window.matchMedia = query => ({ matches: mobile && query.includes('max-width'), addEventListener() {} });
@@ -117,6 +117,29 @@ test('switching from coursework to regular admission clears the conflicting trac
   assert.equal(params.get('phase'), 'JEONGSI');
   assert.equal(params.has('track'), false);
   assert.equal($('[name="track"]').value, '');
+});
+
+test('metric availability is enabled by default and all-results state survives history', async t => {
+  const { window, $, requests, finish } = await setup(t, {
+    content: partial('', { count: 7, metricCount: 7, allCount: 12 })
+  });
+  const toggle = $('#admission-metrics-only');
+  assert.equal(toggle.checked, true);
+  assert.equal($('#admission-result-count-hint').textContent, '');
+
+  toggle.checked = false;
+  toggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  let params = new URL(requests[0].url, window.location.href).searchParams;
+  assert.equal(params.get('metrics'), 'all');
+  await finish(0, partial('', { metrics: 'all', count: 12, metricCount: 7, allCount: 12 }));
+  assert.equal(toggle.checked, false);
+  assert.equal($('#admission-result-count-hint').textContent, '전체 결과 · 입결 지표 공개 7건');
+  assert.equal(new URL(window.location.href).searchParams.get('metrics'), 'all');
+
+  toggle.checked = true;
+  toggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  params = new URL(requests[1].url, window.location.href).searchParams;
+  assert.equal(params.has('metrics'), false);
 });
 
 test('mobile college results show the published average instead of an empty cutoff', async t => {

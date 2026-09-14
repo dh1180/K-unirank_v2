@@ -183,3 +183,32 @@ test('desktop: does not generate compact card and applies metric refinement', ()
 
   window.close();
 });
+
+test('metric checkbox submits all results and restores the default filtered view', () => {
+  const controls = `
+    <form id="university-metric-filter-form">
+      <input id="university-metrics-view" name="metrics" value="all" disabled>
+      <input id="university-metrics-only" type="checkbox" checked>
+    </form>`;
+  const { document, window } = setupDom(controls, { mobile: false });
+  const form = document.getElementById('university-metric-filter-form');
+  const field = document.getElementById('university-metrics-view');
+  const toggle = document.getElementById('university-metrics-only');
+  let submissions = 0;
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    submissions += 1;
+  });
+
+  toggle.checked = false;
+  toggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert.equal(field.disabled, false);
+  assert.equal(submissions, 1);
+
+  toggle.checked = true;
+  toggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert.equal(field.disabled, true);
+  assert.equal(submissions, 2);
+
+  window.close();
+});

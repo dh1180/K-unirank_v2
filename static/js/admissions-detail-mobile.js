@@ -320,6 +320,16 @@
     }
 
     function boot() {
+        var metricsForm = document.getElementById('university-metric-filter-form');
+        var metricsToggle = document.getElementById('university-metrics-only');
+        var metricsField = document.getElementById('university-metrics-view');
+        if (metricsForm && metricsToggle && metricsField) {
+            metricsToggle.addEventListener('change', function () {
+                metricsField.disabled = metricsToggle.checked;
+                metricsForm.requestSubmit();
+            });
+        }
+
         injectDesktopMetricRefinement();
         highlightDesktopMetrics(document);
         compactAdmissionRows(document);

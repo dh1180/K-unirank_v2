@@ -216,6 +216,12 @@
     border-top: 1px solid #eef0f4;
 }
 
+.compact-explorer .metric-availability-form {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef0f4;
+}
+
 .filter-group {
     display: flex;
     align-items: center;

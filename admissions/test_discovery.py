@@ -30,6 +30,26 @@ class AdmissionsDiscoveryTests(TestCase):
         AdmissionMetric.objects.create(result=result, metric_code=code, value=Decimal(cut), unit="등급")
         return result
 
+    def add_result_without_public_metric(self, name, metric_code=None):
+        unit = RecruitmentUnit.objects.create(university=self.university, name=name)
+        result = AdmissionResult.objects.create(
+            university=self.university,
+            recruitment_unit=unit,
+            source=self.source,
+            admission_year=2026,
+            admission_phase="SUSI",
+            selection_category="학생부교과",
+            selection_name="지표 미공개 전형",
+        )
+        if metric_code:
+            AdmissionMetric.objects.create(
+                result=result,
+                metric_code=metric_code,
+                value=Decimal("3.50"),
+                unit="등급",
+            )
+        return result
+
     def test_home_prioritizes_search_and_exposes_comparison_without_javascript(self):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
@@ -50,6 +70,63 @@ class AdmissionsDiscoveryTests(TestCase):
         self.assertEqual(params["kind"], ["four"])
         self.assertEqual(params["phase"], ["SUSI"])
         self.assertNotIn("page", params)
+
+    def test_metric_filter_is_enabled_by_default_and_can_show_all_results(self):
+        no_metric = self.add_result_without_public_metric("자유전공학부")
+        reference_only = self.add_result_without_public_metric(
+            "참고백분위학과", "CSAT_PERCENTILE_REFERENCE_MEAN_70_CUT"
+        )
+
+        default_response = self.client.get(reverse("home"))
+        self.assertTrue(default_response.context["metrics_only"])
+        self.assertEqual(default_response.context["filtered_result_count"], 1)
+        self.assertEqual(default_response.context["metric_result_count"], 1)
+        self.assertEqual(default_response.context["all_result_count"], 3)
+        self.assertEqual(
+            [result.pk for result in default_response.context["recent_results"]],
+            [self.result.pk],
+        )
+        self.assertContains(default_response, 'id="admission-metrics-only" checked')
+
+        all_response = self.client.get(reverse("home"), {"metrics": "all"})
+        self.assertFalse(all_response.context["metrics_only"])
+        self.assertEqual(all_response.context["filtered_result_count"], 3)
+        self.assertCountEqual(
+            [result.pk for result in all_response.context["recent_results"]],
+            [self.result.pk, no_metric.pk, reference_only.pk],
+        )
+        self.assertNotContains(all_response, 'id="admission-metrics-only" checked')
+
+    def test_show_all_metric_state_is_preserved_in_filters_and_pagination(self):
+        response = self.client.get(reverse("home"), {"metrics": "all", "q": "컴퓨터"})
+        phase_group = next(g for g in response.context["filter_groups"] if g["name"] == "phase")
+        params = parse_qs(urlsplit(phase_group["options"][1]["url"]).query)
+        self.assertEqual(params["metrics"], ["all"])
+        self.assertIn("metrics=all", response.context["pagination_query"])
+
+    def test_university_results_use_the_same_default_metric_filter(self):
+        no_metric = self.add_result_without_public_metric("자율전공학부")
+        url = reverse("admissions:university", args=[self.university.pk])
+
+        default_response = self.client.get(url)
+        self.assertTrue(default_response.context["metrics_only"])
+        self.assertEqual(default_response.context["result_count"], 1)
+        self.assertEqual(default_response.context["all_result_count"], 2)
+        self.assertEqual(
+            [result.pk for result in default_response.context["results"]],
+            [self.result.pk],
+        )
+        self.assertContains(default_response, 'id="university-metrics-only" checked')
+
+        all_response = self.client.get(url, {"metrics": "all"})
+        self.assertFalse(all_response.context["metrics_only"])
+        self.assertEqual(all_response.context["result_count"], 2)
+        self.assertCountEqual(
+            [result.pk for result in all_response.context["results"]],
+            [self.result.pk, no_metric.pk],
+        )
+        self.assertIn("metrics=all", all_response.context["pagination_query"])
+        self.assertContains(all_response, "metrics=all")
 
     def test_changing_phase_clears_incompatible_track_in_native_links(self):
         response = self.client.get(reverse("home"), {"track": "student"})

@@ -2393,6 +2393,44 @@ select:focus-visible {
     align-items: center;
 }
 
+.metric-availability-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.metric-availability-check {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+}
+
+.metric-availability-check input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex: 0 0 auto;
+    accent-color: #3157e5;
+    cursor: pointer;
+}
+
+.metric-availability-check:hover {
+    color: #3157e5;
+}
+
+.metric-availability-check:focus-within {
+    outline: 3px solid rgba(49, 87, 229, .14);
+    outline-offset: 4px;
+    border-radius: 5px;
+}
+
 .admission-search-input-wrap {
     min-width: 0;
 }

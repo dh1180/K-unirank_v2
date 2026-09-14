@@ -1,12 +1,12 @@
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Prefetch, Q
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404, render
 
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
 from universities.models import University
 
-from .models import AdmissionAggregate, AdmissionResult
+from .models import AdmissionAggregate, AdmissionMetric, AdmissionResult
 
 
 RESULTS_PER_PAGE = 60
@@ -19,6 +19,30 @@ TRACK_CHOICES = {
     "essay": "논술",
     "practical": "실기",
 }
+
+
+def _metrics_only(request):
+    """공개 지표 필터는 기본 활성화하고, 명시적인 전체 보기만 해제한다."""
+    return request.GET.get("metrics", "").strip().lower() != "all"
+
+
+def _public_metric_prefetch():
+    return Prefetch(
+        "metrics",
+        queryset=AdmissionMetric.objects.exclude(
+            metric_code__icontains="REFERENCE_MEAN"
+        ),
+    )
+
+
+def _with_public_metrics(queryset):
+    """화면에 실제 표시되는 입결 지표가 하나 이상인 결과만 남긴다."""
+    public_metrics = AdmissionMetric.objects.filter(
+        result_id=OuterRef("pk")
+    ).exclude(metric_code__icontains="REFERENCE_MEAN")
+    return queryset.alias(has_public_metric=Exists(public_metrics)).filter(
+        has_public_metric=True
+    )
 
 
 def _normalize_track(value):
@@ -115,6 +139,7 @@ def _overview_result_context(request, selected_year):
     selected_track = _normalize_track(request.GET.get("track"))
     selected_phase = _phase_for_track(selected_track, selected_phase)
     query = request.GET.get("q", "").strip()
+    metrics_only = _metrics_only(request)
 
     if not selected_year:
         return {
@@ -125,13 +150,16 @@ def _overview_result_context(request, selected_year):
             "source_kind": source_kind,
             "selected_phase": selected_phase,
             "selected_track": selected_track,
+            "metrics_only": metrics_only,
+            "metric_result_count": 0,
+            "all_result_count": 0,
             "pagination_query": "",
         }
 
     results = (
         AdmissionResult.objects.filter(admission_year=selected_year)
         .select_related("university", "recruitment_unit", "source")
-        .prefetch_related("metrics")
+        .prefetch_related(_public_metric_prefetch())
     )
 
     if source_kind == "four":
@@ -152,6 +180,12 @@ def _overview_result_context(request, selected_year):
             | Q(selection_name__icontains=query)
         )
 
+    all_result_count = results.count()
+    metric_results = _with_public_metrics(results)
+    metric_result_count = metric_results.count()
+    if metrics_only:
+        results = metric_results
+
     results = results.order_by(
         "university__name",
         "admission_phase",
@@ -161,13 +195,17 @@ def _overview_result_context(request, selected_year):
         "result_id",
     )
 
-    filtered_result_count = results.count()
+    filtered_result_count = metric_result_count if metrics_only else all_result_count
     page_obj = Paginator(results, RESULTS_PER_PAGE).get_page(request.GET.get("page", 1))
     page_results = list(page_obj.object_list)
     attach_mobile_cut_metrics(page_results)
 
     pagination_params = request.GET.copy()
     pagination_params.pop("page", None)
+    if metrics_only:
+        pagination_params.pop("metrics", None)
+    else:
+        pagination_params["metrics"] = "all"
     if selected_phase:
         pagination_params["phase"] = selected_phase
     if selected_track:
@@ -181,6 +219,9 @@ def _overview_result_context(request, selected_year):
         "source_kind": source_kind,
         "selected_phase": selected_phase,
         "selected_track": selected_track,
+        "metrics_only": metrics_only,
+        "metric_result_count": metric_result_count,
+        "all_result_count": all_result_count,
         "pagination_query": pagination_params.urlencode(),
     }
 
@@ -193,6 +234,7 @@ def _overview_filter_groups(context, selected_year):
         "kind": context["source_kind"],
         "phase": context["selected_phase"],
         "track": context["selected_track"],
+        "metrics": "" if context["metrics_only"] else "all",
     }
     groups = []
     for name, label, choices in (
@@ -281,6 +323,9 @@ def overview(request):
         "source_kind": result_context["source_kind"],
         "selected_phase": result_context["selected_phase"],
         "selected_track": result_context["selected_track"],
+        "metrics_only": result_context["metrics_only"],
+        "metric_result_count": result_context["metric_result_count"],
+        "all_result_count": result_context["all_result_count"],
         "pagination_query": result_context["pagination_query"],
         "track_choices": TRACK_CHOICES,
         "filter_groups": _overview_filter_groups(result_context, selected_year),

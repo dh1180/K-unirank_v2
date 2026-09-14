@@ -1,9 +1,9 @@
 {% load admission_extras %}
-<div class="async-results-meta" data-count="{{ filtered_result_count }}" data-page="{{ page_obj.number|default:1 }}" data-year="{{ selected_year|default:'' }}" data-query="{{ query }}" data-kind="{{ source_kind }}" data-phase="{{ selected_phase }}" data-track="{{ selected_track }}">
+<div class="async-results-meta" data-count="{{ filtered_result_count }}" data-metric-count="{{ metric_result_count }}" data-all-count="{{ all_result_count }}" data-metrics="{% if metrics_only %}available{% else %}all{% endif %}" data-page="{{ page_obj.number|default:1 }}" data-year="{{ selected_year|default:'' }}" data-query="{{ query }}" data-kind="{{ source_kind }}" data-phase="{{ selected_phase }}" data-track="{{ selected_track }}">
     {% if page_obj and filtered_result_count %}
-    <span>전체 <strong>{{ filtered_result_count }}</strong>건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건</span>
+    <span>{% if metrics_only %}입결 지표 공개{% else %}전체{% endif %} <strong>{{ filtered_result_count }}</strong>건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건</span>
     {% else %}
-    <span>검색 결과 <strong>0</strong>건</span>
+    <span>{% if metrics_only and all_result_count %}입결 지표가 공개된 결과가 없습니다. 필터를 해제하면 전체 {{ all_result_count }}건을 볼 수 있어요.{% else %}검색 결과 <strong>0</strong>건{% endif %}</span>
     {% endif %}
 </div>
 

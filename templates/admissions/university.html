@@ -2,7 +2,7 @@
 {% load static admission_extras %}
 {% block title %}{{ university.name }} 입시 · K-unirank{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/admissions-university-summary.css' %}">
+<link rel="stylesheet" href="{% static 'css/admissions-university-summary.css' %}?v=20260915-1">
 {% endblock %}
 {% block content %}
 <div class="admission-university-head" data-ga-view="admission_view" data-ga-param-university="{{ university.name }}" data-ga-param-year="{% if show_all_years %}all{% else %}{{ selected_year|default:'' }}{% endif %}" data-ga-param-phase="{{ selected_phase|default:'ALL' }}" data-ga-param-result-count="{{ result_count }}">
@@ -48,7 +48,7 @@
     <div class="core-admission-summary-grid">
         {% for card in core_summary_cards %}
         <a class="core-admission-card"
-           href="?year={{ summary_year }}&phase={{ card.phase_code }}&track={{ card.key }}#admission-unit-results"
+           href="?year={{ summary_year }}&phase={{ card.phase_code }}&track={{ card.key }}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results"
            data-ga-event="admission_core_summary_open"
            data-ga-param-university="{{ university.name }}"
            data-ga-param-track="{{ card.key }}">
@@ -136,35 +136,49 @@
             <h2>모집단위별 상세 결과</h2>
             <p class="muted">대입정보포털·전문대학포털 등 출처가 공개한 지표를 원문 기준으로 표시합니다. 출처에 따라 50/70% 컷 또는 합격자 평균·최저 등 공개 형식이 다를 수 있습니다.</p>
             {% if page_obj and result_count %}
-                <p class="muted admission-page-summary">전체 {{ result_count }}건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건을 표시합니다.</p>
+                <p class="muted admission-page-summary">{% if metrics_only %}입결 지표 공개{% else %}전체{% endif %} {{ result_count }}건 중 {{ page_obj.start_index }}–{{ page_obj.end_index }}건을 표시합니다.</p>
             {% endif %}
         </div>
         <div class="section-title-side">
             <span class="result-count-pill">{{ result_count }}건</span>
+            <small class="admission-count-context">{% if metrics_only %}전체 {{ all_result_count }}건{% else %}지표 공개 {{ metric_result_count }}건{% endif %}</small>
         </div>
     </div>
 
     <div class="admission-control-card">
         <div class="admission-filter-row">
             <div class="region-chips">
-                <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체 연도</a>
+                <a class="region-chip {% if show_all_years %}active{% endif %}" href="?year=all{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">전체 연도</a>
                 {% for y in years %}
-                    <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">{{ y }}</a>
+                    <a class="region-chip {% if selected_year|stringformat:'s' == y|stringformat:'s' %}active{% endif %}" href="?year={{ y }}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">{{ y }}</a>
                 {% endfor %}
             </div>
             <div class="phase-tabs" aria-label="전형 구분">
-                <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체</a>
-                <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">수시</a>
-                <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">정시</a>
+                <a class="region-chip {% if not selected_phase %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">전체</a>
+                <a class="region-chip {% if selected_phase == 'SUSI' %}active{% endif %}" href="?phase=SUSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">수시</a>
+                <a class="region-chip {% if selected_phase == 'JEONGSI' %}active{% endif %}" href="?phase=JEONGSI{% if show_all_years %}&year=all{% elif selected_year %}&year={{ selected_year }}{% endif %}{% if selected_track %}&track={{ selected_track }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">정시</a>
             </div>
         </div>
 
         <div class="admission-track-row" aria-label="전형 유형">
-            <a class="region-chip {% if not selected_track %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">전체</a>
+            <a class="region-chip {% if not selected_track %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}{% if selected_phase %}&phase={{ selected_phase }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">전체</a>
             {% for track_key, track_label in track_choices.items %}
-                <a class="region-chip {% if selected_track == track_key %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}&track={{ track_key }}{% if query %}&q={{ query|urlencode }}{% endif %}#admission-unit-results">{{ track_label }}</a>
+                <a class="region-chip {% if selected_track == track_key %}active{% endif %}" href="?{% if show_all_years %}year=all{% elif selected_year %}year={{ selected_year }}{% endif %}&track={{ track_key }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if not metrics_only %}&metrics=all{% endif %}#admission-unit-results">{{ track_label }}</a>
             {% endfor %}
         </div>
+
+        <form method="get" action="{% url 'admissions:university' university.pk %}#admission-unit-results" class="metric-availability-form" id="university-metric-filter-form">
+            {% if show_all_years %}<input type="hidden" name="year" value="all">{% elif selected_year %}<input type="hidden" name="year" value="{{ selected_year }}">{% endif %}
+            {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
+            {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
+            {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+            <input type="hidden" name="metrics" value="all" id="university-metrics-view" {% if metrics_only %}disabled{% endif %}>
+            <label class="metric-availability-check" for="university-metrics-only">
+                <input type="checkbox" id="university-metrics-only" {% if metrics_only %}checked{% endif %}>
+                <span>입결 지표 있는 결과만</span>
+            </label>
+            <noscript><button class="button ghost compact" type="submit">적용</button></noscript>
+        </form>
 
         <form method="get"
               action="{% url 'admissions:university' university.pk %}#admission-unit-results"
@@ -179,6 +193,7 @@
             {% endif %}
             {% if selected_phase %}<input type="hidden" name="phase" value="{{ selected_phase }}">{% endif %}
             {% if selected_track %}<input type="hidden" name="track" value="{{ selected_track }}">{% endif %}
+            {% if not metrics_only %}<input type="hidden" name="metrics" value="all">{% endif %}
             <div class="admission-search-input-wrap">
                 <input class="search-input"
                        type="search"
@@ -255,7 +270,7 @@
                     </td>
                 </tr>
             {% empty %}
-                <tr class="empty-table-row"><td colspan="8"><div class="mini-empty">조건에 맞는 입시 결과가 없습니다.</div></td></tr>
+                <tr class="empty-table-row"><td colspan="8"><div class="mini-empty">{% if metrics_only and all_result_count %}입결 지표가 공개된 결과가 없습니다. 필터를 해제하면 전체 {{ all_result_count }}건을 볼 수 있어요.{% else %}조건에 맞는 입시 결과가 없습니다.{% endif %}</div></td></tr>
             {% endfor %}
             </tbody>
         </table>
