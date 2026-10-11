@@ -82,8 +82,6 @@
     <div class="coverage-sources">어디가 · 전문대학포털 · 대학 입학처</div>
 </section>
 
-{% support_home_banner %}
-
 <section class="explorer-section" id="admission-explorer" data-results-url="{% url 'admissions:overview_results' %}" data-selected-year="{{ selected_year }}">
     <div class="section-title admissions-results-title">
         <div><span class="discovery-section-number">01 / EXPLORE</span><h2>대학·학과 입결 찾기</h2><p class="muted">궁금한 대학과 학과를 검색하고, 조건을 좁혀보세요.</p></div>
@@ -140,5 +138,6 @@
 {% else %}
 <div class="empty-state card-empty"><strong>입시 데이터를 준비하고 있어요.</strong><p>먼저 대학 정보와 공식 공시 지표를 살펴보세요.</p><a class="button primary" href="{% url 'universities:list' %}">대학 둘러보기</a></div>
 {% endif %}
+{% support_home_banner %}
 </div>
 {% endblock %}
