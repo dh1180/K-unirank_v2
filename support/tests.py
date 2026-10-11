@@ -102,3 +102,19 @@ class SupportTests(TestCase):
         pledge.refresh_from_db()
         self.assertEqual(pledge.status, SupportPledge.Status.CONFIRMED)
         self.assertIsNotNone(pledge.confirmed_at)
+
+    @override_settings(
+        SUPPORT_ACCEPTING_TRANSFERS=True, SUPPORT_BANK_OWNER="테스트예금주",
+        SUPPORT_QR_IMAGE_URL="/static/support/payment-qr.png",
+    )
+    def test_bank_qr_is_optional_and_home_banner_uses_confirmed_rank(self):
+        pledge = SupportPledge.objects.create(
+            university=self.first, amount=8000, depositor_name="후원자",
+            status=SupportPledge.Status.CONFIRMED, confirmed_at=timezone.now(),
+        )
+        response = self.client.get(reverse("support:index"))
+        self.assertContains(response, "/static/support/payment-qr.png")
+        home = self.client.get(reverse("home"))
+        self.assertEqual(home.status_code, 200)
+        self.assertContains(home, "이번 달 대학 응원 1위")
+        self.assertContains(home, self.first.name)
