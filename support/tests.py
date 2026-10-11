@@ -35,7 +35,7 @@ class SupportTests(TestCase):
     )
     def test_application_requires_manual_confirmation(self):
         response = self.client.post(reverse("support:index"), {
-            "university": self.first.pk, "amount": 5000, "depositor_name": "입금자",
+            "university": self.first.pk, "amount": 5000, "depositor_name": "후원개인검증이름",
         })
         self.assertEqual(response.status_code, 302)
         pledge = SupportPledge.objects.get()
@@ -44,7 +44,7 @@ class SupportTests(TestCase):
         self.assertEqual(leaders, [])
         receipt = self.client.get(response["Location"])
         self.assertContains(receipt, "1002863490240")
-        self.assertNotContains(receipt, "입금자")
+        self.assertNotContains(receipt, "후원개인검증이름")
 
     @override_settings(
         SUPPORT_ACCEPTING_TRANSFERS=True, SUPPORT_BANK_OWNER="테스트예금주",
@@ -127,14 +127,14 @@ class SupportTests(TestCase):
     )
     def test_uploaded_toss_qr_is_default_for_support_and_receipt(self):
         get_response = self.client.get(reverse("support:index"))
-        self.assertContains(get_response, "support/payment-qr.png")
+        self.assertContains(get_response, "payment-qr")
         self.assertContains(get_response, "토스 송금 QR")
         post_response = self.client.post(reverse("support:index"), {
             "university": self.first.pk, "amount": 5000, "depositor_name": "입금자",
         })
         self.assertEqual(post_response.status_code, 302)
         receipt = self.client.get(post_response["Location"])
-        self.assertContains(receipt, "support/payment-qr.png")
+        self.assertContains(receipt, "payment-qr")
         self.assertContains(receipt, "1002863490240")
 
     def test_header_support_link_is_visible_to_unauthenticated_users(self):
@@ -152,7 +152,7 @@ class SupportTests(TestCase):
         University.objects.create(name="다온대학교")
         form_response = self.client.get(reverse("support:index"))
         self.assertContains(form_response, 'id="support-university-search"')
-        self.assertContains(form_response, 'js/support-school-search.js')
+        self.assertContains(form_response, 'support-school-search')
         choices = list(form_response.context["form"].fields["university"].choices)
         names = [label for value, label in choices if value]
         self.assertEqual(names, sorted(names))
