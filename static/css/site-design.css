@@ -278,3 +278,26 @@
     .kuni-design :is(.button, .school-card, .ranking-hub-primary-card,
         .ranking-hub-indicator-card, .university-card) { transition: none; }
 }
+
+/* Primary support destination: visible in the desktop and mobile navigation. */
+.kuni-design .site-header .nav-support-link {
+    background: #eef3ff;
+    border: 1px solid #ccdaff;
+    color: #274ccc;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.kuni-design .site-header .nav-support-link:hover,
+.kuni-design .site-header .nav-support-link.active {
+    background: #3157e5;
+    color: #fff;
+    border-color: #3157e5;
+}
+@media (max-width: 720px) {
+    .kuni-design .site-header .nav-support-link {
+        flex: 0 0 auto;
+        padding: 0 10px;
+        min-height: 36px;
+        font-size: 12px;
+    }
+}

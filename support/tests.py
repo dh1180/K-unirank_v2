@@ -118,3 +118,26 @@ class SupportTests(TestCase):
         self.assertEqual(home.status_code, 200)
         self.assertContains(home, "이번 달 대학 응원 1위")
         self.assertContains(home, self.first.name)
+
+    @override_settings(
+        SUPPORT_ACCEPTING_TRANSFERS=True,
+        SUPPORT_BANK_OWNER="테스트예금주",
+        SUPPORT_QR_IMAGE_URL="",
+        SUPPORT_BANK_ACCOUNT="1002863490240",
+    )
+    def test_uploaded_toss_qr_is_default_for_support_and_receipt(self):
+        get_response = self.client.get(reverse("support:index"))
+        self.assertContains(get_response, "support/payment-qr.png")
+        self.assertContains(get_response, "토스 송금 QR")
+        post_response = self.client.post(reverse("support:index"), {
+            "university": self.first.pk, "amount": 5000, "depositor_name": "입금자",
+        })
+        self.assertEqual(post_response.status_code, 302)
+        receipt = self.client.get(post_response["Location"])
+        self.assertContains(receipt, "support/payment-qr.png")
+        self.assertContains(receipt, "1002863490240")
+
+    def test_header_support_link_is_visible_to_unauthenticated_users(self):
+        response = self.client.get(reverse("support:index"))
+        self.assertContains(response, 'href="/support/"')
+        self.assertContains(response, 'nav-support-link')

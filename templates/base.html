@@ -72,6 +72,7 @@
         <span>K-unirank</span>
     </a>
     <nav>
+        <a class="nav-link nav-support-link {% if request.resolver_match.namespace == 'support' %}active{% endif %}" href="{% url 'support:index' %}">후원</a>
         <a class="nav-link {% if request.resolver_match.url_name == 'vote_default' or request.resolver_match.url_name == 'vote' %}active{% endif %}" href="{% url 'rankings:vote_default' %}">VS</a>
         <a class="nav-link {% if request.resolver_match.url_name == 'ranking_hub' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking_default' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking' or request.resolver_match.namespace == 'universities' and request.resolver_match.url_name == 'indicator_ranking' or request.resolver_match.namespace == 'admissions' and request.resolver_match.url_name == 'ranking' %}active{% endif %}" href="{% url 'rankings:ranking_hub' %}">순위</a>
         <a class="nav-link {% if request.resolver_match.namespace == 'universities' and request.resolver_match.url_name != 'indicator_ranking' %}active{% endif %}" href="{% url 'universities:list' %}">대학</a>
