@@ -188,7 +188,7 @@ class AdmissionsDiscoveryTests(TestCase):
     def test_chart_does_not_average_50_and_70_percent_cutoffs_together(self):
         other_unit = RecruitmentUnit.objects.create(university=self.university, name="기계공학과")
         self.add_result(other_unit, self.source, "3.0", code="STUDENT_GRADE_50_CUT")
-        response = self.client.get(reverse("admissions:compare"), {"grade": "3.5"})
+        response = self.client.get(reverse("admissions:compare"), {"grade": "3.5", "chart_min": 1})
         self.assertEqual(response.context["filtered_count"], 2)
         chart = response.context["chart_rows"][0]
         self.assertEqual(chart["average_cut"], Decimal("3.4"))
@@ -198,9 +198,66 @@ class AdmissionsDiscoveryTests(TestCase):
 
     def test_chart_falls_back_to_50_percent_with_explicit_label(self):
         AdmissionMetric.objects.filter(result=self.result).update(metric_code="STUDENT_GRADE_50_CUT")
-        response = self.client.get(reverse("admissions:compare"), {"grade": "3.5"})
+        response = self.client.get(reverse("admissions:compare"), {"grade": "3.5", "chart_min": 1})
         self.assertEqual(response.context["chart_rows"][0]["reference_label"], "50% 컷")
         self.assertContains(response, "50% 컷 평균")
+
+
+    def test_chart_excludes_one_result_universities_by_default(self):
+        response = self.client.get(reverse("admissions:compare"), {"grade": "3.4"})
+        self.assertEqual(response.context["filtered_count"], 1)
+        self.assertEqual(response.context["chart_min"], 2)
+        self.assertEqual(response.context["chart_university_count"], 0)
+        self.assertContains(response, "현재 그래프 조건에 맞는 대학이 없습니다.")
+        self.assertContains(response, 'name="chart_min"')
+        self.assertContains(response, 'name="special"')
+        self.assertContains(response, "모집단위별 비교")
+
+        unfiltered = self.client.get(reverse("admissions:compare"), {
+            "grade": "3.4", "chart_min": 1,
+        })
+        self.assertEqual(unfiltered.context["chart_university_count"], 1)
+        self.assertEqual(unfiltered.context["chart_rows"][0]["result_count"], 1)
+
+    def test_chart_minimum_sample_filters_only_chart_not_detail_table(self):
+        unit = RecruitmentUnit.objects.create(university=self.university, name="정보통신공학과")
+        self.add_result(unit, self.source, "3.41")
+        base_params = {"grade": "3.4", "scope": "all"}
+        standard = self.client.get(reverse("admissions:compare"), base_params)
+        self.assertEqual(standard.context["chart_university_count"], 1)
+        self.assertEqual(standard.context["filtered_count"], 2)
+        self.assertEqual(standard.context["chart_rows"][0]["result_count"], 2)
+
+        strict = self.client.get(reverse("admissions:compare"), {**base_params, "chart_min": 3})
+        self.assertEqual(strict.context["chart_university_count"], 0)
+        self.assertEqual(strict.context["filtered_count"], 2)
+        self.assertContains(strict, "현재 그래프 조건에 맞는 대학이 없습니다.")
+
+        invalid = self.client.get(reverse("admissions:compare"), {**base_params, "chart_min": "NaN"})
+        self.assertEqual(invalid.context["chart_min"], 2)
+
+    def test_chart_special_filter_uses_same_rows_as_detail_results(self):
+        unit = RecruitmentUnit.objects.create(university=self.university, name="농업생명공학과")
+        special = AdmissionResult.objects.create(
+            university=self.university, recruitment_unit=unit, source=self.source,
+            admission_year=2026, admission_phase="SUSI",
+            selection_category="학생부교과", selection_name="농어촌학생전형",
+        )
+        AdmissionMetric.objects.create(
+            result=special, metric_code="STUDENT_GRADE_70_CUT",
+            value=Decimal("3.50"), unit="등급",
+        )
+        default = self.client.get(reverse("admissions:compare"), {"grade": "3.4"})
+        self.assertEqual(default.context["filtered_count"], 1)
+        self.assertEqual(default.context["chart_university_count"], 0)
+
+        included = self.client.get(reverse("admissions:compare"), {
+            "grade": "3.4", "special": "all",
+        })
+        self.assertEqual(included.context["filtered_count"], 2)
+        self.assertEqual(included.context["chart_university_count"], 1)
+        self.assertEqual(included.context["chart_rows"][0]["result_count"], 2)
+        self.assertContains(included, 'id="chart-special"')
 
     def test_compare_pagination_targets_results_and_supports_async_navigation(self):
         results = [
