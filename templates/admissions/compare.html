@@ -55,6 +55,30 @@
 .compare-section-head p { margin: 5px 0 0; color: #7a8394; font-size: 13px; }
 .compare-count { flex: 0 0 auto; border-radius: 999px; background: #f1f4f9; padding: 7px 11px; font-size: 12px; font-weight: 800; color: #596276; }
 .compare-chart { border: 1px solid #e5e9f2; border-radius: 18px; background: #fff; overflow: hidden; }
+.compare-chart-filters {
+    margin: 12px 0 12px;
+    padding: 13px 15px;
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+    border: 1px solid #dfe5ef;
+    border-radius: 14px;
+    background: #fff;
+}
+.compare-chart-filter { display: flex; flex: 1 1 160px; flex-direction: column; gap: 5px; min-width: 0; }
+.compare-chart-filter label { font-size: 12px; color: #55627b; font-weight: 800; }
+.compare-chart-filter select { min-height: 42px; border: 1px solid #d7dfec; border-radius: 10px; padding: 0 11px; background: #fff; color: #253248; font-size: 13px; font-weight: 700; }
+.compare-chart-filter select:focus-visible { outline: 2px solid #3157e5; outline-offset: 2px; }
+.compare-chart-filter-submit { min-height: 42px; border: 0; border-radius: 10px; padding: 0 20px; color: #fff; background: #3157e5; font-weight: 800; font-size: 13px; cursor: pointer; }
+.compare-chart-filter-submit:hover { background: #2349c9; }
+.compare-chart-filter-note { width: 100%; color: #748198; font-size: 12px; line-height: 1.5; }
+@media (max-width: 640px) {
+    .compare-chart-filters { gap: 9px; padding: 11px; }
+    .compare-chart-filter { flex: 1 1 calc(50% - 6px); }
+    .compare-chart-filter-submit { width: 100%; }
+    .compare-chart-filter-note { font-size: 11px; }
+}
 .compare-axis { margin: 16px 18px 4px 190px; display: flex; justify-content: space-between; font-size: 11px; color: #8a92a2; }
 .compare-chart-row { display: grid; grid-template-columns: 180px minmax(300px, 1fr) 90px; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid #f0f2f6; }
 .compare-chart-row:first-of-type { border-top: 0; }
@@ -522,6 +546,7 @@
         <p>내신 평균등급과 관심 학과를 입력하면 {{ selected_year|default:"최신" }}학년도 4년제 수시 공식 50%·70% 컷을 같은 축에서 비교합니다. 학과명은 쉼표로 여러 개 입력할 수 있습니다.</p>
 
         <form method="get" class="compare-form" autocomplete="off" data-ga-submit="admission_compare_search" data-ga-search-field="q">
+            <input type="hidden" name="chart_min" value="{{ chart_min }}">
             <div class="compare-field">
                 <label for="compare-grade">내 평균등급 · 9등급제</label>
                 <input id="compare-grade" type="number" name="grade" min="1" max="9" step="0.01" inputmode="decimal" value="{{ grade_raw }}" placeholder="예: 3.50" required {% if grade_error %}aria-invalid="true" aria-describedby="compare-grade-error"{% endif %}>
@@ -597,15 +622,42 @@
         </div>
     </section>
 
-    {% if chart_rows %}
-    <section class="compare-section">
+    {% if selected_year %}
+    <section class="compare-section" id="compare-chart-section">
         <div class="compare-section-head">
             <div>
                 <h2>내 점수와 가까운 대학</h2>
                 <p>검색 결과의 70% 컷끼리 평균을 냅니다. 70% 컷이 없는 대학은 50% 컷끼리 비교하며, 사용한 기준과 표본 수를 함께 표시합니다.</p>
             </div>
-            <span class="compare-count">{{ chart_rows|length }}개 대학</span>
+            <span class="compare-count">{{ chart_university_count }}개 대학{% if chart_university_count > 16 %} · 상위 16개 표시{% endif %}</span>
         </div>
+        <form class="compare-chart-filters" method="get" action="{% url 'admissions:compare' %}#compare-chart-section" aria-label="가까운 대학 그래프 필터">
+            <input type="hidden" name="grade" value="{{ grade_raw }}">
+            <input type="hidden" name="year" value="{{ selected_year }}">
+            <input type="hidden" name="track" value="{{ track }}">
+            <input type="hidden" name="scope" value="{{ scope }}">
+            <input type="hidden" name="q" value="{{ query }}">
+            <input type="hidden" name="region" value="{{ region }}">
+            <div class="compare-chart-filter">
+                <label for="chart-special">전형 범위</label>
+                <select id="chart-special" name="special">
+                    <option value="exclude" {% if special != 'all' %}selected{% endif %}>일반 지원 중심 (특별전형 제외)</option>
+                    <option value="all" {% if special == 'all' %}selected{% endif %}>특별전형 포함</option>
+                </select>
+            </div>
+            <div class="compare-chart-filter">
+                <label for="chart-min">최소 입결 표본 수</label>
+                <select id="chart-min" name="chart_min">
+                    <option value="1" {% if chart_min == 1 %}selected{% endif %}>1개 이상 (전체)</option>
+                    <option value="2" {% if chart_min == 2 %}selected{% endif %}>2개 이상 (기본)</option>
+                    <option value="3" {% if chart_min == 3 %}selected{% endif %}>3개 이상</option>
+                    <option value="5" {% if chart_min == 5 %}selected{% endif %}>5개 이상</option>
+                </select>
+            </div>
+            <button type="submit" class="compare-chart-filter-submit">그래프에 적용</button>
+            <small class="compare-chart-filter-note">특별전형 선택은 아래 모집단위 목록에도 적용됩니다. 최소 표본 수는 그래프에만 적용되며, 표본이 1개인 대학은 기본 제외됩니다. 대학별 70% 컷 우선, 없으면 50% 컷만 비교합니다.</small>
+        </form>
+        {% if chart_rows %}
         <div class="compare-chart">
             <div class="compare-chart-inner">
                 <div class="compare-axis"><span>1등급</span><span>3등급</span><span>5등급</span><span>7등급</span><span>9등급</span></div>
@@ -628,6 +680,12 @@
             </div>
         </div>
         <button type="button" class="compare-chart-toggle" aria-expanded="false">나머지 대학 더 보기</button>
+        {% else %}
+        <div class="compare-empty" role="status">
+            <strong>현재 그래프 조건에 맞는 대학이 없습니다.</strong>
+            최소 입결 표본 수를 1개 이상으로 낮추거나, 전형 범위를 변경해보세요. 아래 모집단위별 결과는 그대로 확인할 수 있습니다.
+        </div>
+        {% endif %}
     </section>
     {% endif %}
 

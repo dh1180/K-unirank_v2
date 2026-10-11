@@ -146,6 +146,15 @@ def compare_by_grade(request):
     # Default to excluding admission tracks with special eligibility conditions.
     special = "all" if request.GET.get("special") == "all" else "exclude"
 
+    # A single published cutoff is not a reliable university-level sample.
+    # Chart-only minimum: it never removes results from the detail table.
+    try:
+        chart_min = int(request.GET.get("chart_min", "2"))
+    except (TypeError, ValueError):
+        chart_min = 2
+    if chart_min not in (1, 2, 3, 5):
+        chart_min = 2
+
     scope = request.GET.get("scope", "near").strip().lower()
     if scope not in {"near", "all"}:
         scope = "near"
@@ -164,6 +173,7 @@ def compare_by_grade(request):
 
     rows = []
     chart_rows = []
+    chart_university_count = 0
     filtered_count = 0
     page_obj = None
     pagination_query = ""
@@ -323,6 +333,10 @@ def compare_by_grade(request):
                 item["university"].name,
             )
         )
+        # Filter by the actual comparable 70% sample (or explicit 50% fallback),
+        # not by the number of other metrics available for a university.
+        chart_rows = [item for item in chart_rows if item["result_count"] >= chart_min]
+        chart_university_count = len(chart_rows)
         chart_rows = chart_rows[:16]
 
         paginator = Paginator(rows, RESULTS_PER_PAGE)
@@ -341,6 +355,8 @@ def compare_by_grade(request):
         "track_label": selection_category,
         "scope": scope,
         "special": special,
+        "chart_min": chart_min,
+        "chart_university_count": chart_university_count,
         "query": query,
         "query_terms": query_terms,
         "region": region,
