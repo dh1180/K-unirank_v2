@@ -53,6 +53,7 @@ urlpatterns = [
     ),
     path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("accounts/", include("users.urls")),
+    path("support/", include("support.urls")),
     path("universities/", include("universities.urls")),
     path("admissions/", include("admissions.urls")),
     path("health/", health, name="health"),

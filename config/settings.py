@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "rankings",
     "admissions",
     "users",
+    "support",
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,9 @@ CSRF_COOKIE_HTTPONLY = False
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Bank-transfer sponsorship stays closed until operator identity and legal review are complete.
+SUPPORT_ACCEPTING_TRANSFERS = os.getenv("SUPPORT_ACCEPTING_TRANSFERS", "false").lower() == "true"
+SUPPORT_BANK_ACCOUNT = os.getenv("SUPPORT_BANK_ACCOUNT", "1002863490240").strip()
+SUPPORT_BANK_OWNER = os.getenv("SUPPORT_BANK_OWNER", "").strip()
+SUPPORT_QR_IMAGE_URL = os.getenv("SUPPORT_QR_IMAGE_URL", "").strip()
