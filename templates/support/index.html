@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}대학 응원 후원 | K-unirank{% endblock %}
+{% block meta_description %}K-unirank 운영을 후원하고 좋아하는 대학교를 응원해보세요. 대학 응원 후원 순위는 공식 대학 순위와 별도로 집계합니다.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/support.css' %}?v=1">{% endblock %}
+{% block content %}
+<div class="support-page">
+  <section class="support-hero">
+    <span class="support-kicker">K-UNIRANK COMMUNITY SUPPORT</span>
+    <h1>내가 응원하는 대학에<br><em>작은 힘을 보태주세요.</em></h1>
+    <p>후원금은 K-unirank의 서버비와 운영·개선에 사용됩니다. 대학에 직접 전달되는 기부금이 아니며, 대학 공식 평가·VS 선호도 순위에 영향을 주지 않습니다.</p>
+    <div class="support-hero-tags"><span>월간 응원 현황</span><span>운영자 입금 확인 후 반영</span><span>공식 대학 순위와 별개</span></div>
+  </section>
+  <div class="support-layout">
+    <section class="support-card" aria-labelledby="support-leaders-title">
+      <div class="support-card-top">
+        <div><span class="support-kicker">CHEERING BOARD</span><h2 id="support-leaders-title">{{ month_label }} 대학 응원 순위</h2></div>
+        <span class="support-status-label">입금 확인 기준</span>
+      </div>
+      {% if leaders %}
+        <ol class="support-leaders">
+        {% for entry in leaders %}
+          <li>
+            <span class="support-rank" aria-label="{{ forloop.counter }}위">{{ forloop.counter }}</span>
+            <div class="support-school"><strong><a href="{% url 'universities:detail' entry.university_id %}">{{ entry.university__name }}</a></strong><small>확인된 후원 {{ entry.confirmation_count }}건</small></div>
+            <strong class="support-total">{{ entry.total }}<small>원</small></strong>
+          </li>
+        {% endfor %}
+        </ol>
+      {% else %}
+        <div class="support-empty"><span aria-hidden="true">♡</span><h3>이번 달 첫 응원 대학을 기다리고 있어요.</h3><p>입금 확인이 완료된 후원만 여기에 표시됩니다.</p></div>
+      {% endif %}
+      <p class="support-fineprint">후원액 합계 순서이며 동액일 때 확인 건수 순서로 표시합니다. 집계 기준은 한국시간 입금 확인 월입니다. 후원자는 공개하지 않습니다.</p>
+    </section>
+    <section class="support-card support-form-card" aria-labelledby="support-form-title">
+      <div class="support-card-top"><div><span class="support-kicker">BANK TRANSFER</span><h2 id="support-form-title">응원 후원 신청</h2></div></div>
+      {% if accepting %}
+      <p class="support-muted">아래 내용을 먼저 제출한 후 계좌이체해주세요. 실제 입금 여부는 관리자가 은행 내역을 확인합니다.</p>
+      <form method="post" class="support-form">
+        {% csrf_token %}
+        {{ form.website }}
+        {% if form.non_field_errors %}<div class="support-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form.visible_fields %}
+          <div class="support-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="support-error" role="alert">{{ error }}</p>{% endfor %}</div>
+        {% endfor %}
+        <p class="support-muted support-private">입금자명은 은행 내역 대조에만 사용되며, 공개 순위에는 표시되지 않습니다.</p>
+        <button class="support-submit" type="submit">신청하고 계좌 안내 받기 <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="support-bank-preview"><small>입금 은행</small><strong>{{ bank_name }}</strong><small>계좌번호</small><code>{{ bank_account }}</code><small>예금주</small><strong>{{ bank_owner }}</strong></div>
+      {% if bank_qr_url %}<div class="support-qr"><img src="{{ bank_qr_url }}" alt="우리은행 후원 계좌이체 QR코드"><small>실제 계좌와 일치하는지 은행 앱에서 확인해주세요.</small></div>{% endif %}
+      {% else %}
+      <div class="support-empty support-ready"><span aria-hidden="true">♡</span><h3>후원 접수를 준비하고 있어요.</h3><p>안전한 입금 확인과 안내를 준비한 후 신청을 열겠습니다. 현재는 송금을 받지 않습니다.</p></div>
+      {% endif %}
+      <p class="support-fineprint">후원에 따른 응원 순위는 유료 참여·홍보 성격의 정보입니다. 대학의 공식 후원이나 제휴를 의미하지 않습니다. 기부금영수증 발급 및 세액공제 대상이 아닙니다.</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

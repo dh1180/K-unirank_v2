@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}후원 신청 안내 | K-unirank{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/support.css' %}?v=1">{% endblock %}
+{% block content %}
+<section class="support-page support-receipt support-card">
+  <span class="support-kicker">BANK TRANSFER INSTRUCTIONS</span>
+  <h1>후원 신청이 접수됐어요.</h1>
+  <p>아직 입금이 확인된 후원은 아닙니다. 아래 계좌로 직접 이체한 후 운영자가 은행 내역을 확인하면 대학 응원 순위에 반영됩니다.</p>
+  <dl class="support-receipt-details">
+    <div><dt>응원 대학</dt><dd>{{ pledge.university.name }}</dd></div>
+    <div><dt>신청 금액</dt><dd>{{ pledge.amount }}원</dd></div>
+    <div><dt>은행</dt><dd>{{ bank_name }}</dd></div>
+    <div><dt>계좌번호</dt><dd><code>{{ bank_account }}</code></dd></div>
+    <div><dt>예금주</dt><dd>{{ bank_owner }}</dd></div>
+    <div><dt>신청 번호</dt><dd><code>{{ pledge.pk }}</code></dd></div>
+  </dl>
+  {% if bank_qr_url %}<div class="support-qr"><img src="{{ bank_qr_url }}" alt="우리은행 후원 계좌이체 QR코드"><small>실제 계좌와 예금주가 일치하는지 확인하세요.</small></div>{% endif %}
+  <p class="support-muted">반드시 신청할 때 기입한 입금자명과 동일하게 송금해주세요. 이체만으로 즉시 반영되지 않으며, 미입금 신청은 순위에 반영되지 않습니다.</p>
+  <a class="support-back" href="{% url 'support:index' %}">대학 응원 순위로 돌아가기 →</a>
+</section>
+{% endblock %}
