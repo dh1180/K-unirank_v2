@@ -16,6 +16,26 @@ TRACK_CHOICES = {
 SOURCE_PRIORITY = {"UNIVERSITY": 2, "ADIGA": 1}
 RESULTS_PER_PAGE = 60
 
+# These admissions commonly require additional eligibility (e.g. rural residence,
+# specialized high school graduation or a separate applicant category).
+# Names vary by university: this is a conservative name-based discovery filter,
+# never an admissions eligibility determination.
+RESTRICTED_SELECTION_TERMS = (
+    "농어촌", "농·어촌", "특성화고", "특성화 고", "특성화고교",
+    "기초생활", "기초수급", "차상위", "저소득", "고른기회",
+    "기회균형", "사회통합", "사회배려", "국가보훈",
+    "보훈대상", "특수교육", "장애인", "서해5도", "북한이탈",
+    "재직자", "만학도", "평생학습", "성인학습",
+    "재외국민", "외국인", "다문화", "지역인재",
+)
+
+
+def restricted_selection_query():
+    restricted = Q()
+    for term in RESTRICTED_SELECTION_TERMS:
+        restricted |= Q(result__selection_name__icontains=term)
+    return restricted
+
 REGION_CHOICES = (
     ("", "전국"),
     ("서울", "서울"),
@@ -123,6 +143,8 @@ def compare_by_grade(request):
     if track not in TRACK_CHOICES:
         track = "student"
     selection_category = TRACK_CHOICES[track]
+    # Default to excluding admission tracks with special eligibility conditions.
+    special = "all" if request.GET.get("special") == "all" else "exclude"
 
     scope = request.GET.get("scope", "near").strip().lower()
     if scope not in {"near", "all"}:
@@ -158,6 +180,9 @@ def compare_by_grade(request):
             value__gte=1,
             value__lte=9,
         )
+
+        if special != "all":
+            metrics = metrics.exclude(restricted_selection_query())
 
         if query_terms:
             department_query = Q()
@@ -315,6 +340,7 @@ def compare_by_grade(request):
         "track": track,
         "track_label": selection_category,
         "scope": scope,
+        "special": special,
         "query": query,
         "query_terms": query_terms,
         "region": region,

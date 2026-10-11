@@ -250,6 +250,75 @@ class AdmissionsDiscoveryTests(TestCase):
         self.assertContains(response, self.unit.name)
         self.assertContains(response, "admissions-table-wrap")
 
+
+    def test_grade_compare_excludes_special_eligibility_admissions_by_default(self):
+        names = (
+            "농어촌학생전형",
+            "특성화고교졸업자전형",
+            "기회균형전형",
+            "지역인재전형",
+        )
+        for i, name in enumerate(names):
+            unit = RecruitmentUnit.objects.create(
+                university=self.university, name=f"특별전형학과{i}",
+            )
+            result = AdmissionResult.objects.create(
+                university=self.university, recruitment_unit=unit,
+                source=self.source, admission_year=2026,
+                admission_phase="SUSI", selection_category="학생부교과",
+                selection_name=name,
+            )
+            AdmissionMetric.objects.create(
+                result=result, metric_code="STUDENT_GRADE_70_CUT",
+                value=Decimal("3.40"), unit="등급",
+            )
+
+        basic = {"grade": "3.4", "scope": "all", "year": "2026"}
+        default = self.client.get(reverse("admissions:compare"), basic)
+        self.assertEqual(default.status_code, 200)
+        self.assertEqual(default.context["special"], "exclude")
+        self.assertEqual(default.context["filtered_count"], 1)
+        self.assertNotContains(default, "특별전형학과0")
+        self.assertContains(default, 'value="exclude" checked')
+
+        included = self.client.get(reverse("admissions:compare"), {
+            **basic, "special": "all",
+        })
+        self.assertEqual(included.context["filtered_count"], 5)
+        self.assertEqual(sum(item["result_count"] for item in included.context["chart_rows"]), 5)
+        self.assertContains(included, "특별전형학과0")
+        self.assertContains(included, "특별전형학과3")
+
+    def test_grade_compare_special_filter_keeps_query_on_pagination(self):
+        for i in range(62):
+            unit = RecruitmentUnit.objects.create(
+                university=self.university, name=f"일반학과{i:03}",
+            )
+            self.add_result(unit, self.source, "3.40")
+        params = {"grade": "3.4", "year": 2026, "scope": "all", "special": "all"}
+        response = self.client.get(reverse("admissions:compare"), params)
+        self.assertTrue(response.context["page_obj"].has_next())
+        self.assertIn("special=all", response.context["pagination_query"])
+
+    def test_grade_compare_does_not_exclude_school_recommendation_by_name(self):
+        unit = RecruitmentUnit.objects.create(
+            university=self.university, name="추천가능학과",
+        )
+        result = AdmissionResult.objects.create(
+            university=self.university, recruitment_unit=unit, source=self.source,
+            admission_year=2026, admission_phase="SUSI",
+            selection_category="학생부교과", selection_name="학교장추천전형",
+        )
+        AdmissionMetric.objects.create(
+            result=result, metric_code="STUDENT_GRADE_70_CUT",
+            value=Decimal("3.40"), unit="등급",
+        )
+        response = self.client.get(reverse("admissions:compare"), {
+            "grade": "3.4", "scope": "all",
+        })
+        self.assertEqual(response.context["filtered_count"], 2)
+        self.assertContains(response, "추천가능학과")
+
     def test_empty_database_shows_user_facing_next_step(self):
         AdmissionResult.objects.all().delete()
         response = self.client.get(reverse("home"))

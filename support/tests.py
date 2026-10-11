@@ -141,3 +141,34 @@ class SupportTests(TestCase):
         response = self.client.get(reverse("support:index"))
         self.assertContains(response, 'href="/support/"')
         self.assertContains(response, 'nav-support-link')
+
+
+    @override_settings(
+        SUPPORT_ACCEPTING_TRANSFERS=True,
+        SUPPORT_BANK_OWNER="테스트예금주",
+    )
+    def test_university_choices_are_ganada_sorted_and_search_is_available(self):
+        University.objects.create(name="가람대학교")
+        University.objects.create(name="다온대학교")
+        form_response = self.client.get(reverse("support:index"))
+        self.assertContains(form_response, 'id="support-university-search"')
+        self.assertContains(form_response, 'js/support-school-search.js')
+        choices = list(form_response.context["form"].fields["university"].choices)
+        names = [label for value, label in choices if value]
+        self.assertEqual(names, sorted(names))
+        self.assertLess(names.index("가람대학교"), names.index("다온대학교"))
+        self.assertLess(names.index("다온대학교"), names.index("바다대학교"))
+
+    @override_settings(
+        SUPPORT_ACCEPTING_TRANSFERS=True,
+        SUPPORT_BANK_OWNER="테스트예금주",
+    )
+    def test_filtered_school_select_still_validates_only_active_universities(self):
+        inactive = University.objects.create(name="비활성대학교", is_active=False)
+        visible = self.client.get(reverse("support:index"))
+        self.assertNotContains(visible, '비활성대학교')
+        invalid = self.client.post(reverse("support:index"), {
+            "university": inactive.pk, "amount": 5000, "depositor_name": "입금자",
+        })
+        self.assertEqual(invalid.status_code, 200)
+        self.assertEqual(SupportPledge.objects.count(), 0)

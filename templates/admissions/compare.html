@@ -496,6 +496,15 @@
         line-height: 1.55;
     }
 }
+/* The eligibility filter follows the same chip system as the grade controls. */
+.compare-special-filter { display:flex; flex-wrap:wrap; align-items:center; gap:7px; padding:0; margin:0; border:0; min-width:0; }
+.compare-special-filter legend { float:left; padding:0; margin:0 9px 0 0; color:#596276; font-size:12px; font-weight:800; line-height:34px; }
+.compare-special-hint { flex-basis:100%; margin-top:0; margin-left:0; color:#6e7c91; font-size:11px; line-height:1.55; }
+@media (max-width:640px) {
+    .compare-special-filter { width:100%; gap:6px; }
+    .compare-special-filter legend { width:100%; margin:0 0 3px; line-height:1.4; }
+    .compare-special-hint { font-size:11px; }
+}
 </style>
 {% endblock %}
 
@@ -550,6 +559,12 @@
                     <label class="compare-radio"><input type="radio" name="scope" value="near" {% if scope == 'near' %}checked{% endif %}><span>내 등급 ±0.5</span></label>
                     <label class="compare-radio"><input type="radio" name="scope" value="all" {% if scope == 'all' %}checked{% endif %}><span>전체 보기</span></label>
                 </div>
+                <fieldset class="compare-special-filter">
+                    <legend>지원 자격 필터</legend>
+                    <label class="compare-radio"><input type="radio" name="special" value="exclude" {% if special != 'all' %}checked{% endif %}><span>일반 지원 중심</span></label>
+                    <label class="compare-radio"><input type="radio" name="special" value="all" {% if special == 'all' %}checked{% endif %}><span>특별전형 포함</span></label>
+                    <small class="compare-special-hint">기본: 농어촌·특성화고·기회균형·지역인재 등 일부 자격 제한 전형 제외 · 전형명 기준</small>
+                </fieldset>
             </div>
         </form>
 
