@@ -301,3 +301,102 @@
         font-size: 12px;
     }
 }
+
+/*
+ * K-unirank design-system consolidation.
+ * The base stylesheet still owns component geometry; these tokens and shared
+ * affordances apply consistently to discovery, rankings, VS, directories,
+ * admissions, account pages and support without altering table/chart behavior.
+ */
+.kuni-design {
+    --surface: #ffffff;
+    --canvas: #f5f7fb;
+    --brand: #3157e5;
+    --brand-dark: #2446cb;
+    --brand-soft: #edf2ff;
+    --line: #dfe5ef;
+    --radius: 16px;
+    --radius-lg: 22px;
+    --control-radius: 11px;
+    --shadow-card: 0 5px 22px rgba(27, 49, 89, .035);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+.kuni-design :is(h1, h2, h3) { text-wrap: balance; }
+.kuni-design :is(.container, .footer) { overflow-wrap: break-word; }
+.kuni-design .site-header {
+    border-bottom: 1px solid rgba(215, 225, 242, .84);
+    box-shadow: 0 2px 14px rgba(24, 47, 88, .035);
+    background: rgba(255, 255, 255, .97);
+}
+.kuni-design .site-header .brand { letter-spacing: -.035em; }
+.kuni-design .site-header .nav-link {
+    border-radius: var(--control-radius);
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+.kuni-design :is(.discovery-hero, .compare-hero, .admission-ranking-hero,
+    .ranking-hub-head, .directory-hero, .university-head,
+    .admission-university-head, .vote-header, .mypage-hero,
+    .result-hero, .data-hero, .support-hero) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+.kuni-design :is(.school-card, .board-card, .stat-card, .ranking-hub-primary-card,
+    .ranking-hub-indicator-card, .favorite-card, .mypage-summary-card,
+    .vs-history-card, .compare-school-card, .compare-summary-card,
+    .official-indicator-card, .university-card, .compare-summary-card,
+    .support-card, .admission-ranking-controls, .admission-control-card,
+    .core-admission-summary, .official-indicator-section,
+    .table-wrap, .compare-table-wrap, .compare-chart,
+    .ranking-list, .admission-ranking-list) {
+    border-color: var(--line);
+    box-shadow: var(--shadow-card);
+}
+.kuni-design :is(.button, .compare-submit, .support-submit,
+    .grade-entry-submit) {
+    border-radius: var(--control-radius);
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.kuni-design :is(.compare-field input, .compare-field select, .support-input,
+    .auth-field input, .admission-ranking-search input,
+    .unified-ranking-select, .unified-ranking-number,
+    .filter-form select, .search-form input[type="search"]) {
+    border-radius: var(--control-radius);
+    border-color: #d7dfec;
+}
+.kuni-design :is(.compare-field input, .compare-field select, .support-input,
+    .auth-field input, .admission-ranking-search input,
+    .unified-ranking-select, .unified-ranking-number,
+    .filter-form select, .search-form input[type="search"]):focus-visible {
+    outline: 2px solid rgba(49, 87, 229, .5);
+    outline-offset: 2px;
+    border-color: #3157e5;
+}
+.kuni-design :is(.admission-mode-tab, .region-chip, .ranking-segment a,
+    .filter-reset, .explorer-chip) { transition: background-color .15s ease, border-color .15s ease; }
+.kuni-design :is(.compare-table tbody tr, .admissions-table-wrap tbody tr,
+    .ranking-list li):hover { transition: background-color .15s ease; }
+.kuni-design .footer {
+    border-top: 1px solid #e2e8f2;
+    color: #687991;
+}
+@media (max-width: 720px) {
+    .kuni-design :is(.discovery-hero, .compare-hero, .admission-ranking-hero,
+        .ranking-hub-head, .directory-hero, .university-head,
+        .admission-university-head, .vote-header, .mypage-hero,
+        .result-hero, .data-hero, .support-hero) {
+        border-radius: 18px;
+        box-shadow: none;
+    }
+    .kuni-design :is(.button, .compare-submit, .support-submit) {
+        min-height: 42px;
+    }
+    .kuni-design .site-header nav { scrollbar-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kuni-design :is(.nav-link, .button, .compare-submit,
+        .support-submit, .admission-mode-tab, .explorer-chip) {
+        transition: none;
+    }
+}

@@ -36,3 +36,13 @@
 .support-home-feature strong{display:block;margin-top:5px;font-size:16px}.support-home-feature p{margin:5px 0 0;color:#687891;font-size:12px;line-height:1.5}
 .support-home-feature a{font-size:13px;white-space:nowrap;font-weight:800;color:#3157e5;text-decoration:none}
 @media(max-width:760px){.support-page{margin:8px auto 45px}.support-layout{grid-template-columns:1fr}.support-card{padding:19px;border-radius:18px}.support-hero{padding:26px 20px}.support-card-top h2{font-size:19px}.support-status-label{font-size:10px;white-space:nowrap}.support-home-feature{flex-direction:column;align-items:flex-start}.support-home-feature a{white-space:normal}}
+
+/* Searchable university picker: native select remains usable without JavaScript. */
+.support-school-search { background:#f9fbff; margin-bottom:3px; }
+.support-search-status { display:block; font-size:12px; color:#687890; line-height:1.5; margin-top:1px; }
+.support-field select.support-input { appearance:auto; cursor:pointer; }
+.support-field select.support-input:disabled { background:#f5f7fb; }
+@media(max-width:760px) {
+  .support-school-search { font-size:16px; }
+  .support-field select.support-input { font-size:16px; }
+}

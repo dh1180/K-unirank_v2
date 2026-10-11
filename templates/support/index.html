@@ -3,7 +3,10 @@
 {% block title %}대학 응원 후원 | K-unirank{% endblock %}
 {% block meta_description %}K-unirank 운영을 후원하고 좋아하는 대학교를 응원해보세요. 대학 응원 후원 순위는 공식 대학 순위와 별도로 집계합니다.{% endblock %}
 {% block robots %}noindex,follow{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/support.css' %}?v=1">{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/support.css' %}?v=2">
+<script defer src="{% static 'js/support-school-search.js' %}?v=1"></script>
+{% endblock %}
 {% block content %}
 <div class="support-page">
   <section class="support-hero">
@@ -42,7 +45,17 @@
         {{ form.website }}
         {% if form.non_field_errors %}<div class="support-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
         {% for field in form.visible_fields %}
-          <div class="support-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="support-error" role="alert">{{ error }}</p>{% endfor %}</div>
+          <div class="support-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.name == 'university' %}
+              <input type="search" class="support-input support-school-search" id="support-university-search"
+                     autocomplete="off" placeholder="대학 이름으로 검색 · 예: 경상국립대학교"
+                     aria-label="후원할 대학교 이름 검색" aria-describedby="support-search-status">
+              <span class="support-search-status" id="support-search-status" role="status" aria-live="polite">가나다순 전체 대학 목록</span>
+            {% endif %}
+            {{ field }}
+            {% for error in field.errors %}<p class="support-error" role="alert">{{ error }}</p>{% endfor %}
+          </div>
         {% endfor %}
         <p class="support-muted support-private">입금자명은 은행 내역 대조에만 사용되며, 공개 순위에는 표시되지 않습니다.</p>
         <button class="support-submit" type="submit">신청하고 계좌 안내 받기 <span aria-hidden="true">→</span></button>

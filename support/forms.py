@@ -1,3 +1,5 @@
+import unicodedata
+
 from django import forms
 
 from universities.models import University
@@ -30,10 +32,20 @@ class SupportPledgeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["university"].queryset = University.objects.filter(
-            is_active=True
-        ).order_by("name")
-        self.fields["university"].empty_label = "대학교 선택"
+        active = University.objects.filter(is_active=True)
+        self.fields["university"].queryset = active
+        # Deterministic 가나다 order, regardless of the production DB collation.
+        universities = sorted(
+            active.only("university_id", "name"),
+            key=lambda university: (
+                unicodedata.normalize("NFKC", university.name).casefold(),
+                university.pk,
+            ),
+        )
+        self.fields["university"].choices = [
+            ("", "대학교 선택"),
+            *((university.pk, university.name) for university in universities),
+        ]
 
     def clean(self):
         cleaned = super().clean()

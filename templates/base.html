@@ -62,7 +62,7 @@
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/admissions-shared.css' %}">
     <link rel="stylesheet" href="{% static 'css/favorites.css' %}">
-    <link rel="stylesheet" href="{% static 'css/site-design.css' %}">
+    <link rel="stylesheet" href="{% static 'css/site-design.css' %}?v=20261012-1">
     <link rel="icon" href="{% static 'university/K-uniran.png' %}" sizes="any">
 </head>
 <body class="kuni-design">
@@ -71,7 +71,7 @@
         <span class="brand-mark">K</span>
         <span>K-unirank</span>
     </a>
-    <nav>
+    <nav aria-label="사이트 주요 메뉴">
         <a class="nav-link nav-support-link {% if request.resolver_match.namespace == 'support' %}active{% endif %}" href="{% url 'support:index' %}">후원</a>
         <a class="nav-link {% if request.resolver_match.url_name == 'vote_default' or request.resolver_match.url_name == 'vote' %}active{% endif %}" href="{% url 'rankings:vote_default' %}">VS</a>
         <a class="nav-link {% if request.resolver_match.url_name == 'ranking_hub' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking_default' or request.resolver_match.namespace == 'rankings' and request.resolver_match.url_name == 'ranking' or request.resolver_match.namespace == 'universities' and request.resolver_match.url_name == 'indicator_ranking' or request.resolver_match.namespace == 'admissions' and request.resolver_match.url_name == 'ranking' %}active{% endif %}" href="{% url 'rankings:ranking_hub' %}">순위</a>
