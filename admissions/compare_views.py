@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.shortcuts import render
 
 from .models import AdmissionMetric
+from .services.grade_cut_quality import without_invalid_double_one_metrics
 
 
 GRADE_METRICS = ("STUDENT_GRADE_50_CUT", "STUDENT_GRADE_70_CUT")
@@ -118,7 +119,7 @@ def _source_name(source_type):
 
 def compare_by_grade(request):
     year_values = list(
-        AdmissionMetric.objects.filter(
+        without_invalid_double_one_metrics(AdmissionMetric.objects).filter(
             metric_code__in=GRADE_METRICS,
             result__admission_phase="SUSI",
             result__source__source_type__in=["ADIGA", "UNIVERSITY"],
@@ -179,7 +180,7 @@ def compare_by_grade(request):
     pagination_query = ""
 
     if my_grade is not None and selected_year is not None:
-        metrics = AdmissionMetric.objects.filter(
+        metrics = without_invalid_double_one_metrics(AdmissionMetric.objects).filter(
             result__admission_year=selected_year,
             result__admission_phase="SUSI",
             result__selection_category=selection_category,

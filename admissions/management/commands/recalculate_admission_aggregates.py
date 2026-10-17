@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from admissions.models import AdmissionAggregate, AdmissionMetric
+from admissions.services.grade_cut_quality import without_invalid_double_one_metrics
 
 
 class Command(BaseCommand):
@@ -17,7 +18,7 @@ class Command(BaseCommand):
         parser.add_argument("--year", type=int)
 
     def handle(self, *args, **options):
-        metrics = AdmissionMetric.objects.select_related(
+        metrics = without_invalid_double_one_metrics(AdmissionMetric.objects).select_related(
             "result",
             "result__university",
             "result__source",
