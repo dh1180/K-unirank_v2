@@ -138,7 +138,13 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Bank-transfer sponsorship stays closed until operator identity and legal review are complete.
+# Explicit code-level maintenance switch: the support service is currently retired
+# from public navigation, homepage and direct HTTP entry points. This is NOT
+# environment-driven, so previously enabled Railway variables cannot reopen it.
+# Keep the model/admin and historical pledges for a possible future relaunch.
+SUPPORT_PUBLIC_ENABLED = False
+
+# Existing banking configuration is retained but unused while public access is off.
 SUPPORT_ACCEPTING_TRANSFERS = os.getenv("SUPPORT_ACCEPTING_TRANSFERS", "false").lower() == "true"
 SUPPORT_BANK_ACCOUNT = os.getenv("SUPPORT_BANK_ACCOUNT", "1002863490240").strip()
 SUPPORT_BANK_OWNER = os.getenv("SUPPORT_BANK_OWNER", "").strip()

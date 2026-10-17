@@ -9,7 +9,8 @@ register = template.Library()
 @register.inclusion_tag("support/_home_banner.html")
 def support_home_banner():
     enabled = bool(
-        getattr(settings, "SUPPORT_ACCEPTING_TRANSFERS", False)
+        getattr(settings, "SUPPORT_PUBLIC_ENABLED", False)
+        and getattr(settings, "SUPPORT_ACCEPTING_TRANSFERS", False)
         and getattr(settings, "SUPPORT_BANK_OWNER", "").strip()
     )
     if not enabled:

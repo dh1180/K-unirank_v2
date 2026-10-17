@@ -29,6 +29,8 @@ def bank_details():
 @never_cache
 @require_http_methods(["GET", "POST"])
 def index(request):
+    if not getattr(settings, "SUPPORT_PUBLIC_ENABLED", False):
+        raise Http404()
     accepting = transfers_enabled()
     month_label, leaders = monthly_support_leaders()
     form = SupportPledgeForm(request.POST or None)
@@ -59,6 +61,8 @@ def index(request):
 @never_cache
 @require_http_methods(["GET"])
 def submitted(request, pledge_id):
+    if not getattr(settings, "SUPPORT_PUBLIC_ENABLED", False):
+        raise Http404()
     if not transfers_enabled():
         raise Http404()
     pledge = get_object_or_404(SupportPledge.objects.select_related("university"), pk=pledge_id)
