@@ -12,6 +12,7 @@ from .models import SupportPledge
 from .services import monthly_support_leaders
 
 
+@override_settings(SUPPORT_PUBLIC_ENABLED=True)
 class SupportTests(TestCase):
     def setUp(self):
         self.first = University.objects.create(name="한빛대학교")
@@ -107,7 +108,7 @@ class SupportTests(TestCase):
         SUPPORT_ACCEPTING_TRANSFERS=True, SUPPORT_BANK_OWNER="테스트예금주",
         SUPPORT_QR_IMAGE_URL="/static/support/payment-qr.png",
     )
-    def test_bank_qr_is_optional_and_home_banner_uses_confirmed_rank(self):
+    def test_bank_qr_remains_available_when_enabled_but_home_banner_is_removed(self):
         pledge = SupportPledge.objects.create(
             university=self.first, amount=8000, depositor_name="후원자",
             status=SupportPledge.Status.CONFIRMED, confirmed_at=timezone.now(),
@@ -116,8 +117,8 @@ class SupportTests(TestCase):
         self.assertContains(response, "/static/support/payment-qr.png")
         home = self.client.get(reverse("home"))
         self.assertEqual(home.status_code, 200)
-        self.assertContains(home, "이번 달 대학 응원 1위")
-        self.assertContains(home, self.first.name)
+        self.assertNotContains(home, "이번 달 대학 응원 1위")
+        self.assertNotContains(home, 'href="/support/"')
 
     @override_settings(
         SUPPORT_ACCEPTING_TRANSFERS=True,
@@ -137,10 +138,11 @@ class SupportTests(TestCase):
         self.assertContains(receipt, "payment-qr")
         self.assertContains(receipt, "1002863490240")
 
-    def test_header_support_link_is_visible_to_unauthenticated_users(self):
+    def test_header_and_footer_do_not_advertise_support(self):
         response = self.client.get(reverse("support:index"))
-        self.assertContains(response, 'href="/support/"')
-        self.assertContains(response, 'nav-support-link')
+        self.assertNotContains(response, 'href="/support/"')
+        self.assertNotContains(response, 'nav-support-link')
+        self.assertContains(response, 'href="/"')
 
 
     @override_settings(
@@ -172,3 +174,57 @@ class SupportTests(TestCase):
         })
         self.assertEqual(invalid.status_code, 200)
         self.assertEqual(SupportPledge.objects.count(), 0)
+
+    @override_settings(
+        SUPPORT_PUBLIC_ENABLED=False,
+        SUPPORT_ACCEPTING_TRANSFERS=True,
+        SUPPORT_BANK_OWNER="테스트예금주",
+    )
+    def test_hidden_support_cannot_be_accessed_even_with_railway_transfer_enabled(self):
+        pledge = SupportPledge.objects.create(
+            university=self.first, amount=5000, depositor_name="기존신청",
+        )
+        for url in (
+            reverse("support:index"),
+            reverse("support:submitted", args=[pledge.pk]),
+        ):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 404)
+            self.assertNotIn("1002863490240", response.content.decode("utf-8"))
+        post_response = self.client.post(reverse("support:index"), {
+            "university": self.first.pk, "amount": 10000,
+            "depositor_name": "새신청",
+        })
+        self.assertEqual(post_response.status_code, 404)
+        self.assertEqual(SupportPledge.objects.count(), 1)
+
+    @override_settings(
+        SUPPORT_PUBLIC_ENABLED=False,
+        SUPPORT_ACCEPTING_TRANSFERS=True,
+        SUPPORT_BANK_OWNER="테스트예금주",
+    )
+    def test_hidden_support_has_no_home_promotion_or_public_links(self):
+        SupportPledge.objects.create(
+            university=self.first, amount=8000, depositor_name="기존후원",
+            status=SupportPledge.Status.CONFIRMED,
+            confirmed_at=timezone.now(),
+        )
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'href="/support/"')
+        self.assertNotContains(response, "이번 달 대학 응원 1위")
+        self.assertNotContains(response, "후원")
+
+    @override_settings(SUPPORT_PUBLIC_ENABLED=False)
+    def test_admin_still_preserves_existing_support_records(self):
+        admin = get_user_model().objects.create_superuser(
+            username="support_keeper", email="keeper@example.com", password="secret-pass-123"
+        )
+        pledge = SupportPledge.objects.create(
+            university=self.first, amount=5000, depositor_name="보관후원",
+        )
+        self.client.force_login(admin)
+        response = self.client.get(reverse("admin:support_supportpledge_changelist"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "보관후원")
+        self.assertTrue(SupportPledge.objects.filter(pk=pledge.pk).exists())
