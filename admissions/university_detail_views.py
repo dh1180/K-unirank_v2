@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
+from admissions.services.grade_cut_quality import without_invalid_double_one_results
 from universities.models import University
 
 from .filter_views import (
@@ -119,7 +120,7 @@ def university_admissions(request, university_id):
     university = get_object_or_404(University, pk=university_id, is_active=True)
 
     available_years = list(
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
@@ -151,7 +152,7 @@ def university_admissions(request, university_id):
     metrics_only = _metrics_only(request)
 
     results = (
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .select_related("recruitment_unit", "source", "recruitment_unit__campus")
         .prefetch_related(_public_metric_prefetch())
     )

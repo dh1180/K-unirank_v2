@@ -4,6 +4,7 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404, render
 
 from admissions.services.metrics import attach_mobile_cut_metrics, metric_label, metric_unit
+from admissions.services.grade_cut_quality import without_invalid_double_one_results
 from universities.models import University
 
 from .models import AdmissionAggregate, AdmissionMetric, AdmissionResult
@@ -157,7 +158,7 @@ def _overview_result_context(request, selected_year):
         }
 
     results = (
-        AdmissionResult.objects.filter(admission_year=selected_year)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(admission_year=selected_year)
         .select_related("university", "recruitment_unit", "source")
         .prefetch_related(_public_metric_prefetch())
     )
@@ -266,7 +267,7 @@ def _overview_filter_groups(context, selected_year):
 
 def overview_results(request):
     years = list(
-        AdmissionResult.objects.values_list("admission_year", flat=True)
+        without_invalid_double_one_results(AdmissionResult.objects).values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
     )
@@ -286,7 +287,7 @@ def overview_results(request):
 
 def overview(request):
     years = list(
-        AdmissionResult.objects.values_list("admission_year", flat=True)
+        without_invalid_double_one_results(AdmissionResult.objects).values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
     )
@@ -306,7 +307,7 @@ def overview(request):
     result_context = _overview_result_context(request, selected_year)
 
     if selected_year:
-        year_results = AdmissionResult.objects.filter(admission_year=selected_year)
+        year_results = without_invalid_double_one_results(AdmissionResult.objects).filter(admission_year=selected_year)
         coverage_count = year_results.values("university_id").distinct().count()
         result_count = year_results.count()
 
@@ -339,7 +340,7 @@ def university_admissions(request, university_id):
     university = get_object_or_404(University, pk=university_id, is_active=True)
 
     available_years = list(
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
@@ -369,7 +370,7 @@ def university_admissions(request, university_id):
     query = request.GET.get("q", "").strip()
 
     results = (
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .select_related("recruitment_unit", "source", "recruitment_unit__campus")
         .prefetch_related("metrics")
     )

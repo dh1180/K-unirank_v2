@@ -6,6 +6,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 from admissions.services.metrics import metric_label, metric_unit
+from admissions.services.grade_cut_quality import (
+    without_invalid_double_one_metrics,
+    without_invalid_double_one_results,
+)
 from universities.models import University
 
 from .models import AdmissionAggregate, AdmissionMetric, AdmissionResult
@@ -30,7 +34,7 @@ def _build_procollege_metric_ranking(
     AdmissionMetric 원본에서 직접 계산한다. 모집인원이 있는 모집단위는
     모집인원 가중평균, 없으면 단순평균을 사용한다.
     """
-    metrics = AdmissionMetric.objects.filter(
+    metrics = without_invalid_double_one_metrics(AdmissionMetric.objects).filter(
         result__admission_year=admission_year,
         result__admission_phase=admission_phase,
         result__source__source_type="PROCOLLEGE",
@@ -131,7 +135,7 @@ def _overview_result_context(request, selected_year):
         }
 
     results = (
-        AdmissionResult.objects.filter(admission_year=selected_year)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(admission_year=selected_year)
         .select_related(
             "university",
             "recruitment_unit",
@@ -186,7 +190,7 @@ def _overview_result_context(request, selected_year):
 def overview_results(request):
     """입시 메인 하단 결과만 반환하는 AJAX 엔드포인트."""
     years = list(
-        AdmissionResult.objects.values_list("admission_year", flat=True)
+        without_invalid_double_one_results(AdmissionResult.objects).values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
     )
@@ -209,7 +213,7 @@ def overview_results(request):
 
 def overview(request):
     years = list(
-        AdmissionResult.objects.values_list("admission_year", flat=True)
+        without_invalid_double_one_results(AdmissionResult.objects).values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
     )
@@ -253,7 +257,7 @@ def overview(request):
     pagination_query = ""
 
     if selected_year:
-        year_results = AdmissionResult.objects.filter(
+        year_results = without_invalid_double_one_results(AdmissionResult.objects).filter(
             admission_year=selected_year
         )
 
@@ -378,7 +382,7 @@ def admission_ranking(request):
     4년제와 전문대는 서로 다른 공개 지표를 사용하므로 절대 한 순위에 섞지 않는다.
     """
     years = list(
-        AdmissionResult.objects.values_list("admission_year", flat=True)
+        without_invalid_double_one_results(AdmissionResult.objects).values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
     )
@@ -606,7 +610,7 @@ def university_admissions(request, university_id):
     )
 
     available_years = list(
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .values_list("admission_year", flat=True)
         .distinct()
         .order_by("-admission_year")
@@ -634,7 +638,7 @@ def university_admissions(request, university_id):
     query = request.GET.get("q", "").strip()
 
     results = (
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .select_related("recruitment_unit", "source", "recruitment_unit__campus")
         .prefetch_related("metrics")
     )

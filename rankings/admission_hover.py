@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from admissions.models import AdmissionAggregate, AdmissionResult
+from admissions.services.grade_cut_quality import without_invalid_double_one_results
 
 
 GYOGWA_GRADE_CODES = (
@@ -70,7 +71,7 @@ def build_admission_hover(university):
     우선하고, 없는 경우 수능 환산점수로 fallback한다.
     """
     latest_year = (
-        AdmissionResult.objects.filter(university=university)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(university=university)
         .order_by("-admission_year")
         .values_list("admission_year", flat=True)
         .first()

@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 
 from .models import AdmissionResult, RecruitmentUnit
+from .services.grade_cut_quality import without_invalid_double_one_results
 
 
 
@@ -13,7 +14,7 @@ def recruitment_unit_detail(request, recruitment_unit_id):
     )
 
     results = (
-        AdmissionResult.objects.filter(recruitment_unit=recruitment_unit)
+        without_invalid_double_one_results(AdmissionResult.objects).filter(recruitment_unit=recruitment_unit)
         .select_related("source", "university", "recruitment_unit", "recruitment_unit__campus")
         .prefetch_related("metrics")
         .order_by(
