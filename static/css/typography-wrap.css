@@ -1,0 +1,103 @@
+/*
+ * Site-wide Korean typography.
+ *
+ * Keep Korean words together when a line wraps. Only an indivisible token
+ * (a very long URL, department code or Latin string) may break as a fallback
+ * to prevent horizontal overflow on narrow screens.
+ *
+ * Loaded AFTER page-specific and shared styles in templates/base.html.
+ */
+.kuni-design {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+/*
+ * A number of legacy university / major labels used overflow: hidden,
+ * text-overflow: ellipsis and white-space: nowrap. These are content, not
+ * one-line controls: show the complete text over multiple lines instead.
+ */
+.kuni-design :is(
+    .school-name,
+    .school-card strong,
+    .admission-row strong,
+    .metric-rank-row strong,
+    .favorite-card-title strong,
+    .vs-history-school-copy strong,
+    .overview-stat small,
+    .result-school-name,
+    .result-unit-name,
+    .result-selection,
+    .representative-row strong,
+    .admission-rank-university strong,
+    .admission-rank-university-copy strong,
+    .indicator-rank-university strong,
+    .mobile-result-university,
+    .mobile-result-unit,
+    .mobile-result-selection,
+    .compare-chart-school a,
+    .compare-school-link,
+    .compare-unit,
+    .compare-summary-card strong,
+    .compare-table .compare-school-link,
+    .table-school-link,
+    .unit-name,
+    .support-school strong,
+    .support-home-feature strong,
+    .support-home-feature a,
+    .school-location
+) {
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+/* The main admissions listing used an extra specificity rule to force one line. */
+.kuni-design .overview-results-table .table-school-link {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/*
+ * Admissions mobile cards: the university/meta line and supporting line
+ * must grow vertically for two-word campus names and longer selection names.
+ * Keep the saved/favorite action in its own non-shrinking flex item.
+ */
+@media (max-width: 720px) {
+    .kuni-design .mobile-result-top {
+        align-items: flex-start;
+    }
+    .kuni-design .mobile-result-meta,
+    .kuni-design .mobile-result-bottom {
+        min-width: 0;
+        flex-wrap: wrap;
+        white-space: normal;
+        overflow: visible;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+    .kuni-design .mobile-result-university {
+        flex: 0 1 auto;
+        max-width: 100%;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+    .kuni-design .mobile-result-main,
+    .kuni-design .mobile-admission-compact {
+        min-width: 0;
+    }
+    .kuni-design .admissions-table-wrap .metric-item-featured .metric-label {
+        white-space: normal;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+}
+
+/* Numeric cutoffs, badges, compact navigation and pager controls deliberately
+ * retain their original no-wrap behavior so values remain readable as units. */
